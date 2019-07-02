@@ -1,4 +1,7 @@
 .idea
 .idea_modules
 
+bin/
+pkg/
+
 .DS_Store
