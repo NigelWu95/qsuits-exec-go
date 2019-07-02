@@ -11,8 +11,8 @@ func JdkDownload() {
 
 	//函数返回一个*Cmd，用于使用给出的参数执行name指定的程序
 	cmd := exec.Command("/bin/bash", "-c", "java -version")
-	fmt.Println(cmd)
 	//cmd := exec.Command("java", "-version")
+	fmt.Println(cmd)
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -24,6 +24,7 @@ func JdkDownload() {
 		fmt.Println(out.String())
 	}
 	fmt.Println(cmd.ProcessState.Sys() == syscall.WaitStatus(0))
+	fmt.Println(cmd)
 	fmt.Println(cmd)
 }
 
