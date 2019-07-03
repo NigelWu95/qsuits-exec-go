@@ -4,42 +4,45 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
-func JdkDownload() {
-
-	//函数返回一个*Cmd，用于使用给出的参数执行name指定的程序
-	//cmd := exec.Command("/bin/bash", "-c", "java -version")
-	cmd := exec.Command("java", "-version")
+func CheckJavaRuntime() (string, string, error) {
+	var version string
+	javaPath, err := exec.LookPath("java")
+	if err != nil {
+		return javaPath, version, err
+	}
+	cmd := exec.Command(javaPath, "-version")
+	var versionRet string
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &stderr
-	err := cmd.Run()
+	err = cmd.Run()
 	if err != nil {
-		fmt.Println(err.Error(), stderr.String())
+		return javaPath, version, err
 	} else {
-		fmt.Println(out.String())
+		if out.Len() > 0 {
+			versionRet = out.String()
+		} else {
+			versionRet = stderr.String()
+		}
 	}
-	//fmt.Println(cmd.ProcessState.Sys() == syscall.WaitStatus(0))
-	result := fmt.Sprintln(cmd)
-	fmt.Println(result)
-	//fmt.Println(strings.Split(result, "  <nil>  ")[1])
-
-	fmt.Println("Path: " + cmd.Path)
-	fmt.Print("Args: ")
-	fmt.Println(cmd.Args)
-	fmt.Print("Env: ")
-	fmt.Println(cmd.Env)
-	fmt.Println("Dir: " + cmd.Dir)
-	fmt.Print("SysProcAttr: ")
-	fmt.Println(cmd.SysProcAttr)
-	fmt.Print("ExtraFiles: ")
-	fmt.Println(cmd.ExtraFiles)
-	fmt.Println(cmd.Process)
-	fmt.Println(stderr.String())
+	var versionFields []string
+	versionFields = strings.Split(strings.Split(versionRet, "\n")[0], " ")
+	version = strings.Trim(versionFields[2], "\"")
+	return javaPath, version, nil
 }
 
+func JdkDownload() {}
+
 func main()  {
-	JdkDownload()
+	javaPath, version, err := CheckJavaRuntime()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	} else {
+		fmt.Println(javaPath, version)
+	}
 }
