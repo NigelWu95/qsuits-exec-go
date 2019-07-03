@@ -35,12 +35,25 @@ func CheckJavaRuntime() (string, string, error) {
 	return javaPath, version, nil
 }
 
-func JdkDownload() {}
+func JdkDownload() (string, string, error) {
+	fmt.Println("recommend one tool for you: https://github.com/linux-china/jenv")
+	fmt.Println("you can use it to install java more easily, the steps like:")
+	fmt.Println("1. curl -L -s get.jenv.mvnsearch.org | bash")
+	fmt.Println("2. source $HOME/.jenv/bin/jenv-init.sh")
+	fmt.Println("3. jenv ls java")
+	fmt.Println("4. jenv install java <latest version>")
+	fmt.Println("(please allow the tool to set latest version as default.)")
+	var javaPath string
+	var version string
+	return javaPath, version, nil
+}
 
 func main()  {
 	javaPath, version, err := CheckJavaRuntime()
 	if err != nil {
 		fmt.Println(err.Error())
+		fmt.Println("please install java first.")
+		_, _, _ = JdkDownload()
 		return
 	} else {
 		fmt.Println(javaPath, version)
