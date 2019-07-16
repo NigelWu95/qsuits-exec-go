@@ -1,12 +1,9 @@
-package main
+package qsuits
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
 type MavenSearchJson struct {
@@ -58,28 +55,7 @@ func GetDownLoadUrl() (string, error) {
 	if err != nil {
 		return url, err
 	}
-	return "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/7.0-beta/qsuits-" +
+	return "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
+		f.Response.Docs[0].LatestVersion + "/qsuits-" +
 		f.Response.Docs[0].LatestVersion + "-jar-with-dependencies.jar", nil
-}
-
-func main()  {
-
-	qsuitsUrl, err := GetDownLoadUrl()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println(qsuitsUrl)
-	resp, err := http.Get(qsuitsUrl)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	defer resp.Body.Close()
-	f, err := os.Create("qsuits-latest.jar")
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	_, err = io.Copy(f, resp.Body)
 }

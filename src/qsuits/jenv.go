@@ -1,4 +1,4 @@
-package main
+package qsuits
 
 import (
 	"bytes"
@@ -46,16 +46,4 @@ func JdkDownload() (string, string, error) {
 	var javaPath string
 	var version string
 	return javaPath, version, nil
-}
-
-func main()  {
-	javaPath, version, err := CheckJavaRuntime()
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("please install java first.")
-		_, _, _ = JdkDownload()
-		return
-	} else {
-		fmt.Println(javaPath, version)
-	}
 }
