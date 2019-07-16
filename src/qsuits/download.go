@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type MavenSearchJson struct {
@@ -89,7 +90,9 @@ func Download(resultDir string) (string, error) {
 		return jarFile, err
 	}
 
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 10 * time.Minute,
+	}
 	req, err := http.NewRequest("GET", "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + f.Response.Docs[0].LatestVersion + "/qsuits-" +
 			f.Response.Docs[0].LatestVersion + "-jar-with-dependencies.jar", nil)
 	if err != nil {
