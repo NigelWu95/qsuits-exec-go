@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func Path() (string, error) {
+func HomePath() (string, error) {
 	userSelf, err := user.Current()
 	if nil == err {
 		return userSelf.HomeDir, nil
@@ -18,14 +18,14 @@ func Path() (string, error) {
 
 	// cross compile support
 	if "windows" == runtime.GOOS {
-		return PathWindows()
+		return WindowsHomePath()
 	}
 
 	// Unix-like system, so just assume Unix
-	return PathUnix()
+	return UnixHomePath()
 }
 
-func PathUnix() (string, error) {
+func UnixHomePath() (string, error) {
 	// First prefer the HOME environmental variable
 	if home := os.Getenv("HOME"); home != "" {
 		return home, nil
@@ -47,7 +47,7 @@ func PathUnix() (string, error) {
 	return result, nil
 }
 
-func PathWindows() (string, error) {
+func WindowsHomePath() (string, error) {
 	drive := os.Getenv("HOMEDRIVE")
 	path := os.Getenv("HOMEPATH")
 	home := drive + path

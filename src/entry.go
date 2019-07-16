@@ -18,19 +18,27 @@ func main()  {
 		fmt.Println(javaPath, version)
 	}
 
-	path, err := user.Path()
+	homePath, err := user.HomePath()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	fmt.Println(path)
 	qsuitsUrl, err := qsuits.GetDownLoadUrl()
 	if err != nil {
 		fmt.Println(err)
 		return
+	} else {
+		fmt.Println(qsuitsUrl)
 	}
-	fmt.Println(qsuitsUrl)
+
+	fmt.Println(homePath)
+	qsuitsPath, err := qsuits.Download(homePath)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(qsuitsPath)
 	//resp, err := http.Get(qsuitsUrl)
 	//if err != nil {
 	//	fmt.Println(err.Error())
