@@ -111,7 +111,9 @@ func Update(version string, resultDir string) (string, error) {
 	qsuitsJarPath := filepath.Join(resultDir, ".qsuits/qsuits-" + version + ".jar")
 	fileInfo, err := os.Stat(qsuitsJarPath)
 	if err == nil && !fileInfo.IsDir() {
-		return qsuitsJarPath, errors.New("it is already latest version")
+		// it is already latest version
+		//return qsuitsJarPath, errors.New("it is already latest version")
+		return qsuitsJarPath, nil
 	} else {
 		return Download(version, resultDir)
 	}
