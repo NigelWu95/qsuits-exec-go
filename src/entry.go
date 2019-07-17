@@ -24,31 +24,26 @@ func main()  {
 		return
 	}
 
-	qsuitsUrl, err := qsuits.GetDownLoadUrl()
+	qsuitsVersion, err := qsuits.GetLatestVersion()
 	if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println(qsuitsUrl)
+		fmt.Println(qsuitsVersion)
 	}
 
 	fmt.Println(homePath)
-	qsuitsPath, err := qsuits.Download(homePath)
+	qsuitsPath, err := qsuits.Download(qsuitsVersion, homePath)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(qsuitsPath)
-	//resp, err := http.Get(qsuitsUrl)
-	//if err != nil {
-	//	fmt.Println(err.Error())
-	//	return
-	//}
-	//defer resp.Body.Close()
-	//f, err := os.Create("qsuits-latest.jar")
-	//if err != nil {
-	//	fmt.Println(err.Error())
-	//	return
-	//}
-	//_, err = io.Copy(f, resp.Body)
+
+	qsuitsPath, err = qsuits.Update(qsuitsVersion, homePath)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if qsuitsPath != "" {
+		fmt.Println(qsuitsPath)
+	}
 }

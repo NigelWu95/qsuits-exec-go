@@ -49,25 +49,22 @@ type MavenSearchJson struct {
 	//} `json:"spellcheck"`
 }
 
-func GetDownLoadUrl() (string, error) {
+func GetLatestVersion() (string, error) {
 
-	var url string
 	resp, err := http.Get("https://search.maven.org/solrsearch/select?q=a:qsuits&start=0&rows=20")
 	if err != nil {
-		return url, err
+		return string(""), err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	var f MavenSearchJson
 	err = json.Unmarshal(body, &f)
 	if err != nil {
-		return url, err
+		return string(""), err
 	}
-	return "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
-		f.Response.Docs[0].LatestVersion + "/qsuits-" +
-		f.Response.Docs[0].LatestVersion + "-jar-with-dependencies.jar", nil
+	return f.Response.Docs[0].LatestVersion, nil
 }
 
-func Download(resultDir string) (string, error) {
+func Download(version string, resultDir string) (string, error) {
 
 	err := os.MkdirAll(filepath.Join(resultDir, ".qsuits"), os.ModePerm)
 	if err != nil {
@@ -75,26 +72,12 @@ func Download(resultDir string) (string, error) {
 	}
 
 	var jarFile string
-	resp, err := http.Get("https://search.maven.org/solrsearch/select?q=a:qsuits&start=0&rows=20")
-	if err != nil {
-		return jarFile, err
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	err = resp.Body.Close()
-	if err != nil {
-		resp = nil
-	}
-	var f MavenSearchJson
-	err = json.Unmarshal(body, &f)
-	if err != nil {
-		return jarFile, err
-	}
 
 	client := &http.Client{
 		Timeout: 10 * time.Minute,
 	}
-	req, err := http.NewRequest("GET", "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + f.Response.Docs[0].LatestVersion + "/qsuits-" +
-			f.Response.Docs[0].LatestVersion + "-jar-with-dependencies.jar", nil)
+	req, err := http.NewRequest("GET", "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
+		version + "/qsuits-" + version + "-jar-with-dependencies.jar", nil)
 	if err != nil {
 		return jarFile, err
 	}
@@ -102,8 +85,8 @@ func Download(resultDir string) (string, error) {
 	req.Header.Set("Upgrade-Insecure-Requests", "1")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 
-	resp, err = client.Do(req)
-	body, err = ioutil.ReadAll(resp.Body)
+	resp, err := client.Do(req)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return jarFile, err
 	}
@@ -112,7 +95,7 @@ func Download(resultDir string) (string, error) {
 		resp = nil
 	}
 	if resp.StatusCode == 200 {
-		jarFile = filepath.Join(resultDir, ".qsuits/qsuits-" + f.Response.Docs[0].LatestVersion + ".jar")
+		jarFile = filepath.Join(resultDir, ".qsuits/qsuits-" + version + ".jar")
 		err = ioutil.WriteFile(jarFile, body, 0755)
 		if err != nil {
 			return jarFile, err
@@ -120,5 +103,16 @@ func Download(resultDir string) (string, error) {
 		return jarFile, nil
 	} else {
 		return jarFile, errors.New(string(resp.StatusCode) + string(body))
+	}
+}
+
+func Update(version string, resultDir string) (string, error) {
+
+	qsuitsJarPath := filepath.Join(resultDir, ".qsuits/qsuits-" + version + ".jar")
+	fileInfo, err := os.Stat(qsuitsJarPath)
+	if err == nil && !fileInfo.IsDir() {
+		return qsuitsJarPath, errors.New("it is already latest version")
+	} else {
+		return Download(version, resultDir)
 	}
 }
