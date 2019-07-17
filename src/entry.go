@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
 	"strconv"
@@ -56,8 +57,14 @@ func main()  {
 		fmt.Println(err)
 		return
 	}
+
+	var params []string
+	//flag.Parse()
+	//params = flag.Args()
+	params = os.Args[1:]
+	fmt.Println(strings.Join(params, " "))
 	if strings.Contains(qsuitsPath, "qsuits") {
-		err = qsuits.Exec(qsuitsPath, "")
+		err = qsuits.Exec(qsuitsPath, strings.Join(params, " "))
 		if err != nil {
 			fmt.Println(err)
 			return
