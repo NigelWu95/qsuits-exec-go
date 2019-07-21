@@ -95,7 +95,7 @@ func Download(version string, resultDir string) (string, error) {
 		resp = nil
 	}
 	if resp.StatusCode == 200 {
-		jarFile = filepath.Join(resultDir, ".qsuits/qsuits-" + version + ".jar")
+		jarFile = filepath.Join(resultDir, ".qsuits", "qsuits-" + version + ".jar")
 		err = ioutil.WriteFile(jarFile, body, 0755)
 		if err != nil {
 			return jarFile, err
@@ -108,7 +108,7 @@ func Download(version string, resultDir string) (string, error) {
 
 func Update(version string, resultDir string) (string, error) {
 
-	qsuitsJarPath := filepath.Join(resultDir, ".qsuits/qsuits-" + version + ".jar")
+	qsuitsJarPath := filepath.Join(resultDir, ".qsuits", "qsuits-" + version + ".jar")
 	fileInfo, err := os.Stat(qsuitsJarPath)
 	if err == nil && !fileInfo.IsDir() {
 		// it is already latest version

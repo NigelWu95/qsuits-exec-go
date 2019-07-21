@@ -37,13 +37,13 @@ func main()  {
 
 	homePath, err := user.HomePath()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return
 	}
 
 	qsuitsVersion, err := qsuits.GetLatestVersion()
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return
 	}
 	//fmt.Println(homePath)
@@ -54,7 +54,7 @@ func main()  {
 	//}
 	qsuitsPath, err := qsuits.Update(qsuitsVersion, homePath)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -66,7 +66,7 @@ func main()  {
 	if strings.Contains(qsuitsPath, "qsuits") {
 		err = qsuits.Exec(qsuitsPath, strings.Join(params, " "))
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			return
 		}
 	} else {
