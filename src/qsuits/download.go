@@ -109,15 +109,32 @@ func Download(version string, resultDir string) (string, error) {
 	}
 }
 
-func Update(version string, resultDir string) (string, error) {
+func Update(path string, version string) (string, error) {
 
-	qsuitsJarPath := filepath.Join(resultDir, ".qsuits", "qsuits-" + version + ".jar")
+	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
 	fileInfo, err := os.Stat(qsuitsJarPath)
 	if err == nil && !fileInfo.IsDir() {
 		// it is already latest version
 		//return qsuitsJarPath, errors.New("it is already latest version")
 		return qsuitsJarPath, nil
 	} else {
-		return Download(version, resultDir)
+		return Download(version, path)
+	}
+}
+
+func Exists(path string, version string) (bool, error) {
+
+	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
+	fileInfo, err := os.Stat(qsuitsJarPath)
+	if err != nil {
+		return false, err
+	}
+	if fileInfo == nil {
+		return false, errors.New("no file info")
+	}
+	if fileInfo.IsDir() {
+		return true, errors.New(path + " is directory")
+	} else {
+		return true, nil
 	}
 }
