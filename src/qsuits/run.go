@@ -10,9 +10,12 @@ import (
 	"strings"
 )
 
-func Exec(jarPath string, params string) error {
+func Exec(jarPath string, params []string) error {
 
-	cmd := exec.Command("java", "-jar", jarPath, params)
+	cmd := exec.Command("java", "-jar", jarPath)
+	for i := range params {
+		cmd.Args = append(cmd.Args, params[i])
+	}
 	cmd.Stdin = os.Stdin
 	// StdoutPipe方法返回一个在命令Start后与命令标准输出关联的管道。Wait方法获知命令结束后会关闭这个管道，一般不需要显式的关闭该管道。
 	stdout, err := cmd.StdoutPipe()

@@ -215,7 +215,7 @@ func updatedQsuitsPath(homePath string) string {
 func execQsuits(qsuitsPath string, params []string) {
 
 	if strings.Contains(qsuitsPath, "qsuits") {
-		err := qsuits.Exec(qsuitsPath, strings.Join(params, " "))
+		err := qsuits.Exec(qsuitsPath, params)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
