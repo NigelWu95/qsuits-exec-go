@@ -47,8 +47,12 @@ func main()  {
 		if strings.EqualFold(op, "-Local") {
 			qsuitsPath := localQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params[1:]);
+		} else if strings.EqualFold(op, "versions") {
+			versions(homePath)
 		} else if strings.EqualFold(op, "clear") {
 			clear(homePath)
+		} else if strings.EqualFold(op, "current") {
+			current(homePath)
 		} else if strings.EqualFold(op, "chgver") {
 			chgver(homePath, params)
 		} else if strings.EqualFold(op, "help") ||
@@ -72,7 +76,23 @@ func help() {
 	fmt.Println("Options:")
 	fmt.Println("        -Local          use current default qsuits version to exec.")
 	fmt.Println("        --help/-h/help  print usage.")
+	fmt.Println("Commands:")
+	fmt.Println("         help           print usage.")
+	fmt.Println("         versions       list all qsuits versions from local.")
+	fmt.Println("         clear          remove all old qsuits versions from local.")
+	fmt.Println("         current        query local default qsuits version.")
+	fmt.Println("         chgver <no.>   set local default qsuits version.")
 	fmt.Println("Usage of qsuits:  https://github.com/NigelWu95/qiniu-suits-java")
+}
+
+func versions(homePath string) {
+	vers, paths, err := qsuits.Versions(homePath)
+	if err != nil {
+		panic(err)
+	}
+	for i := range vers {
+		fmt.Printf("version: %s, path: %s\n", vers[i], paths[i])
+	}
 }
 
 func clear(homePath string) {
@@ -99,6 +119,14 @@ func clear(homePath string) {
 	}
 }
 
+func current(homePath string) {
+	version, path, err := qsuits.ReadMod(homePath)
+	if err != nil && !os.IsNotExist(err) {
+		panic(err)
+	}
+	fmt.Printf("version: %s, path: %s\n", version, path)
+}
+
 func chgver(homePath string, params []string)  {
 	if len(params) > 1 {
 		ver := params[1]
@@ -115,6 +143,8 @@ func chgver(homePath string, params []string)  {
 		if !result {
 			return
 		}
+	} else {
+		panic("please chgver with version number like \"chgver 7.0\".")
 	}
 }
 
