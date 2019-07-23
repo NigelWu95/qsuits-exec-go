@@ -51,7 +51,10 @@ type MavenSearchJson struct {
 
 func GetLatestVersion() (string, error) {
 
-	resp, err := http.Get("https://search.maven.org/solrsearch/select?q=a:qsuits&start=0&rows=20")
+	client := &http.Client{
+		Timeout: time.Minute,
+	}
+	resp, err := client.Get("https://search.maven.org/solrsearch/select?q=a:qsuits&start=0&rows=20")
 	if err != nil {
 		return string(""), err
 	}

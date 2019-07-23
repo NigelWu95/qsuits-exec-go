@@ -46,23 +46,38 @@ func main()  {
 		fmt.Println(err.Error())
 		return
 	}
-	//fmt.Println(homePath)
-	//qsuitsPath, err := qsuits.Download(qsuitsVersion, homePath)
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	qsuitsPath, err := qsuits.Update(qsuitsVersion, homePath)
-	if err != nil {
+
+	localVersion, localPath, err := qsuits.ReadMod(homePath)
+	if err != nil && !os.IsNotExist(err) {
 		fmt.Println(err.Error())
 		return
+	}
+
+	var qsuitsPath string
+	if strings.Compare(qsuitsVersion, localVersion) > 0 {
+		//qsuitsPath, updateErr := qsuits.Download(qsuitsVersion, homePath)
+		qsuitsPath, err = qsuits.Update(qsuitsVersion, homePath)
+		if err != nil {
+			fmt.Println(err.Error())
+			_, paths, err := qsuits.Versions(homePath)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+			fmt.Println("use current default version from local.")
+			qsuitsPath = paths[0]
+		}
+	} else {
+		qsuitsPath = localPath
+	}
+	if strings.Compare(localPath, "") == 0 {
+		_, _ = qsuits.WriteMod(homePath, qsuitsVersion)
 	}
 
 	var params []string
 	//flag.Parse()
 	//params = flag.Args()
 	params = os.Args[1:]
-	fmt.Println(strings.Join(params, " "))
 	if strings.Contains(qsuitsPath, "qsuits") {
 		err = qsuits.Exec(qsuitsPath, strings.Join(params, " "))
 		if err != nil {
