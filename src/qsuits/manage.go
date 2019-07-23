@@ -1,7 +1,7 @@
 package qsuits
 
 import (
-	"fmt"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -50,8 +50,10 @@ func WriteMod(path string, version string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	if size <= 0 {
+		return false, errors.New("no content wrote")
+	}
 	_ = modFile.Close()
-	fmt.Println(size)
 	return true, nil
 }
 
