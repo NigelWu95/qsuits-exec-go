@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func HomePath() (string, error) {
+func HomePath() (path string, err error) {
 	userSelf, err := user.Current()
 	if nil == err {
 		return userSelf.HomeDir, nil
@@ -25,7 +25,7 @@ func HomePath() (string, error) {
 	return UnixHomePath()
 }
 
-func UnixHomePath() (string, error) {
+func UnixHomePath() (path string, err error) {
 	// First prefer the HOME environmental variable
 	if home := os.Getenv("HOME"); home != "" {
 		return home, nil
@@ -47,9 +47,9 @@ func UnixHomePath() (string, error) {
 	return result, nil
 }
 
-func WindowsHomePath() (string, error) {
+func WindowsHomePath() (path string, err error) {
 	drive := os.Getenv("HOMEDRIVE")
-	path := os.Getenv("HOMEPATH")
+	path = os.Getenv("HOMEPATH")
 	home := drive + path
 	if drive == "" || path == "" {
 		home = os.Getenv("USERPROFILE")

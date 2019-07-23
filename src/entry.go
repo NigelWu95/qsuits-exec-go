@@ -132,6 +132,7 @@ func chgver(homePath string, params []string)  {
 		ver := params[1]
 		_, err := qsuits.Exists(homePath, ver)
 		if err != nil {
+			fmt.Print("chgver " + ver + " failed: ")
 			fmt.Println(err.Error())
 			return
 		}

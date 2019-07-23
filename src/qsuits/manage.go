@@ -10,11 +10,9 @@ import (
 
 var modPath string
 
-func Versions(path string) ([]string, []string, error) {
+func Versions(path string) (versions []string, paths []string, err error) {
 
-	var versions []string
-	var paths []string
-	err := filepath.Walk(filepath.Join(path, ".qsuits"), func(path string, f os.FileInfo, err error) error {
+	err = filepath.Walk(filepath.Join(path, ".qsuits"), func(path string, f os.FileInfo, err error) error {
 		if f == nil {
 			return err
 		}
@@ -35,7 +33,7 @@ func Versions(path string) ([]string, []string, error) {
 	}
 }
 
-func WriteMod(path string, version string) (bool, error) {
+func WriteMod(path string, version string) (isSuccess bool, err error) {
 
 	modPath = filepath.Join(path, ".qsuits", "version.mod")
 	modFile, err := os.Create(modPath)
@@ -57,7 +55,7 @@ func WriteMod(path string, version string) (bool, error) {
 	return true, nil
 }
 
-func ReadMod(path string) (string, string, error) {
+func ReadMod(path string) (version string, qsuitsPath string, err error) {
 
 	modPath = filepath.Join(path, ".qsuits", "version.mod")
 	modFile, err := os.Open(modPath)
@@ -70,7 +68,7 @@ func ReadMod(path string) (string, string, error) {
 	}
 	_ = modFile.Close()
 	modIterms := strings.Split(string(bytes), ",")
-	version := strings.Split(modIterms[0], "=")[1]
-	qsuitsPath := strings.Split(modIterms[1], "=")[1]
+	version = strings.Split(modIterms[0], "=")[1]
+	qsuitsPath = strings.Split(modIterms[1], "=")[1]
 	return version, qsuitsPath, nil
 }

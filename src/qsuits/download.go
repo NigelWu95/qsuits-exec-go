@@ -49,7 +49,7 @@ type MavenSearchJson struct {
 	//} `json:"spellcheck"`
 }
 
-func GetLatestVersion() (string, error) {
+func GetLatestVersion() (latestVersion string, err error) {
 
 	client := &http.Client{
 		Timeout: time.Minute,
@@ -67,14 +67,13 @@ func GetLatestVersion() (string, error) {
 	return f.Response.Docs[0].LatestVersion, nil
 }
 
-func Download(version string, resultDir string) (string, error) {
-
-	err := os.MkdirAll(filepath.Join(resultDir, ".qsuits"), os.ModePerm)
-	if err != nil {
-		return string(""), err
-	}
+func Download(version string, resultDir string) (qsuitsFilePath string, err error) {
 
 	var jarFile string
+	err = os.MkdirAll(filepath.Join(resultDir, ".qsuits"), os.ModePerm)
+	if err != nil {
+		return jarFile, err
+	}
 
 	client := &http.Client{
 		Timeout: 10 * time.Minute,
@@ -109,7 +108,7 @@ func Download(version string, resultDir string) (string, error) {
 	}
 }
 
-func Update(path string, version string) (string, error) {
+func Update(path string, version string) (qsuitsFilePath string, err error) {
 
 	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
 	fileInfo, err := os.Stat(qsuitsJarPath)
@@ -122,7 +121,7 @@ func Update(path string, version string) (string, error) {
 	}
 }
 
-func Exists(path string, version string) (bool, error) {
+func Exists(path string, version string) (isExists bool, err error) {
 
 	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
 	fileInfo, err := os.Stat(qsuitsJarPath)
