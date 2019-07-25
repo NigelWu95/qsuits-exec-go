@@ -9,8 +9,8 @@ Options:
 Commands:  
 &ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; print usage.  
 &ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; list all qsuits versions from local.  
-&ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; remove all old qsuits versions from local.  
-&ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; query local default qsuits version.  
+&ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; remove all old qsuits versions from local.  
+&ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; query local default qsuits version.  
 &ensp;&ensp;&ensp;&ensp;&ensp; chgver <no.> &ensp;&ensp;&ensp; set local default qsuits version.  
 
 Usage of qsuits-java:  https://github.com/NigelWu95/qiniu-suits-java  
