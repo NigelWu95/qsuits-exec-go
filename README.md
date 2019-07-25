@@ -1,5 +1,5 @@
 # qsuits-exec-go
-qsuits 工具 go 语言代理执行工具
+qsuits-java 代理执行工具 by golang
 
 Usage:
       this tool is a agent program for qsuits, your local environment need java8 or above. In default mode, this tool will use latest java qsuits to exec, you only need use qsuits-java's parameters to run. If you use local mode it mean you dont want to update latest qsuits automatically.
