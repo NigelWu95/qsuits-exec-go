@@ -3,6 +3,7 @@ package qsuits
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -117,6 +118,7 @@ func Update(path string, version string) (qsuitsFilePath string, err error) {
 		//return qsuitsJarPath, errors.New("it is already latest version")
 		return qsuitsJarPath, nil
 	} else {
+		fmt.Println("latest qsuits is downloading.")
 		return Download(version, path)
 	}
 }

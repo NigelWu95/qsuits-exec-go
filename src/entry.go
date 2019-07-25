@@ -44,7 +44,7 @@ func main()  {
 	params = os.Args[1:]
 	if len(params) > 0 {
 		op := params[0]
-		if strings.EqualFold(op, "-Local") {
+		if strings.EqualFold(op, "-Local") || strings.EqualFold(op, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params[1:]);
 		} else if strings.EqualFold(op, "versions") {
@@ -74,7 +74,7 @@ func help() {
 		"you only need use qsuits-java's parameters to run. If you use local mode it mean you " +
 		"dont want to update latest qsuits automatically.")
 	fmt.Println("Options:")
-	fmt.Println("        -Local          use current default qsuits version to exec.")
+	fmt.Println("        -Local/-L       use current default qsuits version to exec.")
 	fmt.Println("        --help/-h/help  print usage.")
 	fmt.Println("Commands:")
 	fmt.Println("         help           print usage.")
