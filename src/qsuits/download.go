@@ -68,27 +68,20 @@ func GetLatestVersion() (latestVersion string, err error) {
 	return f.Response.Docs[0].LatestVersion, nil
 }
 
-func Download(version string, resultDir string) (qsuitsFilePath string, err error) {
+func httpClientDo(resultDir string, version string, req *http.Request) (qsuitsFilePath string, err error) {
 
 	var jarFile string
 	err = os.MkdirAll(filepath.Join(resultDir, ".qsuits"), os.ModePerm)
 	if err != nil {
 		return jarFile, err
 	}
-
 	client := &http.Client{
-		Timeout: 10 * time.Minute,
+		Timeout: 5 * time.Minute,
 	}
-	req, err := http.NewRequest("GET", "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
-		version + "/qsuits-" + version + "-jar-with-dependencies.jar", nil)
+	resp, err := client.Do(req)
 	if err != nil {
 		return jarFile, err
 	}
-
-	req.Header.Set("Upgrade-Insecure-Requests", "1")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
-
-	resp, err := client.Do(req)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return jarFile, err
@@ -109,6 +102,45 @@ func Download(version string, resultDir string) (qsuitsFilePath string, err erro
 	}
 }
 
+func DownloadFromGithub(resultDir string, version string) (qsuitsFilePath string, err error) {
+
+	req, err := http.NewRequest("GET", "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" +
+		version + "/qsuits-" + version + ".jar", nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+
+	return httpClientDo(resultDir, version, req)
+}
+
+func DownloadFromMaven(resultDir string, version string) (qsuitsFilePath string, err error) {
+
+	req, err := http.NewRequest("GET", "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
+		version + "/qsuits-" + version + "-jar-with-dependencies.jar", nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
+
+	return httpClientDo(resultDir, version, req)
+}
+
+func Download(resultDir string, version string) (qsuitsFilePath string, err error) {
+
+	qsuitsFilePath, err = DownloadFromGithub(resultDir, version)
+	if err != nil {
+		fmt.Println(err.Error() + ", download is retrying from maven...")
+		return DownloadFromMaven(resultDir, version)
+	} else {
+		return qsuitsFilePath, err
+	}
+}
+
 func Update(path string, version string) (qsuitsFilePath string, err error) {
 
 	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
@@ -119,7 +151,7 @@ func Update(path string, version string) (qsuitsFilePath string, err error) {
 		return qsuitsJarPath, nil
 	} else {
 		fmt.Println("latest qsuits is downloading...")
-		return Download(version, path)
+		return Download(path, version)
 	}
 }
 
