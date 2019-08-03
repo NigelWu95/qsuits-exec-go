@@ -76,7 +76,7 @@ func httpClientDo(resultDir string, version string, req *http.Request) (qsuitsFi
 		return jarFile, err
 	}
 	client := &http.Client{
-		Timeout: 5 * time.Minute,
+		Timeout: 10 * time.Minute,
 	}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -150,7 +150,7 @@ func Update(path string, version string) (qsuitsFilePath string, err error) {
 		//return qsuitsJarPath, errors.New("it is already latest version")
 		return qsuitsJarPath, nil
 	} else {
-		fmt.Println("latest qsuits is downloading...")
+		fmt.Println("latest qsuits version: " + version + " is downloading...")
 		return Download(path, version)
 	}
 }
