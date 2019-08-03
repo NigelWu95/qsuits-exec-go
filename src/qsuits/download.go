@@ -130,18 +130,47 @@ func DownloadFromMaven(resultDir string, version string) (qsuitsFilePath string,
 	return httpClientDo(resultDir, version, req)
 }
 
-func Download(resultDir string, version string) (qsuitsFilePath string, err error) {
+func progress(end <-chan struct{}, startInfo string) {
+	isDone := false
+	go func() {
+		<-end
+		isDone = true
+	}()
+	for {
+		fmt.Printf("\r%s", startInfo)
+		for i := 0; i <= 5 ; i++  {
+			if isDone {
+				return
+			}
+			fmt.Print(".")
+			time.Sleep(time.Second)
+		}
+	}
+}
+
+func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath string, err error) {
+
+	done := make(chan struct{})
+	if isLatest {
+		go progress(done, "latest qsuits version: " + version + " is downloading")
+	} else {
+		go progress(done, "qsuits version: " + version + " is downloading")
+	}
 
 	qsuitsFilePath, err = DownloadFromGithub(resultDir, version)
 	if err != nil {
 		fmt.Println(err.Error() + ", download is retrying from maven...")
-		return DownloadFromMaven(resultDir, version)
-	} else {
-		return qsuitsFilePath, err
+		qsuitsFilePath, err = DownloadFromMaven(resultDir, version)
 	}
+	if err == nil {
+		fmt.Println(" -> finished.")
+	}
+	done <- struct{}{}
+	close(done)
+	return qsuitsFilePath, err
 }
 
-func Update(path string, version string) (qsuitsFilePath string, err error) {
+func Update(path string, version string, isLatest bool) (qsuitsFilePath string, err error) {
 
 	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
 	fileInfo, err := os.Stat(qsuitsJarPath)
@@ -150,8 +179,7 @@ func Update(path string, version string) (qsuitsFilePath string, err error) {
 		//return qsuitsJarPath, errors.New("it is already latest version")
 		return qsuitsJarPath, nil
 	} else {
-		fmt.Println("latest qsuits version: " + version + " is downloading...")
-		return Download(path, version)
+		return Download(path, version, isLatest)
 	}
 }
 
