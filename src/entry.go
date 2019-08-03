@@ -55,6 +55,8 @@ func main()  {
 			current(homePath)
 		} else if strings.EqualFold(op, "chgver") {
 			chgver(homePath, params)
+		} else if strings.EqualFold(op, "download") {
+			download(homePath, params)
 		} else if strings.EqualFold(op, "help") ||
 			strings.EqualFold(op, "--help") || strings.EqualFold(op, "-h") {
 			help()
@@ -82,16 +84,18 @@ func help() {
 	fmt.Println("         clear          remove all old qsuits versions from local.")
 	fmt.Println("         current        query local default qsuits version.")
 	fmt.Println("         chgver <no.>   set local default qsuits version.")
+	fmt.Println("         download <no.> download qsuits with specified version.")
 	fmt.Println("Usage of qsuits:  https://github.com/NigelWu95/qiniu-suits-java")
 }
 
 func versions(homePath string) {
 	vers, paths, err := qsuits.Versions(homePath)
 	if err != nil {
-		panic(err)
-	}
-	for i := range vers {
-		fmt.Printf("version: %s, path: %s\n", vers[i], paths[i])
+		fmt.Println(err.Error())
+	} else {
+		for i := range vers {
+			fmt.Printf("version: %s, path: %s\n", vers[i], paths[i])
+		}
 	}
 }
 
@@ -122,18 +126,18 @@ func clear(homePath string) {
 func current(homePath string) {
 	version, path, err := qsuits.ReadMod(homePath)
 	if err != nil && !os.IsNotExist(err) {
-		panic(err)
+		fmt.Println(err.Error())
+	} else {
+		fmt.Printf("version: %s, path: %s\n", version, path)
 	}
-	fmt.Printf("version: %s, path: %s\n", version, path)
 }
 
-func chgver(homePath string, params []string)  {
+func chgver(homePath string, params []string) {
 	if len(params) > 1 {
 		ver := params[1]
 		_, err := qsuits.Exists(homePath, ver)
 		if err != nil {
-			fmt.Print("chgver " + ver + " failed: ")
-			fmt.Println(err.Error())
+			fmt.Println("chgver " + ver + " failed: " + err.Error())
 			return
 		}
 		result, err := qsuits.WriteMod(homePath, ver)
@@ -145,7 +149,21 @@ func chgver(homePath string, params []string)  {
 			return
 		}
 	} else {
-		panic("please chgver with version number like \"chgver 7.0\".")
+		fmt.Println("please chgver with version number like \"chgver 7.1\".")
+	}
+}
+
+func download(homePath string, params []string) {
+	if len(params) > 1 {
+		ver := params[1]
+		_, err := qsuits.Download(homePath, ver, false)
+		if err != nil {
+			fmt.Println("download " + ver + " failed: " + err.Error())
+		} else {
+			fmt.Println("download " + ver + " succeeded.")
+		}
+	} else {
+		fmt.Println("please download with version number like \"download 7.1\".")
 	}
 }
 
@@ -153,7 +171,8 @@ func localQsuitsPath(homePath string) string {
 
 	_, qsuitsPath, err := qsuits.ReadMod(homePath)
 	if err != nil && !os.IsNotExist(err) {
-		panic(err)
+		fmt.Println(err.Error())
+		return qsuitsPath
 	}
 	if os.IsNotExist(err) {
 		var qsuitsVersion string
@@ -166,11 +185,13 @@ func localQsuitsPath(homePath string) string {
 			}
 			qsuitsVersion, err = qsuits.GetLatestVersion()
 			if err != nil {
-				panic(err)
+				fmt.Println(err.Error())
+				return qsuitsPath
 			}
 			qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
 			if err != nil {
-				panic(err)
+				fmt.Println(err.Error())
+				return qsuitsPath
 			}
 		} else {
 			i := len(versions) - 1
@@ -193,19 +214,21 @@ func updatedQsuitsPath(homePath string) string {
 
 	qsuitsVersion, err := qsuits.GetLatestVersion()
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		return ""
 	}
-
 	//qsuitsPath, updateErr := qsuits.Download(homePath, qsuitsVersion)
 	qsuitsPath, err := qsuits.Update(homePath, qsuitsVersion, true)
 	if err != nil {
 		fmt.Println(err.Error() + ", update qsuits for version: " + qsuitsVersion + " failed.")
 		versions, paths, err := qsuits.Versions(homePath)
 		if err != nil {
-			panic(err)
+			fmt.Println(err.Error())
+			return qsuitsPath
 		}
 		if len(versions) == 0 {
-			panic("no qsuits in local.")
+			fmt.Println("no qsuits in local.")
+			return qsuitsPath
 		}
 		qsuitsPath = paths[len(versions) - 1]
 		fmt.Println("use local latest version: " + qsuitsVersion)
