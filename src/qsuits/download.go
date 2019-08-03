@@ -131,6 +131,7 @@ func DownloadFromMaven(resultDir string, version string) (qsuitsFilePath string,
 }
 
 func progress(end <-chan struct{}, startInfo string) {
+
 	isDone := false
 	go func() {
 		<-end
