@@ -138,23 +138,12 @@ func progress(end <-chan struct{}, startInfo string) {
 	}()
 	for {
 		fmt.Printf("\r%s", startInfo)
+		time.Sleep(time.Second)
 		for i := 0; i <= 5 ; i++  {
 			if isDone {
 				return
 			}
 			fmt.Print(".")
-			time.Sleep(time.Second)
-			fmt.Print("\b..")
-			time.Sleep(time.Second)
-			fmt.Print("\b\b...")
-			time.Sleep(time.Second)
-			fmt.Print("\b\b\b....")
-			time.Sleep(time.Second)
-			fmt.Print("\b\b\b\b.....")
-			time.Sleep(time.Second)
-			fmt.Print("\b\b\b\b\b......")
-			time.Sleep(time.Second)
-			fmt.Print("\b\b\b\b\b\b")
 			time.Sleep(time.Second)
 		}
 	}
