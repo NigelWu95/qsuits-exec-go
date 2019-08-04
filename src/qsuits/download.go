@@ -60,6 +60,8 @@ func GetLatestVersion() (latestVersion string, err error) {
 		return string(""), err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
+	_ = resp.Body.Close
+	_ = resp.Close
 	var f MavenSearchJson
 	err = json.Unmarshal(body, &f)
 	if err != nil {
@@ -86,10 +88,7 @@ func httpClientDo(resultDir string, version string, req *http.Request) (qsuitsFi
 	if err != nil {
 		return jarFile, err
 	}
-	err = resp.Body.Close()
-	if err != nil {
-		resp = nil
-	}
+	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
 		jarFile = filepath.Join(resultDir, ".qsuits", "qsuits-" + version + ".jar")
 		err = ioutil.WriteFile(jarFile, body, 0755)
@@ -98,7 +97,7 @@ func httpClientDo(resultDir string, version string, req *http.Request) (qsuitsFi
 		}
 		return jarFile, nil
 	} else {
-		return jarFile, errors.New(string(resp.StatusCode) + string(body))
+		return jarFile, errors.New(resp.Status)
 	}
 }
 
@@ -160,14 +159,16 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 
 	qsuitsFilePath, err = DownloadFromGithub(resultDir, version)
 	if err != nil {
-		fmt.Println(err.Error() + ", download is retrying from maven...")
+		fmt.Println("\rdownload is retrying from maven...")
 		qsuitsFilePath, err = DownloadFromMaven(resultDir, version)
-	}
-	if err == nil {
-		fmt.Println(" -> finished.")
 	}
 	done <- struct{}{}
 	close(done)
+	if err == nil {
+		fmt.Println(" -> finished.")
+	} else {
+		fmt.Print("\r")
+	}
 	return qsuitsFilePath, err
 }
 

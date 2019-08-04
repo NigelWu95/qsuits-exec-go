@@ -204,12 +204,11 @@ func localQsuitsPath(homePath string) string {
 				i := len(versions) - 1
 				qsuitsVersion = versions[i]
 				qsuitsPath = paths[i]
-				fmt.Print("use local latest version: " + qsuitsVersion)
+				fmt.Println("use local latest version: " + qsuitsVersion)
 			}
 			result, err := qsuits.WriteMod(homePath, qsuitsVersion)
 			if !result || err != nil {
-				fmt.Println(" But write mode failed.")
-				fmt.Println(err)
+				fmt.Println("write mode failed, " + err.Error())
 			} else {
 				fmt.Println("set " + qsuitsVersion + " as default local version.")
 			}
@@ -254,6 +253,6 @@ func execQsuits(qsuitsPath string, params []string) {
 			return
 		}
 	} else {
-		fmt.Printf("no valid qsuits path: %s\n", qsuitsPath)
+		fmt.Printf("invalid qsuits path: %s\n", qsuitsPath)
 	}
 }
