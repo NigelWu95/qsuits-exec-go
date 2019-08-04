@@ -144,6 +144,18 @@ func progress(end <-chan struct{}, startInfo string) {
 			}
 			fmt.Print(".")
 			time.Sleep(time.Second)
+			fmt.Print("\b..")
+			time.Sleep(time.Second)
+			fmt.Print("\b\b...")
+			time.Sleep(time.Second)
+			fmt.Print("\b\b\b....")
+			time.Sleep(time.Second)
+			fmt.Print("\b\b\b\b.....")
+			time.Sleep(time.Second)
+			fmt.Print("\b\b\b\b\b......")
+			time.Sleep(time.Second)
+			fmt.Print("\b\b\b\b\b\b")
+			time.Sleep(time.Second)
 		}
 	}
 }
