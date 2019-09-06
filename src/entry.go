@@ -193,14 +193,6 @@ func localQsuitsPath(homePath string) string {
 			if len(versions) == 0 {
 				err = errors.New("no qsuits in your local")
 				fmt.Println(err.Error())
-				panic(err)
-			}
-			if err != nil || len(versions) == 0 {
-				if !os.IsNotExist(err) {
-					fmt.Println(err.Error())
-				} else {
-					fmt.Println("no qsuits in your local.")
-				}
 				qsuitsVersion, err = qsuits.GetLatestVersion()
 				if err != nil {
 					fmt.Println(err.Error())
@@ -209,7 +201,7 @@ func localQsuitsPath(homePath string) string {
 				qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
 				if err != nil {
 					fmt.Println(err.Error())
-					return qsuitsPath
+					panic(err)
 				}
 			} else {
 				i := len(versions) - 1
@@ -217,18 +209,15 @@ func localQsuitsPath(homePath string) string {
 				qsuitsPath = paths[i]
 				fmt.Println("use local latest version: " + qsuitsVersion)
 			}
-			i := len(versions) - 1
-			qsuitsVersion = versions[i]
-			qsuitsPath = paths[i]
-			fmt.Println("use local latest version: " + qsuitsVersion)
 			result, err := qsuits.WriteMod(homePath, qsuitsVersion)
-			if !result || err != nil {
-				fmt.Println("write mode failed, " + err.Error())
-			} else {
+			if result && err == nil {
 				fmt.Println("set " + qsuitsVersion + " as default local version.")
+			} else {
+				fmt.Println("write mode failed, " + err.Error())
 			}
 		} else {
 			fmt.Println(err.Error())
+			panic(err)
 		}
 	}
 	return qsuitsPath
