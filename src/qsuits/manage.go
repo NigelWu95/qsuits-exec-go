@@ -44,7 +44,7 @@ func WriteMod(path string, version string) (isSuccess bool, err error) {
 		return false, err
 	}
 	size, err := modFile.WriteString("version=" + version + ",path=" +
-		filepath.Join(path, ".qsuits", "qsuits-"+version+".jar"))
+		filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar"))
 	if err != nil {
 		return false, err
 	}
