@@ -4,12 +4,34 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
+	"math"
+	"mime"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
+
+type HttpGet struct {
+	Url           string
+	HttpClient    *http.Client
+	MediaType     string
+	MediaParams   map[string]string
+	ContentLength int64
+	DownloadBlock int64
+	DownloadRange [][]int64
+	Count         int
+	TempFiles     []*os.File
+	File          *os.File
+	WG            sync.WaitGroup
+}
 
 type MavenSearchJson struct {
 	//ResponseHeader struct {
@@ -68,6 +90,117 @@ func GetLatestVersion() (latestVersion string, err error) {
 		return string(""), err
 	}
 	return f.Response.Docs[0].LatestVersion, nil
+}
+
+func ConcurrentDownload(url string, filepath string) (err error) {
+
+	get := new(HttpGet)
+	get.HttpClient = new(http.Client)
+	get.Url = url
+	get.DownloadBlock = 1048576 // 1M
+
+	req, err := http.NewRequest("GET", get.Url, nil)
+	req.Header.Set("Range", "bytes=0-100")
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	resp, err := get.HttpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	get.MediaType, get.MediaParams, _ = mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
+	contentRange := strings.Split(resp.Header.Get("Content-Range"), "/")
+	if len(contentRange) < 2 {
+		return errors.New("can not get content-range")
+	}
+	get.ContentLength, _ = strconv.ParseInt(contentRange[1], 10, 64)
+	get.Count = int(math.Ceil(float64(get.ContentLength / get.DownloadBlock)))
+	get.File, err = os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	var rangeStart int64 = 0
+	for i := 0; i < get.Count; i++ {
+		if i != get.Count - 1 {
+			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, rangeStart + get.DownloadBlock - 1})
+		} else {
+			// 最后一块
+			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, get.ContentLength - 1})
+		}
+		rangeStart += get.DownloadBlock
+	}
+	// Check if the download has paused.
+	for i := 0; i < len(get.DownloadRange); i++ {
+		rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
+		tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDONLY|os.O_APPEND, 0)
+		if err != nil {
+			tempFile, _ = os.Create(filepath + "." + rangeI)
+		} else {
+			fi, err := tempFile.Stat()
+			if err == nil {
+				get.DownloadRange[i][0] += fi.Size()
+			}
+		}
+		get.TempFiles = append(get.TempFiles, tempFile)
+	}
+
+	for i, _ := range get.DownloadRange {
+		get.WG.Add(1)
+		go get.RangeDownload(i)
+	}
+
+	get.WG.Wait()
+
+	for i := 0; i < len(get.TempFiles); i++ {
+		tempFile, _ := os.Open(get.TempFiles[i].Name())
+		cnt, err := io.Copy(get.File, tempFile)
+		if err != nil {
+			return err
+		}
+		if cnt <= 0 {
+			return errors.New("copy error")
+		}
+		tempFile.Close()
+	}
+	get.File.Close()
+	defer func() {
+		for i := 0; i < len(get.TempFiles); i++ {
+			err := os.Remove(get.TempFiles[i].Name())
+			if err != nil {
+				log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
+			}
+		}
+	}()
+	return nil
+}
+
+func (get *HttpGet) RangeDownload(i int) {
+	defer get.WG.Done()
+	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {
+		return
+	}
+	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
+
+	defer get.TempFiles[i].Close()
+
+	req, err := http.NewRequest("GET", get.Url, nil)
+	req.Header.Set("Range", "bytes=" + rangeI)
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	resp, err := get.HttpClient.Do(req)
+	defer resp.Body.Close()
+
+	if err != nil {
+		log.Panicf("Download #%d error %v.\n", i, err)
+	} else {
+		cnt, err := io.Copy(get.TempFiles[i], resp.Body)
+		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
+			reqDump, _ := httputil.DumpRequest(req, false)
+			respDump, _ := httputil.DumpResponse(resp, true)
+			log.Panicf("Download error %d %v, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n", resp.StatusCode, err, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
+		}
+	}
 }
 
 func httpClientDo(resultDir string, version string, req *http.Request) (qsuitsFilePath string, err error) {
@@ -158,10 +291,16 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 		go progress(done, "qsuits version: " + version + " is downloading")
 	}
 
-	qsuitsFilePath, err = DownloadFromGithub(resultDir, version)
+	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
+	qsuitsFilePath = filepath.Join(resultDir, ".qsuits", "qsuits-" + version + ".jar")
+	//qsuitsFilePath, err = DownloadFromGithub(resultDir, version)
+	err = ConcurrentDownload(url, qsuitsFilePath)
 	if err != nil {
 		fmt.Println("\rdownload is retrying from maven...")
-		qsuitsFilePath, err = DownloadFromMaven(resultDir, version)
+		//qsuitsFilePath, err = DownloadFromMaven(resultDir, version)
+		url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
+			version + "/qsuits-" + version + "-jar-with-dependencies.jar"
+		err = ConcurrentDownload(url, qsuitsFilePath)
 	}
 	done <- struct{}{}
 	close(done)
