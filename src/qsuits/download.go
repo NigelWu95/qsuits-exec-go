@@ -268,6 +268,22 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	}
 
 	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
+
+	qsuitsDir := filepath.Join(resultDir, ".qsuits");
+	qsuitsDirInfo, err := os.Stat(qsuitsDir)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(filepath.Join(resultDir, ".qsuits"), 0755)
+		if err != nil {
+			return "", err
+		}
+		qsuitsDirInfo, err = os.Stat(qsuitsDir)
+	}
+	if err != nil {
+		return "", err
+	}
+	if !strings.HasPrefix(qsuitsDirInfo.Mode().String(), "drwx") {
+		err = errors.New("qsuits path's mode: " + qsuitsDirInfo.Mode().String() + " is illegal")
+	}
 	qsuitsFilePath = filepath.Join(resultDir, ".qsuits", "qsuits-" + version + ".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
 	err = ConcurrentDownload(url, qsuitsFilePath)
