@@ -111,7 +111,7 @@ func clear(homePath string) {
 	}
 	i := len(versions) - 1
 	lastVersion := versions[i]
-	result, err := qsuits.WriteMod(homePath, lastVersion)
+	result, err := qsuits.WriteMod([]string{homePath}, lastVersion)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -149,7 +149,7 @@ func changeVersion(homePath string, params []string) {
 			fmt.Println("chgver " + ver + " failed: " + err.Error())
 			return
 		}
-		result, err := qsuits.WriteMod(homePath, ver)
+		result, err := qsuits.WriteMod([]string{homePath}, ver)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -209,7 +209,7 @@ func localQsuitsPath(homePath string) string {
 				qsuitsPath = paths[i]
 				fmt.Println("use local latest version: " + qsuitsVersion)
 			}
-			result, err := qsuits.WriteMod(homePath, qsuitsVersion)
+			result, err := qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
 			if result && err == nil {
 				fmt.Println("set " + qsuitsVersion + " as default local version.")
 			} else {

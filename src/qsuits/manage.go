@@ -33,9 +33,12 @@ func Versions(path string) (versions []string, paths []string, err error) {
 	}
 }
 
-func WriteMod(path string, version string) (isSuccess bool, err error) {
+func WriteMod(path []string, version string) (isSuccess bool, err error) {
 
-	modPath = filepath.Join(path, ".qsuits", "version.mod")
+	if len(path) == 0 {
+		return false, errors.New("no valid path")
+	}
+	modPath = filepath.Join(path[0], ".qsuits", "version.mod")
 	modFile, err := os.Create(modPath)
 	if os.IsExist(err) {
 		modFile, err = os.Open(modPath)
@@ -43,8 +46,14 @@ func WriteMod(path string, version string) (isSuccess bool, err error) {
 	if err != nil {
 		return false, err
 	}
-	size, err := modFile.WriteString("version=" + version + ",path=" +
-		filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar"))
+
+	var size int
+	if len(path) == 1 {
+		size, err = modFile.WriteString("version=" + version + ",path=" +
+			filepath.Join(path[0], ".qsuits", "qsuits-" + version + ".jar"))
+	} else {
+		size, err = modFile.WriteString("version=" + version + ",path=" + path[1])
+	}
 	if err != nil {
 		return false, err
 	}
