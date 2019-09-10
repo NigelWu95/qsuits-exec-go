@@ -93,7 +93,7 @@ func help() {
 	fmt.Println("        --help/-h/help  print usage.")
 	fmt.Println("Commands:")
 	fmt.Println("         help           print usage.")
-	fmt.Println("         upgrade         upgrade this own executable program by itself.")
+	fmt.Println("         upgrade        upgrade this own executable program by itself.")
 	fmt.Println("         versions       list all qsuits versions from local.")
 	fmt.Println("         clear          remove all old qsuits versions from local.")
 	fmt.Println("         current        query local default qsuits version.")
