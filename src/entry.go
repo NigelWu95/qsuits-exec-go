@@ -57,7 +57,7 @@ func main()  {
 		} else if strings.EqualFold(op2, "-Local") || strings.EqualFold(op2, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params[0:length - 1]);
-		} else if strings.EqualFold(op1, "update") {
+		} else if strings.EqualFold(op1, "upgrade") {
 			selfUpdate()
 		} else if strings.EqualFold(op1, "versions") {
 			versions(homePath)
@@ -93,6 +93,7 @@ func help() {
 	fmt.Println("        --help/-h/help  print usage.")
 	fmt.Println("Commands:")
 	fmt.Println("         help           print usage.")
+	fmt.Println("         upgrade         upgrade this own executable program by itself.")
 	fmt.Println("         versions       list all qsuits versions from local.")
 	fmt.Println("         clear          remove all old qsuits versions from local.")
 	fmt.Println("         current        query local default qsuits version.")

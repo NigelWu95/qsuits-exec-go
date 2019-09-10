@@ -8,6 +8,7 @@ Options:
 &ensp;&ensp;&ensp;&ensp;&ensp; --help/-h/help &ensp;&ensp; print usage.  
 Commands:  
 &ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; print usage.  
+&ensp;&ensp;&ensp;&ensp;&ensp; upgrade &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; upgrade this own executable program by itself.
 &ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; list all qsuits versions from local.  
 &ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; remove all old qsuits versions from local.  
 &ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; query local default qsuits version.  
