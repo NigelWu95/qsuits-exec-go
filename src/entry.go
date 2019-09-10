@@ -249,7 +249,8 @@ func execQsuits(qsuitsPath string, params []string) {
 	if strings.Contains(qsuitsPath, "qsuits") {
 		err := qsuits.Exec(qsuitsPath, params)
 		if err != nil {
-			panic(err)
+			//panic(err)
+			fmt.Println(err.Error())
 			return
 		}
 	} else {
