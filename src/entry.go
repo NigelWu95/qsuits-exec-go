@@ -46,23 +46,30 @@ func main()  {
 
 	var params []string
 	params = os.Args[1:]
-	if len(params) > 0 {
-		op := params[0]
-		if strings.EqualFold(op, "-Local") || strings.EqualFold(op, "-L") {
+	length := len(params)
+	if length > 0 {
+		op1 := params[0]
+		op2 := params[length - 1]
+		if strings.EqualFold(op1, "-Local") || strings.EqualFold(op1, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params[1:]);
-		} else if strings.EqualFold(op, "versions") {
+		} else if strings.EqualFold(op2, "-Local") || strings.EqualFold(op2, "-L") {
+			qsuitsPath := localQsuitsPath(homePath)
+			execQsuits(qsuitsPath, params[0:length - 1]);
+		} else if strings.EqualFold(op1, "update") {
+			selfUpdate()
+		} else if strings.EqualFold(op1, "versions") {
 			versions(homePath)
-		} else if strings.EqualFold(op, "clear") {
+		} else if strings.EqualFold(op1, "clear") {
 			clear(homePath)
-		} else if strings.EqualFold(op, "current") {
+		} else if strings.EqualFold(op1, "current") {
 			currentVersion(homePath)
-		} else if strings.EqualFold(op, "chgver") {
+		} else if strings.EqualFold(op1, "chgver") {
 			changeVersion(homePath, params)
-		} else if strings.EqualFold(op, "download") {
+		} else if strings.EqualFold(op1, "download") {
 			download(homePath, params)
-		} else if strings.EqualFold(op, "help") ||
-			strings.EqualFold(op, "--help") || strings.EqualFold(op, "-h") {
+		} else if strings.EqualFold(op1, "help") ||
+			strings.EqualFold(op1, "--help") || strings.EqualFold(op1, "-h") {
 			help()
 		} else {
 			qsuitsPath := updatedQsuitsPath(homePath)
@@ -262,11 +269,11 @@ func execQsuits(qsuitsPath string, params []string) {
 	}
 }
 
-func SelfUpdate() {
+func selfUpdate() {
 
 	osName := runtime.GOOS
 	osArch := runtime.GOARCH
-	fmt.Printf("os: %s_%s", osName, osArch)
+	fmt.Printf("os: %s_%s\n", osName, osArch)
 	binUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
 
 	if strings.Contains(osName, "darwin") {
