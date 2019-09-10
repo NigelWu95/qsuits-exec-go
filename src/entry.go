@@ -8,6 +8,7 @@ import (
 	"os"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
+	"qsuits-exec-go/src/utils"
 	"runtime"
 	"strconv"
 	"strings"
@@ -300,13 +301,18 @@ func selfUpdate() {
 		binUrl += ".exe"
 	}
 
+	done := make(chan struct{})
+	go progress.SixDotLoop(done, "self-updating")
 	resp, err := http.Get(binUrl)
 	if err != nil {
 		panic(err)
 	}
 	defer resp.Body.Close()
 	err = update.Apply(resp.Body, update.Options{})
+	done <- struct{}{}
+	close(done)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(" -> succeed.")
 }

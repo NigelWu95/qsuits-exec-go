@@ -13,6 +13,7 @@ import (
 	"net/http/httputil"
 	"os"
 	"path/filepath"
+	"qsuits-exec-go/src/utils"
 	"strconv"
 	"strings"
 	"sync"
@@ -238,33 +239,13 @@ func StraightDownload(qsuitsFilePath string, url string) (err error) {
 	}
 }
 
-func progress(end <-chan struct{}, startInfo string) {
-
-	isDone := false
-	go func() {
-		<-end
-		isDone = true
-	}()
-	for {
-		fmt.Printf("\r%s", startInfo)
-		time.Sleep(time.Second)
-		for i := 0; i <= 5 ; i++  {
-			if isDone {
-				return
-			}
-			fmt.Print(".")
-			time.Sleep(time.Second)
-		}
-	}
-}
-
 func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath string, err error) {
 
 	done := make(chan struct{})
 	if isLatest {
-		go progress(done, "latest qsuits version: " + version + " is downloading")
+		go progress.SixDotLoop(done, "latest qsuits version: " + version + " is downloading")
 	} else {
-		go progress(done, "qsuits version: " + version + " is downloading")
+		go progress.SixDotLoop(done, "qsuits version: " + version + " is downloading")
 	}
 
 	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
