@@ -3,9 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/inconshreveable/go-update"
+	"net/http"
 	"os"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
+	"runtime"
 	"strconv"
 	"strings"
 )
@@ -255,6 +258,48 @@ func execQsuits(qsuitsPath string, params []string) {
 		}
 	} else {
 		err := errors.New("invalid qsuits path: " + qsuitsPath)
+		panic(err)
+	}
+}
+
+func SelfUpdate() {
+
+	osName := runtime.GOOS
+	osArch := runtime.GOARCH
+	fmt.Printf("os: %s_%s", osName, osArch)
+	binUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
+
+	if strings.Contains(osName, "darwin") {
+		binUrl += "darwin_"
+	} else if strings.Contains(osName, "linux") {
+		binUrl += "linux_"
+	} else if strings.Contains(osName, "windows") {
+		binUrl += "windows_"
+	} else {
+		err := errors.New("no executable file to download of this go arch")
+		panic(err)
+	}
+
+	if strings.Contains(osArch, "64") {
+		binUrl += "amd64"
+	} else if strings.Contains(osArch, "86") {
+		binUrl += "386"
+	} else {
+		err := errors.New("no executable file to download of this go arch")
+		panic(err)
+	}
+
+	if strings.Contains(osName, "windows") {
+		binUrl += ".exe"
+	}
+
+	resp, err := http.Get(binUrl)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+	err = update.Apply(resp.Body, update.Options{})
+	if err != nil {
 		panic(err)
 	}
 }
