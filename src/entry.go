@@ -84,7 +84,7 @@ func main()  {
 func help() {
 
 	fmt.Println("Usage:")
-	fmt.Println("      this tool is a agent program for qsuits, your local environment " +
+	fmt.Println("    this tool is a agent program for qsuits, your local environment " +
 		"need java8 or above. In default mode, this tool will use latest java qsuits to exec, " +
 		"you only need use qsuits-java's parameters to run. If you use local mode it mean you " +
 		"dont want to update latest qsuits automatically.")

@@ -17,10 +17,10 @@ qsuits-java 代理执行工具 by golang
 不对，请重新从上述链接中下载。   
 
 Usage（用法）:  
-&ensp;&ensp;this tool is a agent program for qsuits, your local environment need java8 or above. In 
+&ensp;&ensp;&ensp;&ensp;this tool is a agent program for qsuits, your local environment need java8 or above. In 
 default mode, this tool will use latest java qsuits to exec, you only need use qsuits-java's parameters to run. If you 
 use local mode with "-L" it mean you dont want to update latest qsuits automatically.  
-&ensp;&ensp;这个工具是 qsuits-java 的一个代理程序，本地必须有 java8 或者 java8 以上的环境。在默认模式下，qsuits 运行时会去使用 qsuits-java 的最新版本来
+&ensp;&ensp;&ensp;&ensp;这个工具是 qsuits-java 的一个代理程序，本地必须有 java8 或者 java8 以上的环境。在默认模式下，qsuits 运行时会去使用 qsuits-java 的最新版本来
 执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L" 参数表示您只想使用本地设置的默认版本，而不自动更新 qsuits-java 的最新版本。 
 
 Options（选项）:  
