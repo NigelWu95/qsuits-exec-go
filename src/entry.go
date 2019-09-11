@@ -51,10 +51,10 @@ func main()  {
 	if length > 0 {
 		op1 := params[0]
 		op2 := params[length - 1]
-		if strings.EqualFold(op1, "-Local") || strings.EqualFold(op1, "-L") {
+		if strings.EqualFold(op1, "--Local") || strings.EqualFold(op1, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params[1:]);
-		} else if strings.EqualFold(op2, "-Local") || strings.EqualFold(op2, "-L") {
+		} else if strings.EqualFold(op2, "--Local") || strings.EqualFold(op2, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params[0:length - 1]);
 		} else if strings.EqualFold(op1, "upgrade") {

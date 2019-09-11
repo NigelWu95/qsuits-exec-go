@@ -24,9 +24,9 @@ use local mode with "-L" it mean you dont want to update latest qsuits automatic
 执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L" 参数表示您只想使用本地设置的默认版本，而不自动更新 qsuits-java 的最新版本。 
 
 Options（选项）:  
-&ensp;&ensp;&ensp;&ensp;&ensp; -Local/-L &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; use current default qsuits version to exec.
+&ensp;&ensp;&ensp;&ensp;&ensp; --Local/-L &ensp;&ensp;&ensp;&ensp;&ensp; use current default qsuits version to exec.
 使用当前的默认 qsuits-java 版本来运行  
-&ensp;&ensp;&ensp;&ensp;&ensp; --help/-h &ensp;&ensp; print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; --help/-h &ensp;&ensp;&ensp;&ensp;&ensp; print usage. 打印用法说明  
 Commands:  
 &ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; print usage. 打印使用帮助  
 &ensp;&ensp;&ensp;&ensp;&ensp; upgrade &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; upgrade this own executable program by
