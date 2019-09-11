@@ -1,6 +1,15 @@
 # qsuits-exec-go  
 qsuits-java 代理执行工具 by golang  
 
+|操作系统|程序名|地址|
+|---|-----|---|
+|windows 32 位|qsuits_windows_386.exe|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_windows_386.exe)|
+|windows 64 位|qsuits_windows_amd64.exe|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_windows_amd64.exe)|
+|linux 32 位|qsuits_linux_386|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_linux_386)|
+|linux 64 位|qsuits_linux_amd64|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_linux_amd64)|
+|mac 32 位|qsuits_darwin_386|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_darwin_386)|
+|mac 64 位|qsuits_darwin_amd64|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_darwin_amd64)|
+
 Usage:  
 &ensp;&ensp;&ensp;&ensp;&ensp; this tool is a agent program for qsuits, your local environment need java8 or above. In default mode, this tool will use latest java qsuits to exec, you only need use qsuits-java's parameters to run. If you use local mode it mean you dont want to update latest qsuits automatically.  
 Options:  
