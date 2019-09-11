@@ -11,7 +11,7 @@ qsuits-java 代理执行工具 by golang
 |mac 64 位|qsuits_darwin_amd64|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_darwin_amd64)|
 
 **Tips：**  
-1. 下载完成后使用 `chmod +x qsuits_xxx_xxx ` 为其授予可执行权限【建议将该执行文件改名为 qsuits 后移动到系统环境变量的可执行文件路径下，便于从
+1. 下载完成后使用 `chmod +x qsuits_xxx_xxx` 为其授予可执行权限【建议将该执行文件改名为 qsuits 后移动到系统环境变量的可执行文件路径下，便于从
 任意位置调用 qsuits】。  
 2. 如果运行出现 `line 7: syntax error near unexpected token 'newline'`, `line 7: '<!DOCTYPE html>'` 等这样的错误，表明下载的文件
 不对，请重新从上述链接中下载。   
