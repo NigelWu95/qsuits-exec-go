@@ -19,9 +19,10 @@ qsuits-java 代理执行工具 by golang
 Usage（用法）:  
 &ensp;&ensp;&ensp;&ensp;&ensp; this tool is a agent program for qsuits, your local environment need java8 or above. In 
 default mode, this tool will use latest java qsuits to exec, you only need use qsuits-java's parameters to run. If you 
-use local mode with "-L" it mean you dont want to update latest qsuits automatically. 这个工具是 qsuits-java 的一个代理程序，
-本地必须有 java8 或者 java8 以上的环境。在默认模式下，qsuits 运行时会去使用 qsuits-java 的最新版本来执行操作，只需要传递 qsuits-java 所规定
-的参数即可。如果您使用 "-L" 参数表示您只想使用本地设置的默认版本，而不自动更新 qsuits-java 的最新版本。 
+use local mode with "-L" it mean you dont want to update latest qsuits automatically.  
+这个工具是 qsuits-java 的一个代理程序，本地必须有 java8 或者 java8 以上的环境。在默认模式下，qsuits 运行时会去使用 qsuits-java 的最新版本来
+执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L" 参数表示您只想使用本地设置的默认版本，而不自动更新 qsuits-java 的最新版本。 
+
 Options（选项）:  
 &ensp;&ensp;&ensp;&ensp;&ensp; -Local/-L &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; use current default qsuits version to exec.
 使用当前的默认 qsuits-java 版本来运行  
@@ -33,7 +34,7 @@ Commands:
 &ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; list all qsuits versions from local.
  列举本地的所有 qsuits-java 的版本  
 &ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; remove all old qsuits 
-versions from local. 清除本地 qsuits-java 的所有旧版本，会自动本地当前的最新版本  
+versions from local. 清除本地 qsuits-java 的所有旧版本  
 &ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; query local default qsuits version.
 查询 qsuits-java 本地当前的默认版本  
 &ensp;&ensp;&ensp;&ensp;&ensp; chgver <no.> &ensp;&ensp;&ensp; set local default qsuits version. 设置本地的默认 qsuits-java 版本  
