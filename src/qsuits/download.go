@@ -134,11 +134,11 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	for i := 0; i < len(get.DownloadRange); i++ {
 		rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
 		tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDONLY|os.O_APPEND, 0)
-		if err != nil {
+		if err != nil || tempFile == nil {
 			tempFile, _ = os.Create(filepath + "." + rangeI)
 		} else {
-			fi, err := tempFile.Stat()
-			if err == nil {
+			fi, _ := tempFile.Stat()
+			if tempFile != nil {
 				get.DownloadRange[i][0] += fi.Size()
 			}
 		}
@@ -190,6 +190,9 @@ func (get *HttpGet) RangeDownload(i int) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	resp, err := get.HttpClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
 	defer resp.Body.Close()
 
 	if err != nil {
