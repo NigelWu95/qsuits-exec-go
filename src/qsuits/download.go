@@ -133,7 +133,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	// Check if the download has paused.
 	for i := 0; i < len(get.DownloadRange); i++ {
 		rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
-		tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDONLY|os.O_APPEND, 0)
+		tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDWR|os.O_APPEND, 0)
 		if err != nil || tempFile == nil {
 			tempFile, _ = os.Create(filepath + "." + rangeI)
 		} else {
@@ -200,6 +200,9 @@ func (get *HttpGet) RangeDownload(i int) {
 		panic(err)
 	} else {
 		cnt, err := io.Copy(get.TempFiles[i], resp.Body)
+		if err != nil {
+			panic(err)
+		}
 		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
 			reqDump, _ := httputil.DumpRequest(req, false)
 			respDump, _ := httputil.DumpResponse(resp, true)
