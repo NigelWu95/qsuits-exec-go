@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main()  {
@@ -301,10 +302,16 @@ func selfUpdate() {
 	if strings.Contains(osName, "windows") {
 		binUrl += ".exe"
 	}
-
+	client := &http.Client{
+		Timeout: 5 * time.Minute,
+	}
+	req, err := http.NewRequest("GET", binUrl, nil)
+	if err != nil {
+		panic(err)
+	}
 	done := make(chan struct{})
 	go progress.SixDotLoop(done, "self-updating")
-	resp, err := http.Get(binUrl)
+	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}
