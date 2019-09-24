@@ -122,18 +122,21 @@ func clear(homePath string) {
 		fmt.Println(err.Error())
 		return
 	}
-	lastVersion, _, err := qsuits.LatestVersionFrom(versions)
+	latestVersion, latestNum, err := qsuits.LatestVersionFrom(versions)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	result, err := qsuits.WriteMod([]string{homePath}, lastVersion)
+	result, err := qsuits.WriteMod([]string{homePath}, latestVersion)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	if result {
 		for i := range paths {
+			if i == latestNum {
+				continue
+			}
 			err := os.Remove(paths[i])
 			if err != nil {
 				fmt.Println(err.Error())
