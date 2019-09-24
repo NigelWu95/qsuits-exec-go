@@ -122,15 +122,18 @@ func clear(homePath string) {
 		fmt.Println(err.Error())
 		return
 	}
-	i := len(versions) - 1
-	lastVersion := versions[i]
+	lastVersion, _, err := qsuits.LatestVersionFrom(versions)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 	result, err := qsuits.WriteMod([]string{homePath}, lastVersion)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 	if result {
-		for i := range paths[0:i] {
+		for i := range paths {
 			err := os.Remove(paths[i])
 			if err != nil {
 				fmt.Println(err.Error())
@@ -215,9 +218,11 @@ func localQsuitsPath(homePath string) string {
 					panic(err)
 				}
 			} else {
-				i := len(versions) - 1
-				qsuitsVersion = versions[i]
-				qsuitsPath = paths[i]
+				qsuitsVersion, num, err := qsuits.LatestVersionFrom(versions)
+				if err != nil {
+					panic(err)
+				}
+				qsuitsPath = paths[num]
 				fmt.Println("use local latest version: " + qsuitsVersion)
 			}
 			result, err := qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
@@ -251,7 +256,11 @@ func updatedQsuitsPath(homePath string) string {
 			err = errors.New("no qsuits in your local")
 			panic(err)
 		}
-		qsuitsPath = paths[len(versions) - 1]
+		qsuitsVersion, num, err := qsuits.LatestVersionFrom(versions)
+		if err != nil {
+			panic(err)
+		}
+		qsuitsPath = paths[num]
 		fmt.Println("use local latest version: " + qsuitsVersion)
 	}
 	return qsuitsPath

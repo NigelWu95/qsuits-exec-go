@@ -2,6 +2,7 @@ package qsuits
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -80,4 +81,78 @@ func ReadMod(path string) (version string, qsuitsPath string, err error) {
 	version = strings.Split(modIterms[0], "=")[1]
 	qsuitsPath = strings.Split(modIterms[1], "=")[1]
 	return version, qsuitsPath, nil
+}
+
+func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, err error) {
+
+	if len(versions) == 0 {
+		return latestVer, -1, errors.New("no versions")
+	}
+	var currentVer string
+	vers := []string{"0", "0", "0"}
+	var vNums []string
+	var betaV bool
+	var newV bool
+	var vLen int
+	for e := range versions {
+		vNums = strings.Split(versions[e], ".")
+		vLen = len(vNums)
+		if vLen == 0 || vLen > 3 {
+			return latestVer, -1, errors.New("error version: " + versions[e])
+		} else if vLen == 1 {
+			betaV = false
+			newV = false
+			vers[0] = vNums[0]
+			vers[1] = "0"
+			vers[2] = "0"
+		} else if vLen == 2 {
+			betaV = false
+			newV = false
+			vers[0] = vNums[0]
+			seconds := vNums[1]
+			if len(seconds) == 0 {
+				vers[1] = "0"
+				vers[2] = "0"
+			} else if len(seconds) == 1 {
+				vers[1] = seconds
+				vers[2] = "0"
+			} else {
+				if strings.Contains(seconds, "-beta") {
+					betaV = true
+				}
+				vers[1] = seconds[0:1]
+				vers[2] = seconds[1:2]
+			}
+		} else {
+			betaV = false
+			newV = true
+			vers[0] = vNums[0]
+			vers[1] = vNums[1]
+			vers[2] = vNums[2]
+		}
+		if strings.EqualFold(vers[0], "") {
+			vers[0] = "0"
+		}
+		if strings.EqualFold(vers[1], "") {
+			vers[1] = "0"
+		}
+		if strings.EqualFold(vers[2], "") {
+			vers[2] = "0"
+		}
+		if err != nil {
+			return latestVer, -1, err
+		}
+		currentVer = strings.Join(vers, ".")
+		if e == 0 || strings.Compare(currentVer, latestVer) > 0 {
+			latestVer = currentVer
+			latestVerNum = e
+		} else if strings.Compare(currentVer, latestVer) == 0 {
+			if newV || !betaV {
+				latestVer = currentVer
+				latestVerNum = e
+			}
+		}
+		fmt.Println(versions[e] + " -> " + currentVer)
+	}
+	return versions[latestVerNum], latestVerNum, nil
 }
