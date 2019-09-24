@@ -156,3 +156,16 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 	}
 	return versions[latestVerNum], latestVerNum, nil
 }
+
+func Compare(version1 string, version2 string) (com int, err error) {
+
+	latestVer, _, err := LatestVersionFrom([]string{version1, version2})
+	if err != nil {
+		return 0, err
+	}
+	if strings.Compare(latestVer, version1) == 0 {
+		return 1, nil;
+	} else {
+		return -1, nil;
+	}
+}
