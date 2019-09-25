@@ -17,6 +17,12 @@ import (
 
 func main()  {
 
+	qsuitsVersion, _, err := qsuits.LatestVersionFrom([]string{"7.7.2", "7.72-beta", "7.72"})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(qsuitsVersion)
+
 	homePath, err := user.HomePath()
 	if err != nil {
 		fmt.Println(err.Error())

@@ -2,7 +2,6 @@ package qsuits
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -91,7 +90,6 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 	var currentVer string
 	vers := []string{"0", "0", "0"}
 	var vNums []string
-	var betaV bool
 	var newV bool
 	var vLen int
 	for e := range versions {
@@ -100,13 +98,11 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 		if vLen == 0 || vLen > 3 {
 			return latestVer, -1, errors.New("error version: " + versions[e])
 		} else if vLen == 1 {
-			betaV = false
 			newV = false
 			vers[0] = vNums[0]
 			vers[1] = "0"
 			vers[2] = "0"
 		} else if vLen == 2 {
-			betaV = false
 			newV = false
 			vers[0] = vNums[0]
 			seconds := vNums[1]
@@ -117,14 +113,10 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 				vers[1] = seconds
 				vers[2] = "0"
 			} else {
-				if strings.Contains(seconds, "-beta") {
-					betaV = true
-				}
 				vers[1] = seconds[0:1]
 				vers[2] = seconds[1:2]
 			}
 		} else {
-			betaV = false
 			newV = true
 			vers[0] = vNums[0]
 			vers[1] = vNums[1]
@@ -147,12 +139,13 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 			latestVer = currentVer
 			latestVerNum = e
 		} else if strings.Compare(currentVer, latestVer) == 0 {
-			if newV || !betaV {
+			if newV || strings.Compare(strings.ReplaceAll(versions[e], ".", ""),
+				strings.ReplaceAll(versions[latestVerNum], ".", "")) < 0 {
 				latestVer = currentVer
 				latestVerNum = e
 			}
 		}
-		fmt.Println(versions[e] + " -> " + currentVer)
+		//fmt.Println(versions[e] + " -> " + currentVer)
 	}
 	return versions[latestVerNum], latestVerNum, nil
 }
