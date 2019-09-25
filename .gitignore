@@ -4,3 +4,7 @@
 pkg/
 
 .DS_Store
+
+procedure*.log
+qsuits.error
+qsuits.info
