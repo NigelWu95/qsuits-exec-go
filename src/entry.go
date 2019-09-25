@@ -259,6 +259,7 @@ func updatedQsuitsPath(homePath string) string {
 			var com int
 			com, versionsErr = qsuits.Compare(localLatestVer, qsuitsVersion)
 			if com > 0 {
+				fmt.Println("use local latest version: " + localLatestVer)
 				return paths[latestVerNum]
 			}
 		}
