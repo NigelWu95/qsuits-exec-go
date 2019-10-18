@@ -39,5 +39,9 @@ versions from local. 清除本地 qsuits-java 的所有旧版本
 查询 qsuits-java 本地当前的默认版本  
 &ensp;&ensp;&ensp;&ensp;&ensp; chgver <no.> &ensp;&ensp;&ensp; Set local default qsuits version. 设置本地的默认 qsuits-java 版本  
 &ensp;&ensp;&ensp;&ensp;&ensp; download <no.> &ensp; Download qsuits with specified version. 下载 qsuits-java 的指定版本  
+&ensp;&ensp;&ensp;&ensp;&ensp; update <no.> &ensp;&ensp;&ensp; Update qsuits with specified version, combine \"download\" with \"chgver\"."
+更新本地的 qsuits-java 版本，结合 download 和 chgver 的命令  
+&ensp;&ensp;&ensp;&ensp;&ensp; setjdk <path> &ensp;&ensp; Set jdk path as default, then all operation can use this jdk as default.
+设置 jdk 路径，之后的操作都可以使用默认使用该 jdk  
 
 Usage of qsuits-java（qsuits-java 的完整用法请参考）:  https://github.com/NigelWu95/qiniu-suits-java  

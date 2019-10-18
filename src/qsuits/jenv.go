@@ -39,12 +39,12 @@ func CheckJavaRuntime() (javaPath string, version string, err error) {
 	return javaPath, version, nil
 }
 
-func JdkDownload() (javaPath string, err error) {
+func JdkDownload() (jdkFileName string, err error) {
 
 	osName := runtime.GOOS
 	osArch := runtime.GOARCH
 	fmt.Printf("os: %s_%s\n", osName, osArch)
-	jdkFileName := "jdk-8u231"
+	jdkFileName = "jdk-8u231"
 
 	if strings.Contains(osName, "darwin") {
 		jdkFileName += "-macosx-x64.dmg"

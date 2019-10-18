@@ -30,11 +30,15 @@ func main()  {
 	scanner.Scan();
 	verify := scanner.Text()
 	if strings.EqualFold("yes", verify) {
-		jdkPath, err := qsuits.JdkDownload()
+		jdkFileName, err := qsuits.JdkDownload()
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
-			fmt.Println("jdk download as " + jdkPath)
+			fmt.Println("jdk download as " + jdkFileName)
+			jdkPath, err := filepath.Abs(filepath.Dir(jdkFileName))
+			if err != nil {
+				panic(err)
+			}
 			isSuccess, err := qsuits.SetJdkPath(homePath, jdkPath)
 			if err != nil || !isSuccess {
 				fmt.Println("set jdk path failed, please set it by yourself.")
@@ -139,7 +143,7 @@ func help() {
 	fmt.Println("         chgver <no.>   Set local default qsuits version.")
 	fmt.Println("         download <no.> Download qsuits with specified version.")
 	fmt.Println("         update <no.>   Update qsuits with specified version, combine \"download\" with \"chgver\".")
-	fmt.Println("         setjdk <path>  Set jdk path as default, then all operation can use this jdk.")
+	fmt.Println("         setjdk <path>  Set jdk path as default, then all operation can use this jdk as default.")
 	fmt.Println("Usage of qsuits:  https://github.com/NigelWu95/qiniu-suits-java")
 }
 
