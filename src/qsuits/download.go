@@ -165,21 +165,28 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 		return goroutineErr
 	}
 
+	var copyTimes = 3
 	for i := 0; i < get.Count; i++ {
 		cnt, err := io.Copy(get.File, get.TempFiles[i])
-		if err != nil {
-			for j := i; j < get.Count; j++ {
-				_ = get.TempFiles[j].Close()
+		if err != nil || cnt < (get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
+			if copyTimes > 0 && cnt <= 0 {
+				i--
+				copyTimes--
+			} else if err == nil {
+				for j := i; j < get.Count; j++ {
+					_ = get.TempFiles[j].Close()
+				}
+				return errors.New(fmt.Sprintf("copy error size %d bytes", cnt))
+			} else {
+				for j := i; j < get.Count; j++ {
+					_ = get.TempFiles[j].Close()
+				}
+				return err
 			}
-			return err
+		} else {
+			copyTimes = 3
+			_ = get.TempFiles[i].Close()
 		}
-		if cnt < 0 {
-			for j := i; j < get.Count; j++ {
-				_ = get.TempFiles[j].Close()
-			}
-			return errors.New("copy error size")
-		}
-		_ = get.TempFiles[i].Close()
 	}
 	err = get.File.Close()
 	if err == nil {
@@ -206,7 +213,7 @@ func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err er
 		if goroutineErr == nil {
 			return nil
 		}
-		fmt.Println(goroutineErr)
+		fmt.Println(i, "---", goroutineErr)
 	}
 	return goroutineErr
 }

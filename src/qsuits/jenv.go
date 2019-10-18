@@ -77,7 +77,8 @@ func JdkDownload() (javaPath string, err error) {
 	if err != nil {
 		fmt.Println(" error from url: http://qsuits.nigel.net.cn/" + jdkFileName)
 		return jdkFileName, err
+	} else {
+		fmt.Println(" -> succeed.")
+		return jdkFileName, nil
 	}
-	fmt.Println(" -> succeed.")
-	return jdkFileName, nil
 }
