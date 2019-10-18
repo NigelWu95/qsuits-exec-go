@@ -165,6 +165,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	get.File.Close()
 	defer func() {
 		for i := 0; i < len(get.TempFiles); i++ {
+			_ = get.TempFiles[i].Close()
 			err := os.Remove(get.TempFiles[i].Name())
 			if err != nil {
 				log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
