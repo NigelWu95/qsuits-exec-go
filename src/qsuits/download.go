@@ -133,12 +133,23 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 		if err != nil || tempFile == nil {
 			tempFile, err = os.Create(filepath + "." + rangeI)
 			if err != nil {
-				panic(err)
+				if i > 0 {
+					for j := 0; j < i; j++ {
+						_ = get.TempFiles[j].Close()
+					}
+				}
+				return err
 			}
 		} else {
-			fi, _ := tempFile.Stat()
-			if tempFile != nil {
+			fi, err := tempFile.Stat()
+			if err != nil {
+				return err
+			}
+			if fi != nil {
 				get.DownloadRange[i][0] += fi.Size()
+			} else {
+				err = errors.New(" no file info from: " + tempFile.Name())
+				return err
 			}
 		}
 		get.TempFiles = append(get.TempFiles, tempFile)
@@ -191,6 +202,7 @@ func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err er
 		if goroutineErr == nil {
 			return nil
 		}
+		fmt.Println(goroutineErr)
 		goroutineErr = nil
 	}
 	return goroutineErr
@@ -199,7 +211,7 @@ func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err er
 func (get *HttpGet) RangeDownload(filepath string, i int) {
 
 	defer get.WG.Done()
-	if get.DownloadRange[i][0] >= get.DownloadRange[i][1] {
+	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {
 		return
 	}
 
