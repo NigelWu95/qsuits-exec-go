@@ -128,6 +128,20 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, get.ContentLength - 1})
 		}
 		rangeStart += get.DownloadBlock
+		rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
+		tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDWR|os.O_APPEND, 0)
+		if err != nil || tempFile == nil {
+			tempFile, err = os.Create(filepath + "." + rangeI)
+			if err != nil {
+				panic(err)
+			}
+		} else {
+			fi, _ := tempFile.Stat()
+			if tempFile != nil {
+				get.DownloadRange[i][0] += fi.Size()
+			}
+		}
+		get.TempFiles = append(get.TempFiles, tempFile)
 	//}
 	//
 	//for i, _ := range get.DownloadRange {
@@ -169,19 +183,6 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 
 	defer get.WG.Done()
 	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
-	tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDWR|os.O_APPEND, 0)
-	if err != nil || tempFile == nil {
-		tempFile, err = os.Create(filepath + "." + rangeI)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		fi, _ := tempFile.Stat()
-		if tempFile != nil {
-			get.DownloadRange[i][0] += fi.Size()
-		}
-	}
-	get.TempFiles = append(get.TempFiles, tempFile)
 	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {
 		return
 	}
@@ -209,7 +210,7 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		fmt.Printf("Download #%d failed.\n", i)
 		panic(err)
 	} else {
-		cnt, err := io.Copy(tempFile, resp.Body)
+		cnt, err := io.Copy(get.TempFiles[i], resp.Body)
 		if err != nil {
 			panic(err)
 		}
