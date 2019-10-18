@@ -154,38 +154,44 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	for i := 0; i < len(get.TempFiles); i++ {
 		cnt, err := io.Copy(get.File, get.TempFiles[i])
 		if err != nil {
+			for j := i; j < len(get.TempFiles); j++ {
+				_ = get.TempFiles[j].Close()
+			}
 			return err
 		}
-		if cnt <= 0 {
-			return errors.New("copy error")
+		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
+			for j := i; j < len(get.TempFiles); j++ {
+				_ = get.TempFiles[j].Close()
+			}
+			return errors.New("copy error size: " + string(cnt))
 		}
+		_ = get.TempFiles[i].Close()
 	}
 	_ = get.File.Close()
-	defer func() {
-		for i := 0; i < len(get.TempFiles); i++ {
-			_ = get.TempFiles[i].Close()
-			err := os.Remove(get.TempFiles[i].Name())
-			if err != nil {
-				log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
-			}
+	for i := 0; i < len(get.TempFiles); i++ {
+		err := os.Remove(get.TempFiles[i].Name())
+		if err != nil {
+			log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
 		}
-	}()
+	}
 	return nil
 }
 
 func (get *HttpGet) RangeDownload(i int) {
 
-	defer get.WG.Done()
 	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {
 		return
 	}
 	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
 
-	// 捕获协程中的 panic 信息
-	if err := recover(); err != nil {
-		errs++
-		fmt.Println(err) // 输出 panic 信息
-	}
+	defer func() {
+		get.WG.Done()
+		// 捕获协程中的 panic 信息
+		if err := recover(); err != nil {
+			errs++
+			fmt.Println(err) // 输出 panic 信息
+		}
+	}()
 
 	req, err := http.NewRequest("GET", get.Url, nil)
 	req.Header.Set("Range", "bytes=" + rangeI)
@@ -193,10 +199,10 @@ func (get *HttpGet) RangeDownload(i int) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	resp, err := get.HttpClient.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		panic(err)
 	}
-	defer resp.Body.Close()
 
 	if err != nil {
 		fmt.Printf("Download #%d failed.\n", i)
