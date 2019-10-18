@@ -73,9 +73,9 @@ func ReadMod(path string) (version string, qsuitsPath string, err error) {
 		return "", "", err
 	}
 	_ = modFile.Close()
-	modIterms := strings.Split(string(bytes), ",")
-	version = strings.Split(modIterms[0], "=")[1]
-	qsuitsPath = strings.Split(modIterms[1], "=")[1]
+	modItems := strings.Split(string(bytes), ",")
+	version = strings.Split(modItems[0], "=")[1]
+	qsuitsPath = strings.Split(modItems[1], "=")[1]
 	return version, qsuitsPath, nil
 }
 

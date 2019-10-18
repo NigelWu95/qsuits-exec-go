@@ -10,9 +10,9 @@ import (
 	"strings"
 )
 
-func Exec(jarPath string, params []string) error {
+func Exec(javaPath string, jarPath string, params []string) error {
 
-	cmd := exec.Command("java", "-jar", jarPath)
+	cmd := exec.Command(javaPath, "-jar", jarPath)
 	for i := range params {
 		cmd.Args = append(cmd.Args, params[i])
 	}

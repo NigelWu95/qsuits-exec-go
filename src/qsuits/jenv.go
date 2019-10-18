@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"qsuits-exec-go/src/utils"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +19,11 @@ func CheckJavaRuntime() (javaPath string, version string, err error) {
 	if err != nil {
 		return javaPath, version, err
 	}
+	version, err = GetJavaVersion(javaPath)
+	return javaPath, version, err
+}
+
+func GetJavaVersion(javaPath string) (version string, err error) {
 	cmd := exec.Command(javaPath, "-version")
 	var versionRet string
 	var out bytes.Buffer
@@ -25,7 +32,7 @@ func CheckJavaRuntime() (javaPath string, version string, err error) {
 	cmd.Stderr = &stderr
 	err = cmd.Run()
 	if err != nil {
-		return javaPath, version, err
+		return version, err
 	} else {
 		if out.Len() > 0 {
 			versionRet = out.String()
@@ -36,7 +43,105 @@ func CheckJavaRuntime() (javaPath string, version string, err error) {
 	var versionFields []string
 	versionFields = strings.Split(strings.Split(versionRet, "\n")[0], " ")
 	version = strings.Trim(versionFields[2], "\"")
-	return javaPath, version, nil
+	return version, nil
+}
+
+func CheckJavaVersion(version string, minimum int) (err error) {
+	items := strings.Split(version, ".")
+	var ver int
+	if strings.EqualFold(items[0], "1") {
+		ver, err = strconv.Atoi(items[1])
+	} else {
+		ver, err = strconv.Atoi(items[0])
+	}
+	if err != nil {
+		return err
+	}
+	if ver < minimum {
+		err = errors.New(fmt.Sprintf("please update your java to jdk%d or above", minimum))
+		return err
+	}
+	return nil
+}
+
+//func GetJavaPath(jdkPath string) (javaPath string) {
+//	osName := runtime.GOOS
+//	if strings.Contains(osName, "darwin") {
+//		javaPath = filepath.Join(jdkPath, "bin", "java")
+//		_, err := CheckJavaVersion(javaPath)
+//		if err != nil {
+//			javaPath = filepath.Join(jdkPath, "Contents", "Home", "bin", "java")
+//		}
+//	} else if strings.Contains(osName, "windows") {
+//		javaPath = filepath.Join(jdkPath, "bin", "java.exe")
+//	} else {
+//		javaPath = jdkPath
+//	}
+//	return javaPath
+//}
+
+func SetJdkMod(path string, jdkPath string, minimum int) (isSuccess bool, err error) {
+
+	if len(path) == 0 {
+		return false, errors.New("no valid path")
+	}
+	modPath = filepath.Join(path, ".qsuits", "jdk.mod")
+	modFile, err := os.Create(modPath)
+	defer modFile.Close()
+	if err != nil {
+		return false, err
+	}
+	var javaPath string
+	var version string
+	osName := runtime.GOOS
+	if strings.Contains(osName, "darwin") {
+		javaPath = filepath.Join(jdkPath, "bin", "java")
+		version, err = GetJavaVersion(javaPath)
+		if err != nil {
+			javaPath = filepath.Join(jdkPath, "Contents", "Home", "bin", "java")
+			version, err = GetJavaVersion(javaPath)
+		}
+	} else if strings.Contains(osName, "windows") {
+		javaPath = filepath.Join(jdkPath, "bin", "java.exe")
+		version, err = GetJavaVersion(javaPath)
+	} else {
+		javaPath = jdkPath
+		version, err = GetJavaVersion(javaPath)
+	}
+	if err != nil {
+		return false, err
+	}
+	err = CheckJavaVersion(version, minimum)
+	if err != nil {
+		return false, err
+	}
+	size, err := modFile.WriteString(javaPath)
+	if err != nil {
+		return false, err
+	}
+	if size <= 0 {
+		return false, errors.New("no content wrote")
+	}
+	return true, nil
+}
+
+func GetJavaPathFromMod(path string) (javaPath string, err error) {
+
+	if len(path) == 0 {
+		return javaPath, errors.New("no valid path")
+	}
+	modPath = filepath.Join(path, ".qsuits", "jdk.mod")
+	modFile, err := os.Open(modPath)
+	defer modFile.Close()
+	if err != nil {
+		return javaPath, err
+	}
+	content, err := ioutil.ReadAll(modFile)
+	if err != nil {
+		return javaPath, err
+	}
+	javaPath = string(content)
+	return javaPath, nil
 }
 
 func JdkDownload() (jdkFileName string, err error) {
@@ -86,25 +191,4 @@ func JdkDownload() (jdkFileName string, err error) {
 		fmt.Println(" -> succeed.")
 		return jdkFileName, nil
 	}
-}
-
-func SetJdkPath(path string, jdkPath string) (isSuccess bool, err error) {
-
-	if len(path) == 0 {
-		return false, errors.New("no valid path")
-	}
-	modPath = filepath.Join(path, ".qsuits", "jdk.mod")
-	modFile, err := os.Create(modPath)
-	defer modFile.Close()
-	if err != nil {
-		return false, err
-	}
-	size, err := modFile.WriteString(jdkPath)
-	if err != nil {
-		return false, err
-	}
-	if size <= 0 {
-		return false, errors.New("no content wrote")
-	}
-	return true, nil
 }

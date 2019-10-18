@@ -12,75 +12,50 @@ import (
 	"qsuits-exec-go/src/user"
 	"qsuits-exec-go/src/utils"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 )
 
+var homePath string
+
 func main()  {
 
-	homePath, err := user.HomePath()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	_, version, err := qsuits.CheckJavaRuntime()
 	fmt.Println("do you want to download jdk8 now ? (yes/no)")
 	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan();
+	scanner.Scan()
 	verify := scanner.Text()
 	if strings.EqualFold("yes", verify) {
 		jdkFileName, err := qsuits.JdkDownload()
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
-			fmt.Println("jdk download as " + jdkFileName)
-			jdkPath, err := filepath.Abs(filepath.Dir(jdkFileName))
-			if err != nil {
-				panic(err)
-			}
-			isSuccess, err := qsuits.SetJdkPath(homePath, jdkPath)
-			if err != nil || !isSuccess {
-				fmt.Println("set jdk path failed, please set it by yourself.")
-				if err != nil {
-					panic(err)
-				} else {
-					return
-				}
-			}
+			fmt.Println("jdk download as " + jdkFileName + ", please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+			return
 		}
 	}
+
+	homePath, err := user.HomePath()
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println("please install java first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+		return
+	}
+	javaPath, err := CheckJava()
+	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println("please install java 8 or above first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
 		fmt.Println("do you want to download jdk8 now ? (yes/no)")
 		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
 		verify := scanner.Text()
-		if strings.EqualFold("yes", verify) {
-			jdkPath, err := qsuits.JdkDownload()
+		if strings.EqualFold("yes", verify) || strings.EqualFold("y", verify) {
+			jdkFileName, err := qsuits.JdkDownload()
 			if err != nil {
 				fmt.Println(err.Error())
 			} else {
-				fmt.Println("jdk download as " + jdkPath)
+				fmt.Println("jdk download as " + jdkFileName + ", please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
 			}
 		}
 		return
-	} else {
-		vers := strings.Split(version, ".")
-		var ver int
-		if strings.EqualFold(vers[0], "1") {
-			ver, err = strconv.Atoi(vers[1])
-		} else {
-			ver, err = strconv.Atoi(vers[0])
-		}
-		if err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-		if ver < 8 {
-			fmt.Println("please update your java to JDK1.8 or above")
-			return
-		}
 	}
 
 	var params []string
@@ -91,10 +66,10 @@ func main()  {
 		op2 := params[length - 1]
 		if strings.EqualFold(op1, "--Local") || strings.EqualFold(op1, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
-			execQsuits(qsuitsPath, params[1:]);
+			execQsuits(javaPath, qsuitsPath, params[1:]);
 		} else if strings.EqualFold(op2, "--Local") || strings.EqualFold(op2, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
-			execQsuits(qsuitsPath, params[0:length - 1])
+			execQsuits(javaPath, qsuitsPath, params[0:length - 1])
 		} else if strings.EqualFold(op1, "selfupdate") || strings.EqualFold(op1, "upgrade") {
 			selfUpdate()
 		} else if strings.EqualFold(op1, "versions") {
@@ -117,7 +92,7 @@ func main()  {
 			SetJdk(homePath, params)
 		} else {
 			qsuitsPath := updatedQsuitsPath(homePath)
-			execQsuits(qsuitsPath, params)
+			execQsuits(javaPath, qsuitsPath, params)
 		}
 	} else {
 		help()
@@ -324,10 +299,10 @@ func updatedQsuitsPath(homePath string) string {
 	return qsuitsPath
 }
 
-func execQsuits(qsuitsPath string, params []string) {
+func execQsuits(javaPath string, qsuitsPath string, params []string) {
 
 	if strings.Contains(qsuitsPath, "qsuits") {
-		err := qsuits.Exec(qsuitsPath, params)
+		err := qsuits.Exec(javaPath, qsuitsPath, params)
 		if err != nil {
 			//panic(err)
 			fmt.Println(err.Error())
@@ -398,17 +373,20 @@ func SetJdk(homePath string, params []string) {
 
 	if len(params) > 1 {
 		jdkPath := params[1]
-		_, err := utils.FileExists(jdkPath)
-		if err != nil {
+		isExists, err := utils.FileExists(jdkPath)
+		if !isExists && err != nil {
 			fmt.Println("check jdk path failed: " + err.Error())
 			return
+		} else if isExists && err == nil {
+			fmt.Println("jdk path must be a directory.")
+			return
 		}
-		result, err := qsuits.SetJdkPath(homePath, jdkPath)
+		isSuccess, err := qsuits.SetJdkMod(homePath, jdkPath, 8)
 		if err != nil {
 			fmt.Println("set jdk path failed: " + err.Error())
 			return
 		}
-		if result {
+		if isSuccess {
 			fmt.Println("set jdk path succeeded.")
 		} else {
 			fmt.Println("set jdk path failed.")
@@ -416,4 +394,33 @@ func SetJdk(homePath string, params []string) {
 	} else {
 		fmt.Println("please setjdk with jdk path like \"jdk1.8.0_231\".")
 	}
+}
+
+func CheckJava() (javaPath string, err error) {
+
+	javaPath = "java"
+	var source = "system environment"
+	var version string
+	_, version, err = qsuits.CheckJavaRuntime()
+	if err != nil {
+		javaPath, err = qsuits.GetJavaPathFromMod(homePath)
+		if err == nil {
+			source = "mod setting"
+			_, err = utils.FileExists(javaPath)
+			if err == nil {
+				version, err = qsuits.GetJavaVersion(javaPath)
+			}
+		} else {
+			err = errors.New(fmt.Sprintf("no java in system and get custom java failed: %s.", err))
+			return javaPath, err
+		}
+	}
+	if err == nil {
+		err = qsuits.CheckJavaVersion(version, 8)
+	}
+	if err != nil {
+		err = errors.New(fmt.Sprintf("get java path: %s from %s %s.", javaPath, source, err))
+		return javaPath, err
+	}
+	return javaPath, nil
 }
