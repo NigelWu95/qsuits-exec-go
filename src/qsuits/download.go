@@ -152,17 +152,15 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	get.WG.Wait()
 
 	for i := 0; i < len(get.TempFiles); i++ {
-		tempFile, _ := os.Open(get.TempFiles[i].Name())
-		cnt, err := io.Copy(get.File, tempFile)
+		cnt, err := io.Copy(get.File, get.TempFiles[i])
 		if err != nil {
 			return err
 		}
 		if cnt <= 0 {
 			return errors.New("copy error")
 		}
-		tempFile.Close()
 	}
-	get.File.Close()
+	_ = get.File.Close()
 	defer func() {
 		for i := 0; i < len(get.TempFiles); i++ {
 			_ = get.TempFiles[i].Close()
@@ -176,6 +174,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 }
 
 func (get *HttpGet) RangeDownload(i int) {
+
 	defer get.WG.Done()
 	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {
 		return
