@@ -182,8 +182,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 func (get *HttpGet) RangeDownload(filepath string, i int) {
 
 	defer get.WG.Done()
-	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
-	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {
+	if get.DownloadRange[i][0] >= get.DownloadRange[i][1] {
 		return
 	}
 
@@ -195,6 +194,7 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		}
 	}()
 
+	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
 	req, err := http.NewRequest("GET", get.Url, nil)
 	req.Header.Set("Range", "bytes=" + rangeI)
 	req.Header.Set("Upgrade-Insecure-Requests", "1")
