@@ -26,6 +26,7 @@ func main()  {
 	_, version, err := qsuits.CheckJavaRuntime()
 	fmt.Println("do you want to download jdk8 now ? (yes/no)")
 	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan();
 	verify := scanner.Text()
 	if strings.EqualFold("yes", verify) {
 		jdkPath, err := qsuits.JdkDownload()
