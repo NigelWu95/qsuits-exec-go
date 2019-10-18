@@ -167,14 +167,16 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 		}
 		_ = get.TempFiles[i].Close()
 	}
-	_ = get.File.Close()
-	for i := 0; i < len(get.TempFiles); i++ {
-		err := os.Remove(get.TempFiles[i].Name())
-		if err != nil {
-			log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
+	err = get.File.Close()
+	if err == nil {
+		for i := 0; i < len(get.TempFiles); i++ {
+			err := os.Remove(get.TempFiles[i].Name())
+			if err != nil {
+				log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
+			}
 		}
 	}
-	return nil
+	return err
 }
 
 func (get *HttpGet) RangeDownload(i int) {
