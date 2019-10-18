@@ -24,20 +24,20 @@ use local mode with "-L" it mean you dont want to update latest qsuits automatic
 执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L" 参数表示您只想使用本地设置的默认版本，而不自动更新 qsuits-java 的最新版本。 
 
 Options（选项）:  
-&ensp;&ensp;&ensp;&ensp;&ensp; --Local/-L &ensp;&ensp;&ensp;&ensp;&ensp; use current default qsuits version to exec.
-使用当前的默认 qsuits-java 版本来运行  
-&ensp;&ensp;&ensp;&ensp;&ensp; --help/-h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; --Local/-L &ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. Location at first or last.
+使用当前的默认 qsuits-java 版本来运行，-L 参数作为第一个或者最后一个  
+&ensp;&ensp;&ensp;&ensp;&ensp; --help/-h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
 Commands:  
-&ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; print usage. 打印使用帮助  
-&ensp;&ensp;&ensp;&ensp;&ensp; selfupdate &ensp;&ensp;&ensp;&ensp;&ensp; update this own executable program by
+&ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印使用帮助  
+&ensp;&ensp;&ensp;&ensp;&ensp; selfupdate &ensp;&ensp;&ensp;&ensp;&ensp; Update this own executable program by
  itself. 升级 qsuits 自身可执行程序  
-&ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; list all qsuits versions from local.
+&ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; List all qsuits versions from local.
  列举本地的所有 qsuits-java 的版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; remove all old qsuits 
+&ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Remove all old qsuits 
 versions from local. 清除本地 qsuits-java 的所有旧版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; query local default qsuits version.
+&ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Query local default qsuits version.
 查询 qsuits-java 本地当前的默认版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; chgver <no.> &ensp;&ensp;&ensp; set local default qsuits version. 设置本地的默认 qsuits-java 版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; download <no.> &ensp; download qsuits with specified version. 下载 qsuits-java 的指定版本  
+&ensp;&ensp;&ensp;&ensp;&ensp; chgver <no.> &ensp;&ensp;&ensp; Set local default qsuits version. 设置本地的默认 qsuits-java 版本  
+&ensp;&ensp;&ensp;&ensp;&ensp; download <no.> &ensp; Download qsuits with specified version. 下载 qsuits-java 的指定版本  
 
 Usage of qsuits-java（qsuits-java 的完整用法请参考）:  https://github.com/NigelWu95/qiniu-suits-java  

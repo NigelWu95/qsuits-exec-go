@@ -80,7 +80,7 @@ func main()  {
 			execQsuits(qsuitsPath, params[1:]);
 		} else if strings.EqualFold(op2, "--Local") || strings.EqualFold(op2, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
-			execQsuits(qsuitsPath, params[0:length - 1]);
+			execQsuits(qsuitsPath, params[0:length - 1])
 		} else if strings.EqualFold(op1, "selfupdate") || strings.EqualFold(op1, "upgrade") {
 			selfUpdate()
 		} else if strings.EqualFold(op1, "versions") {
@@ -93,6 +93,9 @@ func main()  {
 			changeVersion(homePath, params)
 		} else if strings.EqualFold(op1, "download") {
 			download(homePath, params)
+		} else if strings.EqualFold(op1, "update") {
+			download(homePath, params)
+			changeVersion(homePath, params)
 		} else if strings.EqualFold(op1, "help") ||
 			strings.EqualFold(op1, "--help") || strings.EqualFold(op1, "-h") {
 			help()
@@ -113,16 +116,17 @@ func help() {
 		"you only need use qsuits-java's parameters to run. If you use local mode it mean you " +
 		"dont want to update latest qsuits automatically.")
 	fmt.Println("Options:")
-	fmt.Println("        -Local/-L       use current default qsuits version to exec.")
-	fmt.Println("        --help/-h/help  print usage.")
+	fmt.Println("        -Local/-L       Use current default qsuits version to exec. Location at first or last.")
+	fmt.Println("        --help/-h/help  Print usage.")
 	fmt.Println("Commands:")
-	fmt.Println("         help           print usage.")
-	fmt.Println("         selfupdate     update this own executable program by itself.")
-	fmt.Println("         versions       list all qsuits versions from local.")
-	fmt.Println("         clear          remove all old qsuits versions from local.")
-	fmt.Println("         current        query local default qsuits version.")
-	fmt.Println("         chgver <no.>   set local default qsuits version.")
-	fmt.Println("         download <no.> download qsuits with specified version.")
+	fmt.Println("         help           Print usage.")
+	fmt.Println("         selfupdate     Update this own executable program by itself.")
+	fmt.Println("         versions       List all qsuits versions from local.")
+	fmt.Println("         clear          Remove all old qsuits versions from local.")
+	fmt.Println("         current        Query local default qsuits version.")
+	fmt.Println("         chgver <no.>   Set local default qsuits version.")
+	fmt.Println("         download <no.> Download qsuits with specified version.")
+	fmt.Println("         update <no.>   Update qsuits with specified version. Combine \"download\" with \"chgver\".")
 	fmt.Println("Usage of qsuits:  https://github.com/NigelWu95/qiniu-suits-java")
 }
 

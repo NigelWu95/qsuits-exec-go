@@ -165,7 +165,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 		return goroutineErr
 	}
 
-	var copyTimes = 3
+	var copyTimes = 5
 	for i := 0; i < get.Count; i++ {
 		cnt, err := io.Copy(get.File, get.TempFiles[i])
 		if err != nil || cnt < (get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
@@ -184,7 +184,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 				return err
 			}
 		} else {
-			copyTimes = 3
+			copyTimes = 5
 			_ = get.TempFiles[i].Close()
 		}
 	}
@@ -213,7 +213,6 @@ func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err er
 		if goroutineErr == nil {
 			return nil
 		}
-		fmt.Println(i, "---", goroutineErr)
 	}
 	return goroutineErr
 }
@@ -328,12 +327,18 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-" + version + ".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
 	err = ConcurrentDownload(url, qsuitsFilePath)
+	if err != nil && strings.Contains(err.Error(), "copy error size") {
+		err = ConcurrentDownload(url, qsuitsFilePath)
+	}
 	if err != nil {
 		fmt.Println("\rdownload is retrying from maven...")
 		url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
 			version + "/qsuits-" + version + "-jar-with-dependencies.jar"
 		//err = StraightDownload(url, qsuitsFilePath)
 		err = ConcurrentDownload(url, qsuitsFilePath)
+		if err != nil && strings.Contains(err.Error(), "copy error size") {
+			err = ConcurrentDownload(url, qsuitsFilePath)
+		}
 	}
 	done <- struct{}{}
 	close(done)

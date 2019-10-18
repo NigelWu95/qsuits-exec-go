@@ -72,6 +72,9 @@ func JdkDownload() (javaPath string, err error) {
 	done := make(chan struct{})
 	go progress.SixDotLoop(done, "jdk-downloading")
 	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 5)
+	if err != nil && strings.Contains(err.Error(), "copy error size") {
+		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 5)
+	}
 	done <- struct{}{}
 	close(done)
 	if err != nil {
