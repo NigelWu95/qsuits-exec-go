@@ -182,7 +182,11 @@ func (get *HttpGet) RangeDownload(i int) {
 	}
 	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
 
-	defer get.TempFiles[i].Close()
+	// 捕获协程中的 panic 信息
+	if err := recover(); err != nil {
+		errs++
+		fmt.Println(err) // 输出 panic 信息
+	}
 
 	req, err := http.NewRequest("GET", get.Url, nil)
 	req.Header.Set("Range", "bytes=" + rangeI)
@@ -243,6 +247,12 @@ func StraightDownload(qsuitsFilePath string, url string) (err error) {
 	} else {
 		return errors.New(resp.Status)
 	}
+}
+
+var retry = 3
+var errs = 0
+func ConcurrentDownloadWithRetry()  {
+
 }
 
 func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath string, err error) {
