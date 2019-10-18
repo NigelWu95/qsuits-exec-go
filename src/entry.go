@@ -368,5 +368,5 @@ func selfUpdate() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("-> succeed.")
+	fmt.Println(" -> succeed.")
 }

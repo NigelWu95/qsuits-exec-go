@@ -75,9 +75,9 @@ func JdkDownload() (javaPath string, err error) {
 	done <- struct{}{}
 	close(done)
 	if err != nil {
-		fmt.Println("error from url: http://qsuits.nigel.net.cn/" + jdkFileName)
+		fmt.Println(" error from url: http://qsuits.nigel.net.cn/" + jdkFileName)
 		return jdkFileName, err
 	}
-	fmt.Println("-> succeed.")
+	fmt.Println(" -> succeed.")
 	return jdkFileName, nil
 }
