@@ -29,7 +29,7 @@ Options（选项）:
 &ensp;&ensp;&ensp;&ensp;&ensp; --help/-h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; print usage. 打印用法说明  
 Commands:  
 &ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; print usage. 打印使用帮助  
-&ensp;&ensp;&ensp;&ensp;&ensp; upgrade &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; upgrade this own executable program by
+&ensp;&ensp;&ensp;&ensp;&ensp; selfupdate &ensp;&ensp;&ensp; update this own executable program by
  itself. 升级 qsuits 自身可执行程序  
 &ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; list all qsuits versions from local.
  列举本地的所有 qsuits-java 的版本  

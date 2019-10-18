@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"github.com/inconshreveable/go-update"
@@ -23,15 +24,30 @@ func main()  {
 		return
 	}
 	_, version, err := qsuits.CheckJavaRuntime()
-	_, err = qsuits.JdkDownload()
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("please install java first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+	fmt.Println("do you want to download jdk8 now ? (yes/no)")
+	scanner := bufio.NewScanner(os.Stdin)
+	verify := scanner.Text()
+	if strings.EqualFold("yes", verify) {
 		jdkPath, err := qsuits.JdkDownload()
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
 			fmt.Println("jdk download as " + jdkPath)
+		}
+	}
+	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println("please install java first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+		fmt.Println("do you want to download jdk8 now ? (yes/no)")
+		scanner := bufio.NewScanner(os.Stdin)
+		verify := scanner.Text()
+		if strings.EqualFold("yes", verify) {
+			jdkPath, err := qsuits.JdkDownload()
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				fmt.Println("jdk download as " + jdkPath)
+			}
 		}
 		return
 	} else {
