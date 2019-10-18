@@ -159,12 +159,11 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 			}
 			return err
 		}
-		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
+		if cnt < 0 {
 			for j := i; j < get.Count; j++ {
 				_ = get.TempFiles[j].Close()
 			}
-			fmt.Println(get.DownloadRange[i][1], "---", get.DownloadRange[i][0], "---", cnt)
-			return errors.New("copy error size: " + string(cnt) + " bytes")
+			return errors.New("copy error size")
 		}
 		_ = get.TempFiles[i].Close()
 	}
