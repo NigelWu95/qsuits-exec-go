@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
-	"mime"
 	"net/http"
 	"net/http/httputil"
 	"os"
@@ -23,8 +22,8 @@ import (
 type HttpGet struct {
 	Url           string
 	HttpClient    *http.Client
-	MediaType     string
-	MediaParams   map[string]string
+	//MediaType     string
+	//MediaParams   map[string]string
 	ContentLength int64
 	DownloadBlock int64
 	DownloadRange [][]int64
@@ -109,7 +108,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	if err != nil {
 		return err
 	}
-	get.MediaType, get.MediaParams, _ = mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
+	//get.MediaType, get.MediaParams, _ = mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
 	contentRange := strings.Split(resp.Header.Get("Content-Range"), "/")
 	if len(contentRange) < 2 {
 		return errors.New("can not get content-range")

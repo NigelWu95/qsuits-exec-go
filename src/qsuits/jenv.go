@@ -2,8 +2,11 @@ package qsuits
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os/exec"
+	"qsuits-exec-go/src/utils"
+	"runtime"
 	"strings"
 )
 
@@ -34,13 +37,47 @@ func CheckJavaRuntime() (javaPath string, version string, err error) {
 	return javaPath, version, nil
 }
 
-func JdkDownload() (javaPath string, version string, err error) {
-	fmt.Println("recommend one tool for you: https://github.com/linux-china/jenv")
-	fmt.Println("you can use it to install java more easily, the steps like:")
-	fmt.Println("1. curl -L -s get.jenv.mvnsearch.org | bash")
-	fmt.Println("2. source $HOME/.jenv/bin/jenv-init.sh")
-	fmt.Println("3. jenv ls java")
-	fmt.Println("4. jenv install java <latest version>")
-	fmt.Println("(please allow the tool to set latest version as default.)")
-	return javaPath, version, nil
+func JdkDownload() (javaPath string, err error) {
+
+	osName := runtime.GOOS
+	osArch := runtime.GOARCH
+	fmt.Printf("os: %s_%s\n", osName, osArch)
+	jdkFileName := "jdk-8u231"
+
+	if strings.Contains(osName, "darwin") {
+		jdkFileName += "-macosx-x64.dmg"
+	} else if strings.Contains(osName, "linux") {
+		if strings.Contains(osArch, "64") {
+			jdkFileName += "-linux-x64.tar.gz"
+		} else if strings.Contains(osArch, "86") {
+			jdkFileName += "-linux-i586.tar.gz"
+		} else {
+			err := errors.New("no tar.gz file to download of this go arch")
+			return jdkFileName, err
+		}
+	} else if strings.Contains(osName, "windows") {
+		if strings.Contains(osArch, "64") {
+			jdkFileName += "-windows-x64.exe"
+		} else if strings.Contains(osArch, "86") {
+			jdkFileName += "-windows-i586.exe"
+		} else {
+			err := errors.New("no executable file to download of this go arch")
+			return jdkFileName, err
+		}
+	} else {
+		err := errors.New("no jdk to download of this go arch")
+		return jdkFileName, err
+	}
+
+	done := make(chan struct{})
+	go progress.SixDotLoop(done, "jdk-downloading")
+	err = ConcurrentDownload("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName)
+	done <- struct{}{}
+	close(done)
+	if err != nil {
+		fmt.Println("error from url: http://qsuits.nigel.net.cn/" + jdkFileName)
+		return jdkFileName, err
+	}
+	fmt.Println("-> succeed.")
+	return jdkFileName, nil
 }

@@ -23,10 +23,16 @@ func main()  {
 		return
 	}
 	_, version, err := qsuits.CheckJavaRuntime()
+	_, err = qsuits.JdkDownload()
 	if err != nil {
 		fmt.Println(err.Error())
-		fmt.Println("please install java first.")
-		_, _, _ = qsuits.JdkDownload()
+		fmt.Println("please install java first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+		jdkPath, err := qsuits.JdkDownload()
+		if err != nil {
+			fmt.Println(err.Error())
+		} else {
+			fmt.Println("jdk download as " + jdkPath)
+		}
 		return
 	} else {
 		vers := strings.Split(version, ".")
@@ -58,7 +64,7 @@ func main()  {
 		} else if strings.EqualFold(op2, "--Local") || strings.EqualFold(op2, "-L") {
 			qsuitsPath := localQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params[0:length - 1]);
-		} else if strings.EqualFold(op1, "upgrade") {
+		} else if strings.EqualFold(op1, "selfupdate") || strings.EqualFold(op1, "upgrade") {
 			selfUpdate()
 		} else if strings.EqualFold(op1, "versions") {
 			versions(homePath)
@@ -94,7 +100,7 @@ func help() {
 	fmt.Println("        --help/-h/help  print usage.")
 	fmt.Println("Commands:")
 	fmt.Println("         help           print usage.")
-	fmt.Println("         upgrade        upgrade this own executable program by itself.")
+	fmt.Println("         selfupdate     update this own executable program by itself.")
 	fmt.Println("         versions       list all qsuits versions from local.")
 	fmt.Println("         clear          remove all old qsuits versions from local.")
 	fmt.Println("         current        query local default qsuits version.")
@@ -345,5 +351,5 @@ func selfUpdate() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(" -> succeed.")
+	fmt.Println("-> succeed.")
 }
