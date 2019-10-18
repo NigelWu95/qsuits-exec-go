@@ -275,6 +275,7 @@ func StraightDownload(qsuitsFilePath string, url string) (err error) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		return err
 	}
@@ -282,7 +283,6 @@ func StraightDownload(qsuitsFilePath string, url string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
 		err = ioutil.WriteFile(qsuitsFilePath, body, 0755)
 		if err != nil {
@@ -298,9 +298,9 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 
 	done := make(chan struct{})
 	if isLatest {
-		go progress.SixDotLoop(done, "latest qsuits version: " + version + " is downloading")
+		go utils.SixDotLoopProgress(done, "latest qsuits version: " + version + " is downloading")
 	} else {
-		go progress.SixDotLoop(done, "qsuits version: " + version + " is downloading")
+		go utils.SixDotLoopProgress(done, "qsuits version: " + version + " is downloading")
 	}
 
 	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"

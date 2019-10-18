@@ -7,6 +7,7 @@ import (
 	"github.com/inconshreveable/go-update"
 	"net/http"
 	"os"
+	"path/filepath"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
 	"qsuits-exec-go/src/utils"
@@ -25,17 +26,26 @@ func main()  {
 	}
 	_, version, err := qsuits.CheckJavaRuntime()
 	fmt.Println("do you want to download jdk8 now ? (yes/no)")
-	//scanner := bufio.NewScanner(os.Stdin)
-	//scanner.Scan();
-	//verify := scanner.Text()
-	//if strings.EqualFold("yes", verify) {
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan();
+	verify := scanner.Text()
+	if strings.EqualFold("yes", verify) {
 		jdkPath, err := qsuits.JdkDownload()
 		if err != nil {
 			fmt.Println(err.Error())
 		} else {
 			fmt.Println("jdk download as " + jdkPath)
+			isSuccess, err := qsuits.SetJdkPath(homePath, jdkPath)
+			if err != nil || !isSuccess {
+				fmt.Println("set jdk path failed, please set it by yourself.")
+				if err != nil {
+					panic(err)
+				} else {
+					return
+				}
+			}
 		}
-	//}
+	}
 	if err != nil {
 		fmt.Println(err.Error())
 		fmt.Println("please install java first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
@@ -99,6 +109,8 @@ func main()  {
 		} else if strings.EqualFold(op1, "help") ||
 			strings.EqualFold(op1, "--help") || strings.EqualFold(op1, "-h") {
 			help()
+		} else if strings.EqualFold(op1, "setjdk") {
+			SetJdk(homePath, params)
 		} else {
 			qsuitsPath := updatedQsuitsPath(homePath)
 			execQsuits(qsuitsPath, params)
@@ -126,7 +138,8 @@ func help() {
 	fmt.Println("         current        Query local default qsuits version.")
 	fmt.Println("         chgver <no.>   Set local default qsuits version.")
 	fmt.Println("         download <no.> Download qsuits with specified version.")
-	fmt.Println("         update <no.>   Update qsuits with specified version. Combine \"download\" with \"chgver\".")
+	fmt.Println("         update <no.>   Update qsuits with specified version, combine \"download\" with \"chgver\".")
+	fmt.Println("         setjdk <path>  Set jdk path as default, then all operation can use this jdk.")
 	fmt.Println("Usage of qsuits:  https://github.com/NigelWu95/qiniu-suits-java")
 }
 
@@ -190,7 +203,7 @@ func changeVersion(homePath string, params []string) {
 
 	if len(params) > 1 {
 		ver := params[1]
-		_, err := qsuits.Exists(homePath, ver)
+		_, err := utils.FileExists(filepath.Join(homePath, ".qsuits", "qsuits-" + ver + ".jar"))
 		if err != nil {
 			fmt.Println("chgver " + ver + " failed: " + err.Error())
 			return
@@ -360,7 +373,7 @@ func selfUpdate() {
 		panic(err)
 	}
 	done := make(chan struct{})
-	go progress.SixDotLoop(done, "self-updating")
+	go utils.SixDotLoopProgress(done, "self-updating")
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println(" ")
@@ -375,4 +388,28 @@ func selfUpdate() {
 		panic(err)
 	}
 	fmt.Println(" -> succeed.")
+}
+
+func SetJdk(homePath string, params []string) {
+
+	if len(params) > 1 {
+		jdkPath := params[1]
+		_, err := utils.FileExists(jdkPath)
+		if err != nil {
+			fmt.Println("check jdk path failed: " + err.Error())
+			return
+		}
+		result, err := qsuits.SetJdkPath(homePath, jdkPath)
+		if err != nil {
+			fmt.Println("set jdk path failed: " + err.Error())
+			return
+		}
+		if result {
+			fmt.Println("set jdk path succeeded.")
+		} else {
+			fmt.Println("set jdk path failed.")
+		}
+	} else {
+		fmt.Println("please setjdk with jdk path like \"jdk1.8.0_231\".")
+	}
 }

@@ -1,11 +1,11 @@
-package progress
+package utils
 
 import (
 	"fmt"
 	"time"
 )
 
-func SixDotLoop(end <-chan struct{}, startInfo string) {
+func SixDotLoopProgress(end <-chan struct{}, startInfo string) {
 
 	isDone := false
 	go func() {

@@ -40,9 +40,6 @@ func WriteMod(path []string, version string) (isSuccess bool, err error) {
 	}
 	modPath = filepath.Join(path[0], ".qsuits", "version.mod")
 	modFile, err := os.Create(modPath)
-	if os.IsExist(err) {
-		modFile, err = os.Open(modPath)
-	}
 	if err != nil {
 		return false, err
 	}

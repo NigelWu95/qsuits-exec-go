@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"qsuits-exec-go/src/utils"
 	"runtime"
 	"strings"
@@ -70,7 +72,7 @@ func JdkDownload() (javaPath string, err error) {
 	}
 
 	done := make(chan struct{})
-	go progress.SixDotLoop(done, "jdk-downloading")
+	go utils.SixDotLoopProgress(done, "jdk-downloading")
 	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 5)
 	if err != nil && strings.Contains(err.Error(), "copy error size") {
 		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 5)
@@ -84,4 +86,25 @@ func JdkDownload() (javaPath string, err error) {
 		fmt.Println(" -> succeed.")
 		return jdkFileName, nil
 	}
+}
+
+func SetJdkPath(path string, jdkPath string) (isSuccess bool, err error) {
+
+	if len(path) == 0 {
+		return false, errors.New("no valid path")
+	}
+	modPath = filepath.Join(path, ".qsuits", "jdk.mod")
+	modFile, err := os.Create(modPath)
+	defer modFile.Close()
+	if err != nil {
+		return false, err
+	}
+	size, err := modFile.WriteString(jdkPath)
+	if err != nil {
+		return false, err
+	}
+	if size <= 0 {
+		return false, errors.New("no content wrote")
+	}
+	return true, nil
 }
