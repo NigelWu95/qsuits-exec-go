@@ -93,11 +93,13 @@ func SetJdkMod(path string, jdkPath string, minimum int) (isSuccess bool, err er
 	}
 	var javaPath string
 	var version string
+	var firstErr error
 	osName := runtime.GOOS
 	if strings.Contains(osName, "darwin") {
 		javaPath = filepath.Join(jdkPath, "bin", "java")
 		version, err = GetJavaVersion(javaPath)
 		if err != nil {
+			firstErr = err
 			javaPath = filepath.Join(jdkPath, "Contents", "Home", "bin", "java")
 			version, err = GetJavaVersion(javaPath)
 		}
@@ -109,6 +111,9 @@ func SetJdkMod(path string, jdkPath string, minimum int) (isSuccess bool, err er
 		version, err = GetJavaVersion(javaPath)
 	}
 	if err != nil {
+		if firstErr != nil {
+			err = errors.New(fmt.Sprintf("%s, %s", firstErr, err))
+		}
 		return false, err
 	}
 	err = CheckJavaVersion(version, minimum)

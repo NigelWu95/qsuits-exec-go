@@ -20,21 +20,22 @@ var homePath string
 
 func main()  {
 
-	fmt.Println("do you want to download jdk8 now ? (yes/no)")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	verify := scanner.Text()
-	if strings.EqualFold("yes", verify) {
-		jdkFileName, err := qsuits.JdkDownload()
-		if err != nil {
-			fmt.Println(err.Error())
-		} else {
-			fmt.Println("jdk download as " + jdkFileName + ", please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
-			return
-		}
-	}
+	//fmt.Println("do you want to download jdk8 now ? (yes/no)")
+	//scanner := bufio.NewScanner(os.Stdin)
+	//scanner.Scan()
+	//verify := scanner.Text()
+	//if strings.EqualFold("yes", verify) {
+	//	jdkFileName, err := qsuits.JdkDownload()
+	//	if err != nil {
+	//		fmt.Println(err.Error())
+	//	} else {
+	//		fmt.Println("jdk download as " + jdkFileName + ", please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+	//		return
+	//	}
+	//}
 
-	homePath, err := user.HomePath()
+	var err error
+	homePath, err = user.HomePath()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -65,33 +66,33 @@ func main()  {
 		op1 := params[0]
 		op2 := params[length - 1]
 		if strings.EqualFold(op1, "--Local") || strings.EqualFold(op1, "-L") {
-			qsuitsPath := localQsuitsPath(homePath)
+			qsuitsPath := localQsuitsPath()
 			execQsuits(javaPath, qsuitsPath, params[1:]);
 		} else if strings.EqualFold(op2, "--Local") || strings.EqualFold(op2, "-L") {
-			qsuitsPath := localQsuitsPath(homePath)
+			qsuitsPath := localQsuitsPath()
 			execQsuits(javaPath, qsuitsPath, params[0:length - 1])
 		} else if strings.EqualFold(op1, "selfupdate") || strings.EqualFold(op1, "upgrade") {
 			selfUpdate()
 		} else if strings.EqualFold(op1, "versions") {
-			versions(homePath)
+			versions()
 		} else if strings.EqualFold(op1, "clear") {
-			clear(homePath)
+			clear()
 		} else if strings.EqualFold(op1, "current") {
-			currentVersion(homePath)
+			currentVersion()
 		} else if strings.EqualFold(op1, "chgver") {
-			changeVersion(homePath, params)
+			changeVersion(params)
 		} else if strings.EqualFold(op1, "download") {
-			download(homePath, params)
+			download(params)
 		} else if strings.EqualFold(op1, "update") {
-			download(homePath, params)
-			changeVersion(homePath, params)
+			download(params)
+			changeVersion(params)
 		} else if strings.EqualFold(op1, "help") ||
 			strings.EqualFold(op1, "--help") || strings.EqualFold(op1, "-h") {
 			help()
 		} else if strings.EqualFold(op1, "setjdk") {
-			SetJdk(homePath, params)
+			SetJdk(params)
 		} else {
-			qsuitsPath := updatedQsuitsPath(homePath)
+			qsuitsPath := updatedQsuitsPath()
 			execQsuits(javaPath, qsuitsPath, params)
 		}
 	} else {
@@ -122,7 +123,7 @@ func help() {
 	fmt.Println("Usage of qsuits:  https://github.com/NigelWu95/qiniu-suits-java")
 }
 
-func versions(homePath string) {
+func versions() {
 
 	vers, paths, err := qsuits.Versions(homePath)
 	if err != nil {
@@ -134,7 +135,7 @@ func versions(homePath string) {
 	}
 }
 
-func clear(homePath string) {
+func clear() {
 
 	versions, paths, err := qsuits.Versions(homePath)
 	if err != nil {
@@ -168,7 +169,7 @@ func clear(homePath string) {
 	}
 }
 
-func currentVersion(homePath string) {
+func currentVersion() {
 
 	version, path, err := qsuits.ReadMod(homePath)
 	if err != nil {
@@ -178,7 +179,7 @@ func currentVersion(homePath string) {
 	}
 }
 
-func changeVersion(homePath string, params []string) {
+func changeVersion(params []string) {
 
 	if len(params) > 1 {
 		ver := params[1]
@@ -202,7 +203,7 @@ func changeVersion(homePath string, params []string) {
 	}
 }
 
-func download(homePath string, params []string) {
+func download(params []string) {
 
 	if len(params) > 1 {
 		ver := params[1]
@@ -218,7 +219,7 @@ func download(homePath string, params []string) {
 	}
 }
 
-func localQsuitsPath(homePath string) string {
+func localQsuitsPath() (qsuitsPath string) {
 
 	_, qsuitsPath, err := qsuits.ReadMod(homePath)
 	if err != nil {
@@ -260,7 +261,7 @@ func localQsuitsPath(homePath string) string {
 	return qsuitsPath
 }
 
-func updatedQsuitsPath(homePath string) string {
+func updatedQsuitsPath() (qsuitsPath string) {
 
 	qsuitsVersion, err := qsuits.GetLatestVersion()
 	if err != nil {
@@ -283,7 +284,7 @@ func updatedQsuitsPath(homePath string) string {
 			}
 		}
 	}
-	qsuitsPath, err := qsuits.Update(homePath, qsuitsVersion, true)
+	qsuitsPath, err = qsuits.Update(homePath, qsuitsVersion, true)
 	if err != nil {
 		fmt.Println(err.Error() + ", update qsuits for version: " + qsuitsVersion + " failed.")
 		if len(versions) == 0 {
@@ -369,7 +370,7 @@ func selfUpdate() {
 	fmt.Println(" -> succeed.")
 }
 
-func SetJdk(homePath string, params []string) {
+func SetJdk(params []string) {
 
 	if len(params) > 1 {
 		jdkPath := params[1]
