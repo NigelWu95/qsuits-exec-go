@@ -198,6 +198,7 @@ var goroutineErr error
 var lock = sync.Mutex{}
 func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err error) {
 	for i := 0; i < retry; i++ {
+		goroutineErr = nil
 		err = ConcurrentDownload(url, filepath)
 		if err != goroutineErr {
 			return err
@@ -206,7 +207,6 @@ func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err er
 			return nil
 		}
 		fmt.Println(goroutineErr)
-		goroutineErr = nil
 	}
 	return goroutineErr
 }
