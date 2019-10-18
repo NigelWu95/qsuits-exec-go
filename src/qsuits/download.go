@@ -161,6 +161,9 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	}
 
 	get.WG.Wait()
+	if goroutineErr != nil {
+		return goroutineErr
+	}
 
 	for i := 0; i < get.Count; i++ {
 		cnt, err := io.Copy(get.File, get.TempFiles[i])
@@ -196,7 +199,7 @@ var lock = sync.Mutex{}
 func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err error) {
 	for i := 0; i < retry; i++ {
 		err = ConcurrentDownload(url, filepath)
-		if err != nil {
+		if err != goroutineErr {
 			return err
 		}
 		if goroutineErr == nil {
