@@ -179,6 +179,7 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	return err
 }
 
+var goroutineErrStr string
 var goroutineErr error
 var lock = sync.Mutex{}
 func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err error) {
@@ -190,6 +191,7 @@ func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err er
 		if goroutineErr == nil {
 			return nil
 		}
+		goroutineErr = nil
 	}
 	return goroutineErr
 }
@@ -205,7 +207,8 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		// 捕获协程中的 panic 信息
 		if err := recover(); err != nil {
 			lock.Lock()
-			goroutineErr = errors.New(err.(string))
+			goroutineErrStr = fmt.Sprintf("range download failed %s", err)
+			goroutineErr = errors.New(goroutineErrStr)
 			lock.Unlock()
 			//fmt.Println(err) // 输出 panic 信息
 		}
@@ -229,7 +232,7 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
 			reqDump, _ := httputil.DumpRequest(req, false)
 			respDump, _ := httputil.DumpResponse(resp, true)
-			errStr := fmt.Sprintf("Download error %d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
+			errStr := fmt.Sprintf("%d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
 				resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
 			err = errors.New(errStr)
 			panic(err)

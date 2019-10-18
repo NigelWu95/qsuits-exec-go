@@ -359,6 +359,7 @@ func selfUpdate() {
 	go progress.SixDotLoop(done, "self-updating")
 	resp, err := client.Do(req)
 	if err != nil {
+		fmt.Println(" ")
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -366,6 +367,7 @@ func selfUpdate() {
 	done <- struct{}{}
 	close(done)
 	if err != nil {
+		fmt.Println(" ")
 		panic(err)
 	}
 	fmt.Println(" -> succeed.")
