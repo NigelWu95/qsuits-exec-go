@@ -167,13 +167,26 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 
 func (get *HttpGet) RangeDownload(filepath string, i int) {
 
+	defer get.WG.Done()
+	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
+	tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDWR|os.O_APPEND, 0)
+	if err != nil || tempFile == nil {
+		tempFile, err = os.Create(filepath + "." + rangeI)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		fi, _ := tempFile.Stat()
+		if tempFile != nil {
+			get.DownloadRange[i][0] += fi.Size()
+		}
+	}
+	get.TempFiles = append(get.TempFiles, tempFile)
 	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {
 		return
 	}
-	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
 
 	defer func() {
-		get.WG.Done()
 		// 捕获协程中的 panic 信息
 		if err := recover(); err != nil {
 			errs++
@@ -196,17 +209,6 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		fmt.Printf("Download #%d failed.\n", i)
 		panic(err)
 	} else {
-		rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
-		tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDWR|os.O_APPEND, 0)
-		if err != nil || tempFile == nil {
-			tempFile, _ = os.Create(filepath + "." + rangeI)
-		} else {
-			fi, _ := tempFile.Stat()
-			if tempFile != nil {
-				get.DownloadRange[i][0] += fi.Size()
-			}
-		}
-		get.TempFiles = append(get.TempFiles, tempFile)
 		cnt, err := io.Copy(tempFile, resp.Body)
 		if err != nil {
 			panic(err)
