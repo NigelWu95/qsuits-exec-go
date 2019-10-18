@@ -179,6 +179,21 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	return err
 }
 
+var goroutineErr error
+var lock = sync.Mutex{}
+func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err error) {
+	for i := 0; i < retry; i++ {
+		err = ConcurrentDownload(url, filepath)
+		if err != nil {
+			return err
+		}
+		if goroutineErr == nil {
+			return nil
+		}
+	}
+	return goroutineErr
+}
+
 func (get *HttpGet) RangeDownload(filepath string, i int) {
 
 	defer get.WG.Done()
@@ -189,8 +204,10 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 	defer func() {
 		// 捕获协程中的 panic 信息
 		if err := recover(); err != nil {
-			errs++
-			fmt.Println(err) // 输出 panic 信息
+			lock.Lock()
+			goroutineErr = errors.New(err.(string))
+			lock.Unlock()
+			//fmt.Println(err) // 输出 panic 信息
 		}
 	}()
 
@@ -204,11 +221,6 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 	defer resp.Body.Close()
 	if err != nil {
 		panic(err)
-	}
-
-	if err != nil {
-		fmt.Printf("Download #%d failed.\n", i)
-		panic(err)
 	} else {
 		cnt, err := io.Copy(get.TempFiles[i], resp.Body)
 		if err != nil {
@@ -217,8 +229,10 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
 			reqDump, _ := httputil.DumpRequest(req, false)
 			respDump, _ := httputil.DumpResponse(resp, true)
-			log.Panicf("Download error %d %v, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
-				resp.StatusCode, err, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
+			errStr := fmt.Sprintf("Download error %d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
+				resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
+			err = errors.New(errStr)
+			panic(err)
 		}
 	}
 }
@@ -254,12 +268,6 @@ func StraightDownload(qsuitsFilePath string, url string) (err error) {
 	} else {
 		return errors.New(resp.Status)
 	}
-}
-
-var retry = 3
-var errs = 0
-func ConcurrentDownloadWithRetry()  {
-
 }
 
 func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath string, err error) {
