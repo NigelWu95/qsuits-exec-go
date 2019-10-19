@@ -40,69 +40,85 @@ func main()  {
 		fmt.Println(err.Error())
 		return
 	}
-	javaPath, err := CheckJava()
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("please install java 8 or above first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
-		fmt.Println("do you want to download jdk8 now ? (yes/no)")
-		scanner := bufio.NewScanner(os.Stdin)
-		scanner.Scan()
-		verify := scanner.Text()
-		if strings.EqualFold("yes", verify) || strings.EqualFold("y", verify) {
-			jdkFileName, err := qsuits.JdkDownload()
-			if err != nil {
-				fmt.Println(err.Error())
-			} else {
-				fmt.Println("jdk download as " + jdkFileName + ", please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+
+	var op string
+	var local bool
+	var customJava bool
+	var params []string
+	length := len(os.Args)
+	if length > 1 {
+		op = os.Args[1]
+		if strings.EqualFold(op, "selfupdate") || strings.EqualFold(op, "upgrade") {
+			selfUpdate()
+		} else if strings.EqualFold(op, "versions") {
+			versions()
+		} else if strings.EqualFold(op, "clear") {
+			clear()
+		} else if strings.EqualFold(op, "current") {
+			currentVersion()
+		} else if strings.EqualFold(op, "chgver") {
+			changeVersion(os.Args[1:])
+		} else if strings.EqualFold(op, "download") {
+			download(os.Args[1:])
+		} else if strings.EqualFold(op, "update") {
+			download(os.Args[1:])
+			changeVersion(os.Args[1:])
+		} else if strings.EqualFold(op, "help") ||
+			strings.EqualFold(op, "--help") || strings.EqualFold(op, "-h") {
+			Usage()
+		} else if strings.EqualFold(op, "setjdk") {
+			SetJdk(os.Args[1:])
+		} else {
+			op = "exec"
+			for i := 1; i < length; i++ {
+				if strings.EqualFold(os.Args[i], "--Local") || strings.EqualFold(os.Args[i], "-L") {
+					local = true
+				} else if strings.EqualFold(os.Args[i], "-j") {
+					customJava = true
+				} else {
+					params = append(params, os.Args[i])
+				}
 			}
 		}
-		return
+	} else {
+		Usage()
 	}
 
-	var params []string
-	params = os.Args[1:]
-	length := len(params)
-	if length > 0 {
-		op1 := params[0]
-		op2 := params[length - 1]
-		if strings.EqualFold(op1, "--Local") || strings.EqualFold(op1, "-L") {
-			qsuitsPath := localQsuitsPath()
-			execQsuits(javaPath, qsuitsPath, params[1:]);
-		} else if strings.EqualFold(op2, "--Local") || strings.EqualFold(op2, "-L") {
-			qsuitsPath := localQsuitsPath()
-			execQsuits(javaPath, qsuitsPath, params[0:length - 1])
-		} else if strings.EqualFold(op1, "selfupdate") || strings.EqualFold(op1, "upgrade") {
-			selfUpdate()
-		} else if strings.EqualFold(op1, "versions") {
-			versions()
-		} else if strings.EqualFold(op1, "clear") {
-			clear()
-		} else if strings.EqualFold(op1, "current") {
-			currentVersion()
-		} else if strings.EqualFold(op1, "chgver") {
-			changeVersion(params)
-		} else if strings.EqualFold(op1, "download") {
-			download(params)
-		} else if strings.EqualFold(op1, "update") {
-			download(params)
-			changeVersion(params)
-		} else if strings.EqualFold(op1, "help") ||
-			strings.EqualFold(op1, "--help") || strings.EqualFold(op1, "-h") {
-			help()
-		} else if strings.EqualFold(op1, "setjdk") {
-			SetJdk(params)
-		} else {
-			qsuitsPath := updatedQsuitsPath()
-			execQsuits(javaPath, qsuitsPath, params)
+	if strings.EqualFold(op, "exec") {
+		javaPath, err := CheckJava(params)
+		if err != nil {
+			fmt.Println(err.Error())
+			fmt.Println("please install java 8 or above first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+			fmt.Println("do you want to download jdk8 now ? (yes/no)")
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Scan()
+			verify := scanner.Text()
+			if strings.EqualFold("yes", verify) || strings.EqualFold("y", verify) {
+				jdkFileName, err := qsuits.JdkDownload()
+				if err != nil {
+					fmt.Println(err.Error())
+				} else {
+					fmt.Println("jdk download as " + jdkFileName + ", please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
+				}
+			}
+			return
 		}
-	} else {
-		help()
+		if customJava {
+
+		}
+		var qsuitsPath string
+		if local {
+			qsuitsPath = localQsuitsPath()
+		} else {
+			qsuitsPath = updatedQsuitsPath()
+		}
+		execQsuits(javaPath, qsuitsPath, params)
 	}
 }
 
-func help() {
+func Usage() {
 
-	fmt.Println("Usage:")
+	fmt.Println("Usage of qsuits:")
 	fmt.Println("    this tool is a agent program for qsuits, your local environment " +
 		"need java8 or above. In default mode, this tool will use latest java qsuits to exec, " +
 		"you only need use qsuits-java's parameters to run. If you use local mode it mean you " +
@@ -120,7 +136,7 @@ func help() {
 	fmt.Println("         download <no.> Download qsuits with specified version.")
 	fmt.Println("         update <no.>   Update qsuits with specified version, combine \"download\" with \"chgver\".")
 	fmt.Println("         setjdk <path>  Set jdk path as default, then all operation can use this jdk as default.")
-	fmt.Println("Usage of qsuits:  https://github.com/NigelWu95/qiniu-suits-java")
+	fmt.Println("Usage of qsuits-java:  https://github.com/NigelWu95/qiniu-suits-java")
 }
 
 func versions() {
@@ -397,7 +413,7 @@ func SetJdk(params []string) {
 	}
 }
 
-func CheckJava() (javaPath string, err error) {
+func CheckJava(params []string) (javaPath string, err error) {
 
 	javaPath = "java"
 	var source = "system environment"
