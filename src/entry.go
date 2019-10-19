@@ -7,6 +7,7 @@ import (
 	"github.com/inconshreveable/go-update"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
@@ -145,17 +146,24 @@ func usage() {
 }
 
 func javaInstall() {
-	fmt.Println("please install java 8 or above first, refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
-	fmt.Println("do you want to download jdk8 now ? (yes/no)")
+	fmt.Println("please install java 8 or above first, choose one action below (1/2):")
+	fmt.Println("1. download jdk8 conformed to system now.")
+	fmt.Println("2. show installation guide: how to install java.")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	verify := scanner.Text()
-	if strings.EqualFold("yes", verify) || strings.EqualFold("y", verify) {
+	if strings.EqualFold("1", verify) {
 		jdkFileName, err := qsuits.JdkDownload()
 		if err != nil {
 			fmt.Printf("%s, maybe you need retry.\n", err.Error())
 		} else {
 			fmt.Printf("jdk download as %s, please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.\n", jdkFileName)
+		}
+	} else {
+		cmd := exec.Command("explorer", "https://blog.csdn.net/wubinghengajw/article/details/102612267")
+		err := cmd.Start()
+		if err != nil {
+			fmt.Println(err.Error())
 		}
 	}
 }
