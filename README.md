@@ -17,7 +17,8 @@ qsuits-java 代理执行工具 by golang
 不对，请重新从上述链接中下载。   
 3. 由于需要 java 环境进行运行，如果系统环境变量中已安装 java 8 或以上，则直接会调用系统下的 java。如果您的登录账号没有安装系统程序的权限，或者系
 统下的 java 版本在 8 以下，那么需要单独下载一个 8 以上的 jdk，安装或解压在自己的路径下面，然后可以通过 setjdk <jdkpath> 来设置该 jdk 环境，
-设置后可以通过 -j/--java 来使用该 jdk，也可以直接 -j/--java <jdkpath> 来使用。
+设置后可以通过 -j/--java 来使用该 jdk，也可以直接 -j/--java <jdkpath> 来使用。  
+4. java 安装简易[指南](https://blog.csdn.net/wubinghengajw/article/details/102612267): https://blog.csdn.net/wubinghengajw/article/details/102612267  
 
 Usage of qsuits（用法）:  
 &ensp;&ensp;&ensp;&ensp;this tool is a agent program for qsuits, your local environment need java8 or above. In 

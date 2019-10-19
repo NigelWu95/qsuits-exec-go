@@ -181,10 +181,12 @@ func JdkDownload() (jdkFileName string, err error) {
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "jdk-downloading")
 	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
-		10 * time.Second,5)
-	if err != nil && strings.Contains(err.Error(), "copy error size") {
+		30 * time.Second,5)
+	if err != nil && (strings.Contains(err.Error(), "request canceled") ||
+		    strings.Contains(err.Error(), "copy error size")) {
+
 		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
-			10 * time.Second,5)
+			0,5)
 	}
 	done <- struct{}{}
 	close(done)

@@ -7,7 +7,6 @@ import (
 	"github.com/inconshreveable/go-update"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
@@ -148,13 +147,11 @@ func usage() {
 }
 
 func javaInstall() {
-	fmt.Println("do you want to choose one action below ? (1/2)")
-	fmt.Println("1. download jdk8 conformed to system now.")
-	fmt.Println("2. show guide in explorer of how to install java.")
+	fmt.Println("do you want to download jdk8 conformed to system now ? (yes/no)")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	verify := scanner.Text()
-	if strings.EqualFold("1", verify) {
+	if strings.EqualFold("y", verify) || strings.EqualFold("yes", verify) {
 		jdkFileName, err := qsuits.JdkDownload()
 		if err != nil {
 			fmt.Printf("%s, maybe you need retry.\n", err.Error())
@@ -162,12 +159,7 @@ func javaInstall() {
 			fmt.Printf("jdk download as %s, please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.\n", jdkFileName)
 		}
 	} else {
-		cmd := exec.Command("explorer", "https://blog.csdn.net/wubinghengajw/article/details/102612267")
-		err := cmd.Start()
-		if err != nil {
-			fmt.Println(err.Error())
-			fmt.Println("please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
-		}
+		fmt.Println("please install java refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
 	}
 }
 
