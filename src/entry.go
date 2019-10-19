@@ -139,8 +139,8 @@ func usage() {
 	fmt.Println("         current               Query local default qsuits version.")
 	fmt.Println("         chgver <no.>          Set local default qsuits version.")
 	fmt.Println("         download <no.>        Download qsuits with specified version.")
-	fmt.Println("         update <no.>          Update qsuits with specified version, combine \"download\" with \"chgver\".")
-	fmt.Println("         setjdk <jdkpath>      Set jdk path as default, then all operation can use this jdk as default.")
+	fmt.Println("         update <no.>          Update qsuits with specified version.")
+	fmt.Println("         setjdk <jdkpath>      Set jdk path as default.")
 	fmt.Println("Usage of qsuits-java:          https://github.com/NigelWu95/qiniu-suits-java")
 }
 

@@ -25,26 +25,26 @@ use local mode with "-L" it mean you dont want to update latest qsuits automatic
 
 Options（选项）:  
 &ensp;&ensp;&ensp;&ensp;&ensp; -h/help/--help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
-&ensp;&ensp;&ensp;&ensp;&ensp; -L/--Local &ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. 
+&ensp;&ensp;&ensp;&ensp;&ensp; -L/--Local &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. 
 使用当前的默认 qsuits-java 版本来运行  
-&ensp;&ensp;&ensp;&ensp;&ensp; -j/--java [<jdkpath>] &ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."
+&ensp;&ensp;&ensp;&ensp;&ensp; -j/--java [<jdkpath>] &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."
 使用自定义 jdk 通过已存在的设置（指 setjdk 操作的设置）或者通过命令行 <jdkpath> 的设置，运行时指定的 <jdkpath> 会自动更新到 setjdk 中   
 
 Commands:  
-&ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印使用帮助  
-&ensp;&ensp;&ensp;&ensp;&ensp; selfupdate &ensp;&ensp;&ensp;&ensp;&ensp; Update this own executable program by
+&ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印使用帮助  
+&ensp;&ensp;&ensp;&ensp;&ensp; selfupdate &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Update this own executable program by
  itself. 升级 qsuits 自身可执行程序  
-&ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; List all qsuits versions from local.
+&ensp;&ensp;&ensp;&ensp;&ensp; versions &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; List all qsuits versions from local.
  列举本地的所有 qsuits-java 的版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Remove all old qsuits 
+&ensp;&ensp;&ensp;&ensp;&ensp; clear &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Remove all old qsuits 
 versions from local. 清除本地 qsuits-java 的所有旧版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Query local default qsuits version.
+&ensp;&ensp;&ensp;&ensp;&ensp; current &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Query local default qsuits version.
 查询 qsuits-java 本地当前的默认版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; chgver <no.> &ensp;&ensp;&ensp; Set local default qsuits version. 设置本地的默认 qsuits-java 版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; download <no.> &ensp; Download qsuits with specified version. 下载 qsuits-java 的指定版本  
-&ensp;&ensp;&ensp;&ensp;&ensp; update <no.> &ensp;&ensp;&ensp; Update qsuits with specified version, combine \"download\" with \"chgver\"."
-更新本地的 qsuits-java 版本，结合 download 和 chgver 的命令  
-&ensp;&ensp;&ensp;&ensp;&ensp; setjdk <path> &ensp;&ensp; Set jdk path as default, then all operation can use this jdk as default.
-设置 jdk 路径，之后的操作都可以使用默认使用该 jdk  
+&ensp;&ensp;&ensp;&ensp;&ensp; chgver <no.> &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Set local default qsuits version. 设置本地的默认 qsuits-java 版本  
+&ensp;&ensp;&ensp;&ensp;&ensp; download <no.> &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Download qsuits with specified version. 下载 qsuits-java 的指定版本  
+&ensp;&ensp;&ensp;&ensp;&ensp; update <no.> &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Update qsuits with specified version.
+更新本地的 qsuits-java 版本，结合 download 和 chgver  
+&ensp;&ensp;&ensp;&ensp;&ensp; setjdk \<jdkpath\> &ensp;&ensp;&ensp;&ensp;&ensp; Set jdk path as default.
+设置默认 jdk 路径，后续操作通过 -j/--java 可以使用该 jdk 执行  
 
 Usage of qsuits-java（qsuits-java 的完整用法请参考）:  https://github.com/NigelWu95/qiniu-suits-java  
