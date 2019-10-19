@@ -114,11 +114,15 @@ func main()  {
 		}
 		var qsuitsPath string
 		if local {
-			qsuitsPath = localQsuitsPath()
+			qsuitsPath, err = localQsuitsPath()
 		} else {
-			qsuitsPath = updatedQsuitsPath()
+			qsuitsPath, err = updatedQsuitsPath()
 		}
-		execQsuits(javaPath, qsuitsPath, params)
+		if err == nil {
+			execQsuits(javaPath, qsuitsPath, params)
+		} else {
+			fmt.Println(err.Error())
+		}
 	}
 }
 
@@ -247,7 +251,7 @@ func download(params []string) (err error) {
 		ver := params[1]
 		_, err := qsuits.Download(homePath, ver, false)
 		if err != nil {
-			err = errors.New(fmt.Sprintf("download %s failed: %s", ver, err.Error()))
+			err = errors.New(fmt.Sprintf("download %s failed, %s", ver, err.Error()))
 			return err
 		} else {
 			fmt.Printf("download %s succeeded.\n", ver)
@@ -259,16 +263,15 @@ func download(params []string) (err error) {
 	}
 }
 
-func localQsuitsPath() (qsuitsPath string) {
+func localQsuitsPath() (qsuitsPath string, err error) {
 
-	_, qsuitsPath, err := qsuits.ReadMod(homePath)
+	_, qsuitsPath, err = qsuits.ReadMod(homePath)
 	if err != nil {
 		if os.IsNotExist(err) {
 			var qsuitsVersion string
 			versions, paths, err := qsuits.Versions(homePath)
 			if err != nil {
-				fmt.Printf("get local qsuits versions failed: %s\n", err.Error())
-				return
+				return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
 			}
 			if len(versions) == 0 {
 				fmt.Println("no qsuits in your local.")
@@ -277,14 +280,12 @@ func localQsuitsPath() (qsuitsPath string) {
 					qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
 				}
 				if err != nil {
-					fmt.Printf("get latest qsuits failed: %s\n", err.Error())
-					return
+					return qsuitsPath, errors.New(fmt.Sprintf("get latest qsuits failed, %s", err.Error()))
 				}
 			} else {
 				qsuitsVersion, num, err := qsuits.LatestVersionFrom(versions)
 				if err != nil {
-					fmt.Printf("get local qsuits versions failed: %s\n", err.Error())
-					return
+					return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
 				}
 				qsuitsPath = paths[num]
 				fmt.Printf("use local latest qsuits version: %s\n", qsuitsVersion)
@@ -296,19 +297,17 @@ func localQsuitsPath() (qsuitsPath string) {
 				fmt.Printf("write mode failed, %s\n", err.Error())
 			}
 		} else {
-			fmt.Printf("get local qsuits version failed: %s\n", err.Error())
-			return
+			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits version failed, %s", err.Error()))
 		}
 	}
-	return qsuitsPath
+	return qsuitsPath, nil
 }
 
-func updatedQsuitsPath() (qsuitsPath string) {
+func updatedQsuitsPath() (qsuitsPath string, err error) {
 
 	qsuitsVersion, err := qsuits.GetLatestVersion()
 	if err != nil {
-		fmt.Printf("get latest qsuits version failed: %s\n", err.Error())
-		return
+		return qsuitsPath, errors.New(fmt.Sprintf("get latest qsuits version failed, %s", err.Error()))
 	}
 	var versions []string
 	var paths []string
@@ -323,25 +322,23 @@ func updatedQsuitsPath() (qsuitsPath string) {
 			com, versionsErr = qsuits.Compare(localLatestVer, qsuitsVersion)
 			if com > 0 {
 				fmt.Println("use local latest qsuits version: " + localLatestVer)
-				return paths[latestVerNum]
+				return paths[latestVerNum], nil
 			}
 		}
 	}
 	qsuitsPath, err = qsuits.Update(homePath, qsuitsVersion, true)
 	if err != nil {
-		output := fmt.Sprintf("update qsuits for version: %s failed: %s", qsuitsVersion, err.Error())
+		output := fmt.Sprintf("update qsuits for version: %s failed, %s", qsuitsVersion, err.Error())
 		if len(versions) == 0 {
-			fmt.Printf("%s, but no qsuits in your local.\n", output)
-			return
+			return qsuitsPath, errors.New(fmt.Sprintf("%s, but no qsuits in your local", output))
 		}
 		if versionsErr != nil {
-			fmt.Printf("%s, but %s\n", output, versionsErr)
-			return
+			return qsuitsPath, errors.New(fmt.Sprintf("%s, but %s", output, versionsErr))
 		}
 		qsuitsPath = paths[latestVerNum]
 		fmt.Printf("%s, use local latest qsuits version: %s.\n", output, localLatestVer)
 	}
-	return qsuitsPath
+	return qsuitsPath, nil
 }
 
 func execQsuits(javaPath string, qsuitsPath string, params []string) {
@@ -419,13 +416,13 @@ func SetJdk(params []string) {
 		jdkPath := params[1]
 		isExists, err := utils.FileExists(jdkPath)
 		if !isExists && err != nil {
-			fmt.Printf("check jdk path failed: %s\n", err.Error())
+			fmt.Printf("check jdk path failed, %s\n", err.Error())
 		} else if isExists && err == nil {
 			fmt.Println("jdk path must be a directory.")
 		} else {
 			_, err = qsuits.SetJdkMod(homePath, jdkPath, 8)
 			if err != nil {
-				fmt.Println("set jdk path failed: ", err.Error())
+				fmt.Printf("set jdk path failed, %s\n", err.Error())
 			} else {
 				fmt.Println("set jdk path succeeded.")
 			}
@@ -449,7 +446,7 @@ func checkJava(customJava bool) (javaPath string, err error) {
 				version, err = qsuits.GetJavaVersion(javaPath)
 			}
 		} else {
-			err = errors.New(fmt.Sprintf("can not get custom java: %s.", err))
+			err = errors.New(fmt.Sprintf("can not get custom java, %s.", err))
 			return javaPath, err
 		}
 	} else {
@@ -463,7 +460,7 @@ func checkJava(customJava bool) (javaPath string, err error) {
 					version, err = qsuits.GetJavaVersion(javaPath)
 				}
 			} else {
-				err = errors.New(fmt.Sprintf("no java in system and get custom java failed: %s.", err))
+				err = errors.New(fmt.Sprintf("no java in system and get custom java failed, %s.", err))
 				return javaPath, err
 			}
 		}
@@ -472,7 +469,7 @@ func checkJava(customJava bool) (javaPath string, err error) {
 		err = qsuits.CheckJavaVersion(version, 8)
 	}
 	if err != nil {
-		err = errors.New(fmt.Sprintf("get java path: %s from %s %s.", javaPath, source, err))
+		err = errors.New(fmt.Sprintf("get java path, %s from %s %s.", javaPath, source, err))
 		return javaPath, err
 	}
 	return javaPath, nil

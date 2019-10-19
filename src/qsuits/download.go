@@ -83,7 +83,6 @@ func GetLatestVersion() (latestVersion string, err error) {
 	}
 	req.Header.Set("Upgrade-Insecure-Requests", "1")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
-	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return latestVersion, err
