@@ -379,7 +379,7 @@ func selfUpdate() {
 	} else if strings.Contains(osName, "windows") {
 		binUrl += "windows_"
 	} else {
-		fmt.Printf("no executable file to download of this os_arch: %s_%s\n", osName, osArch)
+		fmt.Printf("no executable file to download for this os_arch: %s_%s\n", osName, osArch)
 		return
 	}
 
@@ -388,7 +388,7 @@ func selfUpdate() {
 	} else if strings.Contains(osArch, "86") {
 		binUrl += "386"
 	} else {
-		fmt.Printf("no executable file to download of this os_arch: %s_%s\n", osName, osArch)
+		fmt.Printf("no executable file to download for this os_arch: %s_%s\n", osName, osArch)
 		return
 	}
 

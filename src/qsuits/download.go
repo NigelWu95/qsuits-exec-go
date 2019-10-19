@@ -77,9 +77,16 @@ func GetLatestVersion() (latestVersion string, err error) {
 	client := &http.Client{
 		Timeout: time.Minute,
 	}
-	resp, err := client.Get("https://search.maven.org/solrsearch/select?q=a:qsuits&start=0&rows=20")
+	req, err := http.NewRequest("GET", "https://search.maven.org/solrsearch/select?q=a:qsuits&start=0&rows=20", nil)
 	if err != nil {
-		return string(""), err
+		return latestVersion, err
+	}
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	resp, err := client.Do(req)
+	if err != nil {
+		return latestVersion, err
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	_ = resp.Body.Close
@@ -87,7 +94,7 @@ func GetLatestVersion() (latestVersion string, err error) {
 	var f MavenSearchJson
 	err = json.Unmarshal(body, &f)
 	if err != nil {
-		return string(""), err
+		return latestVersion, err
 	}
 	return f.Response.Docs[0].LatestVersion, nil
 }
@@ -271,10 +278,10 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 	}
 }
 
-func StraightDownload(qsuitsFilePath string, url string) (err error) {
+func StraightDownload(qsuitsFilePath string, url string, timeout time.Duration) (err error) {
 
 	client := &http.Client{
-		Timeout: 10 * time.Minute,
+		Timeout: timeout,
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -370,22 +377,5 @@ func Update(path string, version string, isLatest bool) (qsuitsFilePath string, 
 		return qsuitsJarPath, nil
 	} else {
 		return Download(path, version, isLatest)
-	}
-}
-
-func Exists(path string, version string) (isExists bool, err error) {
-
-	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
-	fileInfo, err := os.Stat(qsuitsJarPath)
-	if err != nil {
-		return false, err
-	}
-	if fileInfo == nil {
-		return false, errors.New("no file info")
-	}
-	if fileInfo.IsDir() {
-		return true, errors.New(path + " is directory")
-	} else {
-		return true, nil
 	}
 }

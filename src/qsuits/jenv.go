@@ -162,8 +162,8 @@ func JdkDownload() (jdkFileName string, err error) {
 		} else if strings.Contains(osArch, "86") {
 			jdkFileName += "-linux-i586.tar.gz"
 		} else {
-			err := errors.New("no tar.gz file to download of this go arch")
-			return jdkFileName, err
+			return jdkFileName, errors.New(fmt.Sprintf("no jdk tar.gz file to download for this os_arch: %s_%s",
+				osName, osArch))
 		}
 	} else if strings.Contains(osName, "windows") {
 		if strings.Contains(osArch, "64") {
@@ -171,21 +171,20 @@ func JdkDownload() (jdkFileName string, err error) {
 		} else if strings.Contains(osArch, "86") {
 			jdkFileName += "-windows-i586.exe"
 		} else {
-			err := errors.New("no executable file to download of this go arch")
-			return jdkFileName, err
+			return jdkFileName, errors.New(fmt.Sprintf("no jdk executable file to download for this os_arch: %s_%s",
+				osName, osArch))
 		}
 	} else {
-		err := errors.New(fmt.Sprintf("no jdk to download of this os: %s_%s", osName, osArch))
-		return jdkFileName, err
+		return jdkFileName, errors.New(fmt.Sprintf("no jdk to download for this os_arch: %s_%s", osName, osArch))
 	}
 
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "jdk-downloading")
 	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
-		20 * time.Minute,5)
+		10 * time.Second,5)
 	if err != nil && strings.Contains(err.Error(), "copy error size") {
 		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
-			20 * time.Minute,5)
+			10 * time.Second,5)
 	}
 	done <- struct{}{}
 	close(done)
