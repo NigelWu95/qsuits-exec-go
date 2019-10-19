@@ -11,17 +11,21 @@ qsuits-java 代理执行工具 by golang
 |mac 64 位|qsuits_darwin_amd64|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_darwin_amd64)|
 
 **Tips：**  
-1. 下载完成后使用 `chmod +x qsuits_xxx_xxx` 为其授予可执行权限【建议将该执行文件改名为 qsuits 后移动到系统环境变量的可执行文件路径下，便于从
-任意位置调用 qsuits】。  
+1. 下载完成后 Linux 和 Mac 下需要使用 `chmod +x qsuits_xxx_xxx` 为其授予可执行权限【建议将该执行文件改名为 qsuits 后移动到系统环境变量的可
+执行文件路径下，便于从任意位置调用 qsuits】。  
 2. 如果运行出现 `line 7: syntax error near unexpected token 'newline'`, `line 7: '<!DOCTYPE html>'` 等这样的错误，表明下载的文件
 不对，请重新从上述链接中下载。   
+3. 由于需要 java 环境进行运行，如果系统环境变量中已安装 java 8 或以上，则直接会调用系统下的 java。如果您的登录账号没有安装系统程序的权限，或者系
+统下的 java 版本在 8 以下，那么需要单独下载一个 8 以上的 jdk，安装或解压在自己的路径下面，然后可以通过 setjdk <jdkpath> 来设置该 jdk 环境，
+设置后可以通过 -j/--java 来使用该 jdk，也可以直接 -j/--java <jdkpath> 来使用。
 
 Usage of qsuits（用法）:  
 &ensp;&ensp;&ensp;&ensp;this tool is a agent program for qsuits, your local environment need java8 or above. In 
 default mode, this tool will use latest java qsuits to exec, you only need use qsuits-java's parameters to run. If you 
-use local mode with "-L" it mean you dont want to update latest qsuits automatically.  
-&ensp;&ensp;&ensp;&ensp;这个工具是 qsuits-java 的一个代理程序，本地必须有 java8 或者 java8 以上的环境。在默认模式下，qsuits 运行时会去使用 qsuits-java 的最新版本来
-执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L" 参数表示您只想使用本地设置的默认版本，而不自动更新 qsuits-java 的最新版本。 
+use local mode with "-L/--Local" it mean you dont want to update latest qsuits automatically.  
+&ensp;&ensp;&ensp;&ensp;这个工具是 qsuits-java 的一个代理程序，本地必须有 java8 或者 java8 以上的环境。在默认模式下，qsuits 运行时会去使
+用 qsuits-java 的最新版本来执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L/--Local" 参数表示您只想使用本地设置的默认版本，
+而不自动更新 qsuits-java 的最新版本。 
 
 Options（选项）:  
 &ensp;&ensp;&ensp;&ensp;&ensp; -h/help/--help &ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  

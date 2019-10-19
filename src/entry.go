@@ -83,6 +83,7 @@ func main()  {
 						javaPath, err = checkJava(true)
 						if err != nil {
 							fmt.Println(err.Error())
+							fmt.Println("no jdk in your local setting.")
 							javaInstall()
 							return
 						}
@@ -107,6 +108,7 @@ func main()  {
 			javaPath, err = checkJava(false)
 			if err != nil {
 				fmt.Println(err.Error())
+				fmt.Println("please install java 8 or above first.")
 				javaInstall()
 				return
 			}
@@ -126,7 +128,7 @@ func usage() {
 	fmt.Println("Usage of qsuits:")
 	fmt.Println("    this tool is a agent program for qsuits, your local environment " +
 		"need java8 or above. In default mode, this tool will use latest java qsuits to exec, " +
-		"you only need use qsuits-java's parameters to run. If you use local mode it mean you " +
+		"you only need use qsuits-java's parameters to run. If you use local mode with \"-L/--Local\" it mean you " +
 		"dont want to update latest qsuits automatically.")
 	fmt.Println("Options:")
 	fmt.Println("        -h/help/--help         Print usage.")
@@ -146,9 +148,9 @@ func usage() {
 }
 
 func javaInstall() {
-	fmt.Println("please install java 8 or above first, choose one action below (1/2):")
+	fmt.Println("do you want to choose one action below ? (1/2)")
 	fmt.Println("1. download jdk8 conformed to system now.")
-	fmt.Println("2. show installation guide: how to install java.")
+	fmt.Println("2. show guide in explorer of how to install java.")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	verify := scanner.Text()
@@ -164,6 +166,7 @@ func javaInstall() {
 		err := cmd.Start()
 		if err != nil {
 			fmt.Println(err.Error())
+			fmt.Println("please install it refer to https://blog.csdn.net/wubinghengajw/article/details/102612267.")
 		}
 	}
 }

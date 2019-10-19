@@ -92,12 +92,12 @@ func GetLatestVersion() (latestVersion string, err error) {
 	return f.Response.Docs[0].LatestVersion, nil
 }
 
-func ConcurrentDownload(url string, filepath string) (err error) {
+func ConcurrentDownload(url string, filepath string, blockSize int64) (err error) {
 
 	get := new(HttpGet)
 	get.HttpClient = new(http.Client)
 	get.Url = url
-	get.DownloadBlock = 1048576 // 1M
+	get.DownloadBlock = blockSize  // 1048576 = 1M
 
 	req, err := http.NewRequest("GET", get.Url, nil)
 	req.Header.Set("Range", "bytes=0-100")
@@ -207,10 +207,10 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 var goroutineErrStr string
 var goroutineErr error
 var lock = sync.Mutex{}
-func ConcurrentDownloadWithRetry(url string, filepath string, retry int) (err error) {
+func ConcurrentDownloadWithRetry(url string, filepath string, blockSize int64, retry int) (err error) {
 	for i := 0; i < retry; i++ {
 		goroutineErr = nil
-		err = ConcurrentDownload(url, filepath)
+		err = ConcurrentDownload(url, filepath, blockSize)
 		if err != goroutineErr {
 			return err
 		}
@@ -330,18 +330,18 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	}
 	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-" + version + ".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
-	err = ConcurrentDownload(url, qsuitsFilePath)
+	err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
 	if err != nil && strings.Contains(err.Error(), "copy error size") {
-		err = ConcurrentDownload(url, qsuitsFilePath)
+		err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
 	}
 	if err != nil {
 		fmt.Println("\rdownload is retrying from maven...")
 		url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
 			version + "/qsuits-" + version + "-jar-with-dependencies.jar"
 		//err = StraightDownload(url, qsuitsFilePath)
-		err = ConcurrentDownload(url, qsuitsFilePath)
+		err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
 		if err != nil && strings.Contains(err.Error(), "copy error size") {
-			err = ConcurrentDownload(url, qsuitsFilePath)
+			err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
 		}
 	}
 	done <- struct{}{}

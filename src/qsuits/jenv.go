@@ -152,9 +152,7 @@ func JdkDownload() (jdkFileName string, err error) {
 
 	osName := runtime.GOOS
 	osArch := runtime.GOARCH
-	fmt.Printf("os: %s_%s\n", osName, osArch)
 	jdkFileName = "jdk-8u231"
-
 	if strings.Contains(osName, "darwin") {
 		jdkFileName += "-macosx-x64.dmg"
 	} else if strings.Contains(osName, "linux") {
@@ -176,15 +174,15 @@ func JdkDownload() (jdkFileName string, err error) {
 			return jdkFileName, err
 		}
 	} else {
-		err := errors.New("no jdk to download of this go arch")
+		err := errors.New(fmt.Sprintf("no jdk to download of this os: %s_%s", osName, osArch))
 		return jdkFileName, err
 	}
 
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "jdk-downloading")
-	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 5)
+	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152, 5)
 	if err != nil && strings.Contains(err.Error(), "copy error size") {
-		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 5)
+		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152, 5)
 	}
 	done <- struct{}{}
 	close(done)
