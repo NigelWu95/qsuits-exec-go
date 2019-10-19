@@ -92,10 +92,16 @@ func GetLatestVersion() (latestVersion string, err error) {
 	return f.Response.Docs[0].LatestVersion, nil
 }
 
-func ConcurrentDownload(url string, filepath string, blockSize int64) (err error) {
+func ConcurrentDownload(url string, filepath string, blockSize int64, timeout time.Duration) (err error) {
 
 	get := new(HttpGet)
-	get.HttpClient = new(http.Client)
+	if timeout == 0 {
+		get.HttpClient = new(http.Client)
+	} else {
+		get.HttpClient = &http.Client{
+			Timeout: timeout,
+		}
+	}
 	get.Url = url
 	get.DownloadBlock = blockSize  // 1048576 = 1M
 
@@ -207,10 +213,10 @@ func ConcurrentDownload(url string, filepath string, blockSize int64) (err error
 var goroutineErrStr string
 var goroutineErr error
 var lock = sync.Mutex{}
-func ConcurrentDownloadWithRetry(url string, filepath string, blockSize int64, retry int) (err error) {
+func ConcurrentDownloadWithRetry(url string, filepath string, blockSize int64, timeout time.Duration, retry int) (err error) {
 	for i := 0; i < retry; i++ {
 		goroutineErr = nil
-		err = ConcurrentDownload(url, filepath, blockSize)
+		err = ConcurrentDownload(url, filepath, blockSize, timeout)
 		if err != goroutineErr {
 			return err
 		}
@@ -330,18 +336,18 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	}
 	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-" + version + ".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
-	err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
+	err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
 	if err != nil && strings.Contains(err.Error(), "copy error size") {
-		err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
+		err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
 	}
 	if err != nil {
 		fmt.Println("\rdownload is retrying from maven...")
 		url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
 			version + "/qsuits-" + version + "-jar-with-dependencies.jar"
 		//err = StraightDownload(url, qsuitsFilePath)
-		err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
+		err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
 		if err != nil && strings.Contains(err.Error(), "copy error size") {
-			err = ConcurrentDownload(url, qsuitsFilePath, 1048576)
+			err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
 		}
 	}
 	done <- struct{}{}

@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func CheckJavaRuntime() (javaPath string, version string, err error) {
@@ -180,9 +181,11 @@ func JdkDownload() (jdkFileName string, err error) {
 
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "jdk-downloading")
-	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152, 5)
+	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
+		20 * time.Minute,5)
 	if err != nil && strings.Contains(err.Error(), "copy error size") {
-		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152, 5)
+		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
+			20 * time.Minute,5)
 	}
 	done <- struct{}{}
 	close(done)
