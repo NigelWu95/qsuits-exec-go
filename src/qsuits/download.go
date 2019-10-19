@@ -108,6 +108,10 @@ func ConcurrentDownload(url string, filepath string) (err error) {
 	if err != nil {
 		return err
 	}
+	if resp.StatusCode != 200 && resp.StatusCode != 206 {
+		respDump, _ := httputil.DumpResponse(resp, false)
+		return errors.New(string(respDump))
+	}
 	//get.MediaType, get.MediaParams, _ = mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
 	contentRange := strings.Split(resp.Header.Get("Content-Range"), "/")
 	if len(contentRange) < 2 {
@@ -252,7 +256,7 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		}
 		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
 			reqDump, _ := httputil.DumpRequest(req, false)
-			respDump, _ := httputil.DumpResponse(resp, true)
+			respDump, _ := httputil.DumpResponse(resp, false)
 			errStr := fmt.Sprintf("%d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
 				resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
 			err = errors.New(errStr)

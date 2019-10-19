@@ -16,7 +16,7 @@ qsuits-java 代理执行工具 by golang
 2. 如果运行出现 `line 7: syntax error near unexpected token 'newline'`, `line 7: '<!DOCTYPE html>'` 等这样的错误，表明下载的文件
 不对，请重新从上述链接中下载。   
 
-Usage（用法）:  
+Usage of qsuits（用法）:  
 &ensp;&ensp;&ensp;&ensp;this tool is a agent program for qsuits, your local environment need java8 or above. In 
 default mode, this tool will use latest java qsuits to exec, you only need use qsuits-java's parameters to run. If you 
 use local mode with "-L" it mean you dont want to update latest qsuits automatically.  
@@ -24,9 +24,12 @@ use local mode with "-L" it mean you dont want to update latest qsuits automatic
 执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L" 参数表示您只想使用本地设置的默认版本，而不自动更新 qsuits-java 的最新版本。 
 
 Options（选项）:  
-&ensp;&ensp;&ensp;&ensp;&ensp; --Local/-L &ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. Location at first or last.
-使用当前的默认 qsuits-java 版本来运行，-L 参数作为第一个或者最后一个  
-&ensp;&ensp;&ensp;&ensp;&ensp; --help/-h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; -h/help/--help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; -L/--Local &ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. 
+使用当前的默认 qsuits-java 版本来运行  
+&ensp;&ensp;&ensp;&ensp;&ensp; -j/--java [<jdkpath>] &ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."
+使用自定义 jdk 通过已存在的设置（指 setjdk 操作的设置）或者通过命令行 <jdkpath> 的设置，运行时指定的 <jdkpath> 会自动更新到 setjdk 中   
+
 Commands:  
 &ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印使用帮助  
 &ensp;&ensp;&ensp;&ensp;&ensp; selfupdate &ensp;&ensp;&ensp;&ensp;&ensp; Update this own executable program by

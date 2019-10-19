@@ -80,18 +80,11 @@ func CheckJavaVersion(version string, minimum int) (err error) {
 //	return javaPath
 //}
 
-func SetJdkMod(path string, jdkPath string, minimum int) (isSuccess bool, err error) {
+func SetJdkMod(path string, jdkPath string, minimum int) (javaPath string, err error) {
 
 	if len(path) == 0 {
-		return false, errors.New("no valid path")
+		return javaPath, errors.New("no valid path")
 	}
-	modPath = filepath.Join(path, ".qsuits", "jdk.mod")
-	modFile, err := os.Create(modPath)
-	defer modFile.Close()
-	if err != nil {
-		return false, err
-	}
-	var javaPath string
 	var version string
 	var firstErr error
 	osName := runtime.GOOS
@@ -114,20 +107,26 @@ func SetJdkMod(path string, jdkPath string, minimum int) (isSuccess bool, err er
 		if firstErr != nil {
 			err = errors.New(fmt.Sprintf("%s, %s", firstErr, err))
 		}
-		return false, err
+		return javaPath, err
 	}
 	err = CheckJavaVersion(version, minimum)
 	if err != nil {
-		return false, err
+		return javaPath, err
+	}
+	modPath = filepath.Join(path, ".qsuits", "jdk.mod")
+	modFile, err := os.Create(modPath)
+	defer modFile.Close()
+	if err != nil {
+		return javaPath, err
 	}
 	size, err := modFile.WriteString(javaPath)
 	if err != nil {
-		return false, err
+		return javaPath, err
 	}
 	if size <= 0 {
-		return false, errors.New("no content wrote")
+		return javaPath, errors.New("no content wrote")
 	}
-	return true, nil
+	return javaPath, nil
 }
 
 func GetJavaPathFromMod(path string) (javaPath string, err error) {
