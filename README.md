@@ -53,11 +53,11 @@ versions from local. 清除本地 qsuits-java 的所有旧版本
 设置默认 jdk 路径，后续操作通过 -j/--java 可以使用该 jdk 执行  
   
 Manual（帮助手册）:  
-&ensp;&ensp;&ensp;&ensp;&ensp; accounthelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print account usage")
-&ensp;&ensp;&ensp;&ensp;&ensp; storagehelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print storage data source usage")
-&ensp;&ensp;&ensp;&ensp;&ensp; filehelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print file data source usage")
-&ensp;&ensp;&ensp;&ensp;&ensp; filterhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print filter usage")
-&ensp;&ensp;&ensp;&ensp;&ensp; processhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print process usage
+&ensp;&ensp;&ensp;&ensp;&ensp; accounthelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print account usage  
+&ensp;&ensp;&ensp;&ensp;&ensp; storagehelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print storage data source usage  
+&ensp;&ensp;&ensp;&ensp;&ensp; filehelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print file data source usage  
+&ensp;&ensp;&ensp;&ensp;&ensp; filterhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print filter usage  
+&ensp;&ensp;&ensp;&ensp;&ensp; processhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print process usage  
 
 qsuits 完整文档见：[七牛开发者中心](https://developer.qiniu.io/kodo/tools/6263/the-command-line-tools-qsuits#1) / [github qsuits 文档](qsuits.md)  
 Usage of qsuits-java（qsuits-java 的用法）: qsuits -path= -a= -process= -save-path= ...  
