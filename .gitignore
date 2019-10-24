@@ -6,3 +6,6 @@ pkg/
 .DS_Store
 
 logs/
+
+# 该文档用来留存
+qsuits.md

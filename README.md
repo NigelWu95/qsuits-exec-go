@@ -59,6 +59,6 @@ Manual（帮助手册）:
 &ensp;&ensp;&ensp;&ensp;&ensp; filterhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print filter usage  
 &ensp;&ensp;&ensp;&ensp;&ensp; processhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print process usage  
 
-qsuits 完整文档见：[七牛开发者中心](https://developer.qiniu.io/kodo/tools/6263/the-command-line-tools-qsuits#1) / [github qsuits 文档](qsuits.md)  
+qsuits 完整文档见：[七牛开发者中心](https://developer.qiniu.io/kodo/tools/6263/the-command-line-tools-qsuits#1)  
 Usage of qsuits-java（qsuits-java 的用法）: qsuits -path= -a= -process= -save-path= ...  
 More details referer to（更多详细用法参考）: https://github.com/NigelWu95/qiniu-suits-java  

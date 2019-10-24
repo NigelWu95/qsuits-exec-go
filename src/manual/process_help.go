@@ -36,6 +36,9 @@ func ProcessUsage()  {
 	fmt.Println("|process=censorresult | 表示内容审核结果查询                           | https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/censorresult.md    |")
 	fmt.Println("|process=mime         | 修改资源的 mimeType                          | https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/mime.md             |")
 	fmt.Println("|process=metadata     | 修改资源的 metadata                          | https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/metadata.md         |")
+	fmt.Println("**注意**：")
+	fmt.Println("1、云存储数据源 + process 操作的情况下通常会涉及两对密钥，数据源一对，process 操作一对，如果是 delete、status 等操作则这两对密钥相同，使用一个密钥设置或者一个 account (`-a=<account-name>`) 即可，copy、move 要求针对同一个账号操作或者采用空间授权，因此也只需要一堆密钥，但如果是其他存储数据源的数据备份操作 asyncfetch，就需要两对不同的密钥，而 account 只支持设置一个，这时第二对的七牛密钥可以通过同一个 account-name 的设置来获得，因为同一个 account-name 可以为不同数据源做密钥设置，如：`-account=ali-test -ali-id= -ali-secret=` 设置了阿里云 test 名称的账号，同时 `-account=qiniu-test -ak= -sk=` 设置了七牛 test 名称的账号，则通过 `-a=test` 可以同时拿到阿里云和七牛云的 test 账号，因此可以直接通过同一个 account-name 来进行操作。但是如果明确指定了另外的 ak，sk，则会使用您设置的这一对七牛密钥。")
+	fmt.Println("2、也真是因为不同数据源的 account-name 可同名特性，以及支持主动设置密钥来覆盖 account 的密钥，在具体操作时需要注意账号和密钥的使用，以免对另外一个账号执行了操作。")
 	fmt.Println()
 	fmt.Println("process 操作类型较多，且参数各异，还请查看在线文档来帮助使用，如果有必要参数缺少时程序也会出现提示。")
 }
