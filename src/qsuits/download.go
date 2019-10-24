@@ -347,14 +347,18 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 		err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
 	}
 	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println("\rdownload is retrying from maven...")
-		url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
-			version + "/qsuits-" + version + "-jar-with-dependencies.jar"
-		//err = StraightDownload(url, qsuitsFilePath)
-		err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
-		if err != nil && strings.Contains(err.Error(), "copy error size") {
+		if strings.Contains(err.Error(), "404 Not Found") {
+			err = errors.New("sorry, this old version is deprecated, not recommend you to use it")
+		} else {
+			fmt.Printf("\r%s", err.Error())
+			fmt.Println("\rdownload is retrying from maven...")
+			url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
+				version + "/qsuits-" + version + "-jar-with-dependencies.jar"
+			//err = StraightDownload(url, qsuitsFilePath)
 			err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
+			if err != nil && strings.Contains(err.Error(), "copy error size") {
+				err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
+			}
 		}
 	}
 	done <- struct{}{}
