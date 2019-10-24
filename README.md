@@ -52,4 +52,5 @@ versions from local. 清除本地 qsuits-java 的所有旧版本
 &ensp;&ensp;&ensp;&ensp;&ensp; setjdk \<jdkpath\> &ensp;&ensp;&ensp; Set jdk path as default.
 设置默认 jdk 路径，后续操作通过 -j/--java 可以使用该 jdk 执行  
 
+qsuits 完整文档见：[七牛开发者中心](https://developer.qiniu.io/kodo/tools/6263/the-command-line-tools-qsuits#1) / [github qsuit 文档](qsuits.md)  
 Usage of qsuits-java（qsuits-java 的完整用法请参考）:  https://github.com/NigelWu95/qiniu-suits-java  
