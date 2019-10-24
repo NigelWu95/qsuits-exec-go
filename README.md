@@ -29,10 +29,10 @@ use local mode with "-L/--Local" it mean you dont want to update latest qsuits a
 而不自动更新 qsuits-java 的最新版本。 
 
 Options（选项）:  
-&ensp;&ensp;&ensp;&ensp;&ensp; -h/help/--help &ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; -h/--help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
 &ensp;&ensp;&ensp;&ensp;&ensp; -L/--Local &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. 
 使用当前的默认 qsuits-java 版本来运行  
-&ensp;&ensp;&ensp;&ensp;&ensp; -j/--java [<jdkpath>] &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."
+&ensp;&ensp;&ensp;&ensp;&ensp; -j/--java \[<jdkpath>\] &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."
 使用自定义 jdk 通过已存在的设置（指 setjdk 操作的设置）或者通过命令行 <jdkpath> 的设置，运行时指定的 <jdkpath> 会自动更新到 setjdk 中   
 
 Commands:  

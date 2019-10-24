@@ -265,10 +265,10 @@ func download(params []string) (err error) {
 
 func localQsuitsPath() (qsuitsPath string, err error) {
 
-	_, qsuitsPath, err = qsuits.ReadMod(homePath)
+	var qsuitsVersion string
+	qsuitsVersion, qsuitsPath, err = qsuits.ReadMod(homePath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			var qsuitsVersion string
 			versions, paths, err := qsuits.Versions(homePath)
 			if err != nil {
 				return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
@@ -299,6 +299,8 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 		} else {
 			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits version failed, %s", err.Error()))
 		}
+	} else {
+		fmt.Printf("use local qsuits version: %s\n", qsuitsVersion)
 	}
 	return qsuitsPath, nil
 }
