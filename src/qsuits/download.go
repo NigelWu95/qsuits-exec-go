@@ -347,6 +347,7 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 		err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
 	}
 	if err != nil {
+		fmt.Println(err.Error())
 		fmt.Println("\rdownload is retrying from maven...")
 		url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
 			version + "/qsuits-" + version + "-jar-with-dependencies.jar"
