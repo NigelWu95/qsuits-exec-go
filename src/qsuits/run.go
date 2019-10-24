@@ -50,7 +50,7 @@ func Exec(javaPath string, jarPath string, params []string) error {
 		}
 		errRet += line
 	}
-	// 阻塞直到该命令执行完成，该命令必须是被Start方法开始执行的
+	// 阻塞直到该命令执行完成，该命令必须是被 Start 方法开始执行的
 	err = cmd.Wait()
 	if err != nil {
 		return errors.New(strings.TrimSuffix(errRet, "\n"))
