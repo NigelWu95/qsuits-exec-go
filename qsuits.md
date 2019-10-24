@@ -1,6 +1,6 @@
 # 简介
 
-qsuits 是一个围绕七牛云服务 API 设计开发的高效便捷的多线程工具，能够高效**并发列举云存储空间**的资源列表，支持包括**七牛云/阿里云/腾讯云/AWS S3/又拍云/华为云/百度云等**不同数据源的云存储空间列举和[数据备份](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datamigration.md)，支持 S3 接口的数据源均可以通过 S3 数据源的方式来导出。同时支持对本地提供的资源列表并发进行批量处理，API 操作主要包括本地文件批量上传和对七牛云存储资源进行增/删/改/查/迁移/转码/内容审核等。该工具非常适合于存储空间文件数量较多场景下的列举，以及针对空间文件直接做过滤和 API 操作，也可以方便地进行不同数据源公开或私有空间的数据备份和迁移。除了批处理之外，该工具同时提供了针对即时输入的交互式操作和单次操作模式。该工具实际功能基于 Java8 编写，可基于 jdk8 环境在命令行或 ide 中运行，但是为了给开发者提供更好的使用方式，同样提供了基于 go 编写的命令行[执行器](https://github.com/NigelWu95/qsuits-exec-go)，如果您有使用上的问题或者建议，以及任何被认为适合加到该工具中的新需求，都可以联系七牛技术支持或在 [ISSUE 列表](https://github.com/NigelWu95/qiniu-suits-java/issues) 里进行反馈，我们会协助您更好地使用它。  
+qsuits 是一个围绕七牛云服务 API 设计开发的高效便捷的多线程工具，能够高效**并发列举云存储空间**的资源列表，支持包括**七牛云/阿里云/腾讯云/AWS S3/又拍云/华为云/百度云等**不同数据源的云存储空间列举和[数据备份](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datamigration.md)，支持 S3 接口的数据源均可以通过 S3 数据源的方式来导出。同时支持对本地提供的资源列表并发进行批量处理，API 操作主要包括本地文件批量上传和对七牛云存储资源进行增/删/改/查/迁移/转码/内容审核等。该工具非常适合于存储空间文件数量较多场景下的列举，以及针对空间文件直接做过滤和 API 操作，也可以方便地进行不同数据源公开或私有空间的数据备份和迁移。除了批处理之外，该工具同时提供了针对即时输入的交互式操作和单次操作模式。该工具实际功能基于 Java8 编写，可基于 jdk8 环境在命令行或 ide 中运行，但是为了给开发者提供更好的使用方式，同样提供了基于 go 编写的命令行[执行器](https://github.com/NigelWu95/qsuits-exec-go)，如果您有使用上的问题或者建议，以及任何被认为适合加到该工具中的新需求，都可以联系七牛技术支持或在[ ISSUE 列表](https://github.com/NigelWu95/qiniu-suits-java/issues)里进行反馈，我们会协助您更好地使用它。  
 
 源码地址：  
 GitHub 项目 [qiniu-suits-java](https://github.com/NigelWu95/qiniu-suits-java)  
@@ -230,7 +230,8 @@ line-config=
 |separator| 字符串| 当 parse=tab 时，可另行指定该参数为格式分隔符来分析字段|  
 |add-keyPrefix| 字符串|将解析出的 key 字段加上指定前缀再进行后续操作，用于输入 key 可能比实际空间的 key 少了前缀的情况，补上前缀才能获取到资源|  
 |rm-keyPrefix| 字符串|将解析出的 key 字段去除指定前缀再进行后续操作，用于输入 key 可能比实际空间的 key 多了前缀的情况，如输入行中的文件名多了 `/` 前缀|  
-|line-config| 配置文件路径|表示从该配置中读取文件名作为 file 数据源，同时文件名对应的值表示读取该文件的起始位置，配置文件格式为 json，参考[ line-config 配置文件](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md#line-config-%E9%85%8D%E7%BD%AE)|  
+|line-config| 配置文件路径|表示从该配置中读取文件名作为 file 数据源，同时文件名对应的值表示读取该文件的起始位置，配置文件格式为 json，参考[ line-config 配置文件](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md#line-config-%E9%85%8D%E7%BD%AE)|   
+ 
 **数据源详细参数配置和说明及可能涉及的高级用法见：[数据源配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md)**  
 
 ## 4. filepath 文件路径和属性读取
@@ -304,7 +305,7 @@ process 处理过程表示对数据源输入的每一条记录进行处理的类
 **处理操作类型：**  
 
 |处理类型配置          |含义                                         |文档链接                                     |
-|--------------------|--------------------------------------------|------------------------------------------- |
+|--------------------|--------------------------------------------|-------------------------------------------|
 |process=qupload      | 表示上传文件到存储空间                        | [qupload 配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/uploadfile.md)         |
 |process=delete       | 表示删除空间资源                             | [delete 配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/delete.md)              |
 |process=copy         | 表示复制资源到指定空间                        | [copy 配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/copy.md)                  |

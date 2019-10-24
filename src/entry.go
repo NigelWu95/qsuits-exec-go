@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"qsuits-exec-go/src/manual"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
 	"qsuits-exec-go/src/utils"
@@ -62,8 +63,16 @@ func main()  {
 		} else if strings.EqualFold(op, "help") ||
 			strings.EqualFold(op, "--help") || strings.EqualFold(op, "-h") {
 			usage()
-		} else if strings.EqualFold(op, "setjdk") {
-			SetJdk(os.Args[1:])
+		} else if strings.EqualFold(op, "accounthelp") {
+			manual.AccountUsage()
+		} else if strings.EqualFold(op, "storagehelp") {
+			manual.StorageUsage()
+		} else if strings.EqualFold(op, "filehelp") {
+			manual.FileUsage()
+		} else if strings.EqualFold(op, "filterhelp") {
+			manual.FilterUsage()
+		} else if strings.EqualFold(op, "processhelp") {
+			manual.ProcessUsage()
 		} else {
 			op = "exec"
 			for i := 1; i < length; i++ {
@@ -85,6 +94,8 @@ func main()  {
 							fmt.Println("no jdk in your local setting.")
 							javaInstall()
 							return
+						} else {
+							fmt.Printf("your custom jdk path is %s.\n", javaPath)
 						}
 					}
 				} else {
@@ -134,7 +145,7 @@ func usage() {
 		"you only need use qsuits-java's parameters to run. If you use local mode with \"-L/--Local\" it mean you " +
 		"dont want to update latest qsuits automatically.")
 	fmt.Println("Options:")
-	fmt.Println("        -h/help/--help         Print usage.")
+	fmt.Println("        -h/--help              Print usage.")
 	fmt.Println("        -L/--Local             Use current default qsuits version to exec.")
 	fmt.Println("        -j/--java [<jdkpath>]  Use custom jdk by existing setting or assigned <jdkpath>.")
 	fmt.Println("Commands:")
@@ -147,7 +158,16 @@ func usage() {
 	fmt.Println("         download <no.>        Download qsuits with specified version.")
 	fmt.Println("         update <no.>          Update qsuits with specified version.")
 	fmt.Println("         setjdk <jdkpath>      Set jdk path as default.")
-	fmt.Println("Usage of qsuits-java:          https://github.com/NigelWu95/qiniu-suits-java")
+	fmt.Println()
+	fmt.Println("Manual:")
+	fmt.Println("         accounthelp           Print account usage")
+	fmt.Println("         storagehelp           Print storage data source usage")
+	fmt.Println("         filehelp              Print file data source usage")
+	fmt.Println("         filterhelp            Print filter usage")
+	fmt.Println("         processhelp           Print process usage")
+	fmt.Println()
+	fmt.Println("Usage of qsuits-java:          qsuits -path= -a= -process= -save-path= ...")
+	fmt.Println("More details referer to:       https://github.com/NigelWu95/qiniu-suits-java")
 }
 
 func javaInstall() {

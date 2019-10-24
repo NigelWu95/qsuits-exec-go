@@ -35,7 +35,7 @@ Options（选项）:
 &ensp;&ensp;&ensp;&ensp;&ensp; -j/--java \[<jdkpath>\] &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."
 使用自定义 jdk 通过已存在的设置（指 setjdk 操作的设置）或者通过命令行 <jdkpath> 的设置，运行时指定的 <jdkpath> 会自动更新到 setjdk 中   
 
-Commands:  
+Commands（命令）:  
 &ensp;&ensp;&ensp;&ensp;&ensp; help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印使用帮助  
 &ensp;&ensp;&ensp;&ensp;&ensp; selfupdate &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Update this own executable program by
  itself. 升级 qsuits 自身可执行程序  
@@ -51,6 +51,14 @@ versions from local. 清除本地 qsuits-java 的所有旧版本
 更新本地的 qsuits-java 版本，结合 download 和 chgver  
 &ensp;&ensp;&ensp;&ensp;&ensp; setjdk \<jdkpath\> &ensp;&ensp;&ensp; Set jdk path as default.
 设置默认 jdk 路径，后续操作通过 -j/--java 可以使用该 jdk 执行  
+  
+Manual（帮助手册）:  
+&ensp;&ensp;&ensp;&ensp;&ensp; accounthelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print account usage")
+&ensp;&ensp;&ensp;&ensp;&ensp; storagehelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print storage data source usage")
+&ensp;&ensp;&ensp;&ensp;&ensp; filehelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print file data source usage")
+&ensp;&ensp;&ensp;&ensp;&ensp; filterhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print filter usage")
+&ensp;&ensp;&ensp;&ensp;&ensp; processhelp &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print process usage
 
-qsuits 完整文档见：[七牛开发者中心](https://developer.qiniu.io/kodo/tools/6263/the-command-line-tools-qsuits#1) / [github qsuit 文档](qsuits.md)  
-Usage of qsuits-java（qsuits-java 的完整用法请参考）:  https://github.com/NigelWu95/qiniu-suits-java  
+qsuits 完整文档见：[七牛开发者中心](https://developer.qiniu.io/kodo/tools/6263/the-command-line-tools-qsuits#1) / [github qsuits 文档](qsuits.md)  
+Usage of qsuits-java（qsuits-java 的用法）: qsuits -path= -a= -process= -save-path= ...  
+More details referer to（更多详细用法参考）: https://github.com/NigelWu95/qiniu-suits-java  
