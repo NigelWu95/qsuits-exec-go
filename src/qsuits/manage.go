@@ -92,7 +92,7 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 	for e := range versions {
 		vNums = strings.Split(versions[e], ".")
 		vLen = len(vNums)
-		if vLen == 0 || vLen > 3 {
+		if vLen == 0 {
 			return latestVer, -1, errors.New("error version: " + versions[e])
 		} else if vLen == 1 {
 			newV = false

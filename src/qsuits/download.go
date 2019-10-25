@@ -1,6 +1,7 @@
 package qsuits
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -73,6 +74,15 @@ type MavenSearchJson struct {
 }
 
 func GetLatestVersion() (latestVersion string, err error) {
+	latestVersion, err = GetLatestVersionByGithubProject()
+	if err != nil {
+		//fmt.Println(err.Error())
+		latestVersion, err = GetLatestVersionBySearchMaven()
+	}
+	return latestVersion, err
+}
+
+func GetLatestVersionBySearchMaven() (latestVersion string, err error) {
 
 	client := &http.Client{
 		Timeout: time.Minute,
@@ -89,13 +99,39 @@ func GetLatestVersion() (latestVersion string, err error) {
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	_ = resp.Body.Close
-	_ = resp.Close
 	var f MavenSearchJson
 	err = json.Unmarshal(body, &f)
 	if err != nil {
 		return latestVersion, err
 	}
 	return f.Response.Docs[0].LatestVersion, nil
+}
+
+func GetLatestVersionByGithubProject() (latestVersion string, err error) {
+
+	client := &http.Client{
+		Timeout: time.Minute,
+	}
+	req, err := http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/pom.properties", nil)
+	if err != nil {
+		return latestVersion, err
+	}
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
+	resp, err := client.Do(req)
+	if err != nil {
+		return latestVersion, err
+	}
+	rd := bufio.NewReader(resp.Body)
+	defer resp.Body.Close()
+	for {
+		line, err := rd.ReadString('\n') // 以'\n'为结束符读入一行
+		if err != nil || io.EOF == err {
+			return latestVersion, errors.New(fmt.Sprintf("get pom.properties version failed, %s", err.Error()))
+		} else if strings.Contains(line, "version=") {
+			return strings.Trim(strings.Split(line, "version=")[1], "\n"), nil
+		}
+	}
 }
 
 func ConcurrentDownload(url string, filepath string, blockSize int64, timeout time.Duration) (err error) {
