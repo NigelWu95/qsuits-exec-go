@@ -157,8 +157,12 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 		return err
 	}
 	if resp.StatusCode != 200 && resp.StatusCode != 206 {
-		respDump, _ := httputil.DumpResponse(resp, false)
-		return errors.New(string(respDump))
+		respDump, err := httputil.DumpResponse(resp, false)
+		if err == nil {
+			return errors.New(string(respDump))
+		} else {
+			return errors.New(resp.Status)
+		}
 	}
 	//get.MediaType, get.MediaParams, _ = mime.ParseMediaType(resp.Header.Get("Content-Disposition"))
 	contentRange := strings.Split(resp.Header.Get("Content-Range"), "/")
@@ -304,21 +308,27 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		}
 		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
 			reqDump, _ := httputil.DumpRequest(req, false)
-			respDump, _ := httputil.DumpResponse(resp, false)
-			errStr := fmt.Sprintf("%d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
-				resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
+			respDump, err := httputil.DumpResponse(resp, false)
+			var errStr string
+			if err == nil {
+				errStr = fmt.Sprintf("%d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
+					resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
+			} else {
+				errStr = fmt.Sprintf("%d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
+					resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(resp.Status))
+			}
 			err = errors.New(errStr)
 			panic(err)
 		}
 	}
 }
 
-func StraightDownload(qsuitsFilePath string, url string, timeout time.Duration) (err error) {
+func StraightHttpRequest(url string, method string, timeout time.Duration, savePath string) (err error) {
 
 	client := &http.Client{
 		Timeout: timeout,
 	}
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return err
 	}
@@ -331,18 +341,23 @@ func StraightDownload(qsuitsFilePath string, url string, timeout time.Duration) 
 	if err != nil {
 		return err
 	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
 	if resp.StatusCode == 200 {
-		err = ioutil.WriteFile(qsuitsFilePath, body, 0755)
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		err = ioutil.WriteFile(savePath, body, 0755)
 		if err != nil {
 			return err
 		}
 		return nil
 	} else {
-		return errors.New(resp.Status)
+		respDump, err := httputil.DumpResponse(resp, false)
+		if err == nil {
+			return errors.New(string(respDump))
+		} else {
+			return errors.New(resp.Status)
+		}
 	}
 }
 
@@ -384,7 +399,7 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	}
 	if err != nil {
 		if strings.Contains(err.Error(), "404 Not Found") {
-			err = errors.New("sorry, this old version is deprecated, not recommend you to use it")
+			err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it", version))
 		} else {
 			fmt.Printf("\r%s", err.Error())
 			fmt.Println("\rdownload is retrying from maven...")

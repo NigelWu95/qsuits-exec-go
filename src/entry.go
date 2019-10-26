@@ -283,6 +283,17 @@ func download(params []string) (err error) {
 	}
 }
 
+func checkQsuitsVersionRecommend(version string) (err error) {
+
+	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
+	err = qsuits.StraightHttpRequest(url, "HEAD", time.Minute, "")
+	if err != nil && strings.Contains(err.Error(), "404 Not Found") {
+		return errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it", version))
+	} else {
+		return nil
+	}
+}
+
 func localQsuitsPath() (qsuitsPath string, err error) {
 
 	var qsuitsVersion string
@@ -308,6 +319,10 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 					return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
 				}
 				qsuitsPath = paths[num]
+				err = checkQsuitsVersionRecommend(qsuitsVersion)
+				if err != nil {
+					return qsuitsPath, err
+				}
 				fmt.Printf("use local latest qsuits version: %s\n", qsuitsVersion)
 			}
 			isSuccess, err := qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
@@ -320,6 +335,10 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits version failed, %s", err.Error()))
 		}
 	} else {
+		err = checkQsuitsVersionRecommend(qsuitsVersion)
+		if err != nil {
+			return qsuitsPath, err
+		}
 		fmt.Printf("use local qsuits version: %s\n", qsuitsVersion)
 	}
 	return qsuitsPath, nil
@@ -343,6 +362,10 @@ func updatedQsuitsPath() (qsuitsPath string, err error) {
 			var com int
 			com, versionsErr = qsuits.Compare(localLatestVer, qsuitsVersion)
 			if com > 0 {
+				err = checkQsuitsVersionRecommend(qsuitsVersion)
+				if err != nil {
+					return qsuitsPath, err
+				}
 				fmt.Println("use local latest qsuits version: " + localLatestVer)
 				return paths[latestVerNum], nil
 			}
