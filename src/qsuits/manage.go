@@ -132,14 +132,16 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 			return latestVer, -1, err
 		}
 		currentVer = strings.Join(vers, ".")
-		if e == 0 || strings.Compare(currentVer, latestVer) > 0 {
-			latestVer = currentVer
-			latestVerNum = e
-		} else if strings.Compare(currentVer, latestVer) == 0 {
-			if newV || strings.Compare(strings.ReplaceAll(versions[e], ".", ""),
-				strings.ReplaceAll(versions[latestVerNum], ".", "")) < 0 {
+		if !strings.Contains(versions[e], currentVer + ".jar.") {
+			if e == 0 || strings.Compare(currentVer, latestVer) > 0 {
 				latestVer = currentVer
 				latestVerNum = e
+			} else if strings.Compare(currentVer, latestVer) == 0 {
+				if newV || strings.Compare(strings.ReplaceAll(versions[e], ".", ""),
+					strings.ReplaceAll(versions[latestVerNum], ".", "")) < 0 {
+						latestVer = currentVer
+						latestVerNum = e
+				}
 			}
 		}
 		//fmt.Println(versions[e] + " -> " + currentVer)

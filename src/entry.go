@@ -226,9 +226,9 @@ func clear() {
 				return
 			}
 		}
-		fmt.Println("clear local versions succeeded.")
+		fmt.Printf("clear local versions succeeded, and set version: %s as local default.\n", latestVersion)
 	} else {
-		fmt.Println("clear local old versions failed.")
+		fmt.Printf("clear local old versions failed, but set version: %s as local default.\n", latestVersion)
 	}
 }
 
@@ -314,7 +314,8 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 					return qsuitsPath, errors.New(fmt.Sprintf("get latest qsuits failed, %s", err.Error()))
 				}
 			} else {
-				qsuitsVersion, num, err := qsuits.LatestVersionFrom(versions)
+				var num int
+				qsuitsVersion, num, err = qsuits.LatestVersionFrom(versions)
 				if err != nil {
 					return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
 				}
@@ -323,13 +324,13 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 				if err != nil {
 					return qsuitsPath, err
 				}
-				fmt.Printf("use local latest qsuits version: %s\n", qsuitsVersion)
+				fmt.Printf("use local latest qsuits version: %s", qsuitsVersion)
 			}
 			isSuccess, err := qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
 			if isSuccess && err == nil {
-				fmt.Printf("set %s as default local version.\n", qsuitsVersion)
+				fmt.Printf(", and set %s as default local version.\n", qsuitsVersion)
 			} else {
-				fmt.Printf("write mode failed, %s\n", err.Error())
+				fmt.Printf(", but write mode failed, %s\n", err.Error())
 			}
 		} else {
 			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits version failed, %s", err.Error()))
