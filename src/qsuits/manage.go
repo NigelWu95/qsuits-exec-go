@@ -146,6 +146,9 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 		}
 		//fmt.Println(versions[e] + " -> " + currentVer)
 	}
+	if strings.EqualFold(latestVer, "") {
+		return latestVer, latestVerNum, errors.New("no valid latest qsuits version")
+	}
 	return versions[latestVerNum], latestVerNum, nil
 }
 
