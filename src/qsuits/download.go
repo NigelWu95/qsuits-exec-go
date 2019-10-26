@@ -417,7 +417,6 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	if err == nil {
 		fmt.Println(" -> finished.")
 	} else {
-		_ = os.Remove(qsuitsFilePath)
 		fmt.Print("\r")
 	}
 	return qsuitsFilePath, err
