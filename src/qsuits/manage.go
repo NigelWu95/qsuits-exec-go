@@ -104,6 +104,7 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 			vers[0], err = strconv.Atoi(vNums[0])
 			vers[1] = 0
 			vers[2] = 0
+			currentVer = "0.0.0"
 		} else if vLen == 2 {
 			newV = false
 			vers[0], err = strconv.Atoi(vNums[0])
@@ -111,12 +112,15 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 			if len(seconds) == 0 {
 				vers[1] = 0
 				vers[2] = 0
+				currentVer = vNums[0] + ".0.0"
 			} else if len(seconds) == 1 {
 				vers[1], err = strconv.Atoi(seconds)
 				vers[2] = 0
+				currentVer = vNums[0] + ".0." + seconds
 			} else {
 				vers[1], err = strconv.Atoi(seconds[0:1])
 				vers[2], err = strconv.Atoi(seconds[1:2])
+				currentVer = vNums[0] + "." + seconds[0:1] + "." + seconds[1:2]
 			}
 		} else {
 			newV = true
@@ -124,26 +128,29 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 			vers[1], err = strconv.Atoi(vNums[1])
 			if strings.Contains(vNums[2], "-") { // -beta, -thin
 				vers[2], err = strconv.Atoi(vNums[2][0:strings.Index(vNums[2], "-")])
+				currentVer = vNums[0] + "." + vNums[1] + "." + vNums[2][0:strings.Index(vNums[2], "-")]
 			} else {
 				vers[2], err = strconv.Atoi(vNums[2])
+				currentVer = vNums[0] + "." + vNums[1] + "." + vNums[2]
 			}
 		}
 		if err != nil {
 			return latestVer, -1, err
 		}
-		currentVer = string(vers[0]) + "." + string(vers[1]) + "." + string(vers[2])
 		if !strings.Contains(versions[e], currentVer + ".jar.") {
-			if e == 0 || vers[0] > lastest[0] || (vers[0] == lastest[0] && vers[1] > lastest[1]) {
-				lastest = vers
-				latestVer = currentVer
-				latestVerNum = e
-			} else if vers[0] == lastest[0] && vers[1] == lastest[1] && vers[2] > lastest[2] {
-				lastest = vers
-				latestVer = currentVer
-				latestVerNum = e
+			if e == 0 || vers[0] > lastest[0] || (vers[0] == lastest[0] && vers[1] > lastest[1]) ||
+				(vers[0] == lastest[0] && vers[1] == lastest[1] && vers[2] > lastest[2]) {
+					lastest[0] = vers[0]
+					lastest[1] = vers[1]
+					lastest[2] = vers[2]
+					latestVer = currentVer
+					latestVerNum = e
 			} else if strings.Compare(currentVer, latestVer) == 0 {
 				if newV || strings.Compare(strings.ReplaceAll(versions[e], ".", ""),
 					strings.ReplaceAll(versions[latestVerNum], ".", "")) < 0 {
+						lastest[0] = vers[0]
+						lastest[1] = vers[1]
+						lastest[2] = vers[2]
 						latestVer = currentVer
 						latestVerNum = e
 				}
