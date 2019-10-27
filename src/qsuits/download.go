@@ -204,8 +204,7 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 			if fi != nil {
 				get.DownloadRange[i][0] += fi.Size()
 			} else {
-				err = errors.New(" no file info from: " + tempFile.Name())
-				return err
+				return errors.New(" no file info from: " + tempFile.Name())
 			}
 		}
 		get.TempFiles = append(get.TempFiles, tempFile)
@@ -232,7 +231,8 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 				for j := i; j < get.Count; j++ {
 					_ = get.TempFiles[j].Close()
 				}
-				return errors.New(fmt.Sprintf("copy error size %d bytes", cnt))
+				goroutineErr = errors.New(fmt.Sprintf("copy error size %d bytes", cnt))
+				return goroutineErr
 			} else {
 				for j := i; j < get.Count; j++ {
 					_ = get.TempFiles[j].Close()
@@ -256,14 +256,13 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 	return err
 }
 
-var goroutineErrStr string
 var goroutineErr error
 var lock = sync.Mutex{}
 func ConcurrentDownloadWithRetry(url string, filepath string, blockSize int64, timeout time.Duration, retry int) (err error) {
 	for i := 0; i < retry; i++ {
 		goroutineErr = nil
 		err = ConcurrentDownload(url, filepath, blockSize, timeout)
-		if err != goroutineErr {
+		if err != goroutineErr && strings.Contains(err.Error(), "") {
 			return err
 		}
 		if goroutineErr == nil {
@@ -284,8 +283,7 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 		// 捕获协程中的 panic 信息
 		if err := recover(); err != nil {
 			lock.Lock()
-			goroutineErrStr = fmt.Sprintf("range download failed %s", err)
-			goroutineErr = errors.New(goroutineErrStr)
+			goroutineErr = errors.New(fmt.Sprintf("range download failed %s", err))
 			lock.Unlock()
 			//fmt.Println(err) // 输出 panic 信息
 		}
@@ -393,9 +391,9 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	}
 	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-" + version + ".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
-	err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
+	err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
 	if err != nil && strings.Contains(err.Error(), "copy error size") {
-		err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
+		err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
 	}
 	if err != nil {
 		if strings.Contains(err.Error(), "404 Not Found") {
@@ -406,9 +404,9 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 			url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
 				version + "/qsuits-" + version + "-jar-with-dependencies.jar"
 			//err = StraightDownload(url, qsuitsFilePath)
-			err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
+			err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
 			if err != nil && strings.Contains(err.Error(), "copy error size") {
-				err = ConcurrentDownload(url, qsuitsFilePath, 1048576, 0)
+				err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
 			}
 		}
 	}

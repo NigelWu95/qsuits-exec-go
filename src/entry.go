@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/inconshreveable/go-update"
-	"net/http"
+	"io"
 	"os"
 	"path/filepath"
 	"qsuits-exec-go/src/manual"
@@ -60,6 +60,8 @@ func main()  {
 			} else {
 				changeVersion(os.Args[1:])
 			}
+		} else if strings.EqualFold(op, "setjdk") {
+			setJdk(os.Args[1:])
 		} else if strings.EqualFold(op, "help") ||
 			strings.EqualFold(op, "--help") || strings.EqualFold(op, "-h") {
 			usage()
@@ -426,37 +428,34 @@ func selfUpdate() {
 		fmt.Printf("no executable file to download for this os_arch: %s_%s\n", osName, osArch)
 		return
 	}
-
 	if strings.Contains(osName, "windows") {
 		binUrl += ".exe"
 	}
-	client := &http.Client{
-		Timeout: 5 * time.Minute,
-	}
-	req, err := http.NewRequest("GET", binUrl, nil)
-	if err != nil {
-		fmt.Printf("new request to self-update failed, %s\n", err.Error())
-		return
-	}
+
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "self-updating")
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Printf(", %s\n", err.Error())
-		return
+
+	qsuitsTempPath := filepath.Join(".", ".qsuitsselftemp")
+	err := qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
+	if err == nil {
+		var tempReader io.Reader
+		tempReader, err = os.Open(qsuitsTempPath)
+		if err == nil {
+			err = update.Apply(tempReader, update.Options{})
+		}
 	}
-	defer resp.Body.Close()
-	err = update.Apply(resp.Body, update.Options{})
 	done <- struct{}{}
 	close(done)
 	if err != nil {
 		fmt.Printf(", %s\n", err.Error())
+		panic(err)
 		return
 	}
+	_ = os.Remove(qsuitsTempPath)
 	fmt.Println(" -> succeed.")
 }
 
-func SetJdk(params []string) {
+func setJdk(params []string) {
 
 	if len(params) > 1 {
 		jdkPath := params[1]
