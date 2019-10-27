@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -20,7 +21,10 @@ func Versions(path string) (versions []string, paths []string, err error) {
 			return nil
 		}
 		if strings.Contains(path, "qsuits-") {
-			ver := strings.Trim(strings.Split(path, "qsuits-")[1], ".jar")
+			ver := path[strings.Index(path, "qsuits-") + 7:]
+			if !strings.Contains(path, ".jar.") {
+				ver = ver[0:strings.Index(ver, ".jar")]
+			}
 			versions = append(versions, ver)
 			paths = append(paths, path)
 		}
@@ -85,7 +89,8 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 		return latestVer, -1, errors.New("no versions")
 	}
 	var currentVer string
-	vers := []string{"0", "0", "0"}
+	vers := []int{0, 0, 0}
+	lastest := []int{0, 0, 0}
 	var vNums []string
 	var newV bool
 	var vLen int
@@ -96,44 +101,44 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 			return latestVer, -1, errors.New("error version: " + versions[e])
 		} else if vLen == 1 {
 			newV = false
-			vers[0] = vNums[0]
-			vers[1] = "0"
-			vers[2] = "0"
+			vers[0], err = strconv.Atoi(vNums[0])
+			vers[1] = 0
+			vers[2] = 0
 		} else if vLen == 2 {
 			newV = false
-			vers[0] = vNums[0]
+			vers[0], err = strconv.Atoi(vNums[0])
 			seconds := vNums[1]
 			if len(seconds) == 0 {
-				vers[1] = "0"
-				vers[2] = "0"
+				vers[1] = 0
+				vers[2] = 0
 			} else if len(seconds) == 1 {
-				vers[1] = seconds
-				vers[2] = "0"
+				vers[1], err = strconv.Atoi(seconds)
+				vers[2] = 0
 			} else {
-				vers[1] = seconds[0:1]
-				vers[2] = seconds[1:2]
+				vers[1], err = strconv.Atoi(seconds[0:1])
+				vers[2], err = strconv.Atoi(seconds[1:2])
 			}
 		} else {
 			newV = true
-			vers[0] = vNums[0]
-			vers[1] = vNums[1]
-			vers[2] = vNums[2]
-		}
-		if strings.EqualFold(vers[0], "") {
-			vers[0] = "0"
-		}
-		if strings.EqualFold(vers[1], "") {
-			vers[1] = "0"
-		}
-		if strings.EqualFold(vers[2], "") {
-			vers[2] = "0"
+			vers[0], err = strconv.Atoi(vNums[0])
+			vers[1], err = strconv.Atoi(vNums[1])
+			if strings.Contains(vNums[2], "-") { // -beta, -thin
+				vers[2], err = strconv.Atoi(vNums[2][0:strings.Index(vNums[2], "-")])
+			} else {
+				vers[2], err = strconv.Atoi(vNums[2])
+			}
 		}
 		if err != nil {
 			return latestVer, -1, err
 		}
-		currentVer = strings.Join(vers, ".")
+		currentVer = string(vers[0]) + "." + string(vers[1]) + "." + string(vers[2])
 		if !strings.Contains(versions[e], currentVer + ".jar.") {
-			if e == 0 || strings.Compare(currentVer, latestVer) > 0 {
+			if e == 0 || vers[0] > lastest[0] || (vers[0] == lastest[0] && vers[1] > lastest[1]) {
+				lastest = vers
+				latestVer = currentVer
+				latestVerNum = e
+			} else if vers[0] == lastest[0] && vers[1] == lastest[1] && vers[2] > lastest[2] {
+				lastest = vers
 				latestVer = currentVer
 				latestVerNum = e
 			} else if strings.Compare(currentVer, latestVer) == 0 {
