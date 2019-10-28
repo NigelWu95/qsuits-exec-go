@@ -321,10 +321,9 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 				if err != nil {
 					return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
 				}
-				qsuitsPath = paths[num]
 				err = checkQsuitsVersionRecommend(qsuitsVersion)
 				if err != nil {
-					return qsuitsPath, err
+					return paths[num], err
 				}
 				fmt.Printf("use local latest qsuits version: %s", qsuitsVersion)
 			}
@@ -349,30 +348,29 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 
 func updatedQsuitsPath() (qsuitsPath string, err error) {
 
-	qsuitsVersion, err := qsuits.GetLatestVersion()
-	if err != nil {
-		return qsuitsPath, errors.New(fmt.Sprintf("get latest qsuits version failed, %s", err.Error()))
-	}
 	var versions []string
 	var paths []string
 	var versionsErr error
 	var localLatestVer string
 	var latestVerNum int
+	qsuitsVersion, err := qsuits.GetLatestVersion()
 	versions, paths, versionsErr = qsuits.Versions(homePath)
+	localLatestVer, latestVerNum, versionsErr = qsuits.LatestVersionFrom(versions)
 	if versionsErr == nil {
-		localLatestVer, latestVerNum, versionsErr = qsuits.LatestVersionFrom(versions)
-		if versionsErr == nil {
+		if err != nil {
+			fmt.Printf("get latest qsuits version failed, %s\n", err.Error())
+			fmt.Printf("use local latest qsuits version: %s\n", localLatestVer)
+			return paths[latestVerNum], nil
+		} else {
 			var com int
 			com, versionsErr = qsuits.Compare(localLatestVer, qsuitsVersion)
 			if com > 0 {
-				err = checkQsuitsVersionRecommend(qsuitsVersion)
-				if err != nil {
-					return qsuitsPath, err
-				}
-				fmt.Println("use local latest qsuits version: " + localLatestVer)
+				fmt.Printf("use local latest qsuits version: %s\n", localLatestVer)
 				return paths[latestVerNum], nil
 			}
 		}
+	} else {
+		return qsuitsPath, errors.New(fmt.Sprintf("use local latest qsuits version: %s", localLatestVer))
 	}
 	qsuitsPath, err = qsuits.Update(homePath, qsuitsVersion, true)
 	if err != nil {

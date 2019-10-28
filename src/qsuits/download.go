@@ -85,7 +85,7 @@ func GetLatestVersion() (latestVersion string, err error) {
 func GetLatestVersionBySearchMaven() (latestVersion string, err error) {
 
 	client := &http.Client{
-		Timeout: time.Minute,
+		Timeout: 5 * time.Second,
 	}
 	req, err := http.NewRequest("GET", "https://search.maven.org/solrsearch/select?q=a:qsuits&start=0&rows=20", nil)
 	if err != nil {
@@ -110,7 +110,7 @@ func GetLatestVersionBySearchMaven() (latestVersion string, err error) {
 func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 
 	client := &http.Client{
-		Timeout: time.Minute,
+		Timeout: 5 * time.Second,
 	}
 	req, err := http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/pom.properties", nil)
 	if err != nil {
@@ -296,10 +296,10 @@ func (get *HttpGet) RangeDownload(filepath string, i int) {
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	resp, err := get.HttpClient.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		panic(err)
 	} else {
+		defer resp.Body.Close()
 		cnt, err := io.Copy(get.TempFiles[i], resp.Body)
 		if err != nil {
 			panic(err)
@@ -335,10 +335,10 @@ func StraightHttpRequest(url string, method string, timeout time.Duration, saveP
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode == 200 {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
