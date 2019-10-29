@@ -407,27 +407,35 @@ func selfUpdate() {
 	osArch := runtime.GOARCH
 	binUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
 
+	var isErr bool
 	if strings.Contains(osName, "darwin") {
-		binUrl += "darwin_"
+		if strings.Contains(osArch, "64") {
+			binUrl += "darwin_amd64"
+		} else {
+			isErr = true
+		}
 	} else if strings.Contains(osName, "linux") {
-		binUrl += "linux_"
+		if strings.Contains(osArch, "64") {
+			binUrl += "linux_amd64"
+		} else if strings.Contains(osArch, "86") {
+			binUrl += "linux_386"
+		} else {
+			isErr = true
+		}
 	} else if strings.Contains(osName, "windows") {
-		binUrl += "windows_"
+		if strings.Contains(osArch, "64") {
+			binUrl += "windows_amd64.exe"
+		} else if strings.Contains(osArch, "86") {
+			binUrl += "windows_386.exe"
+		} else {
+			isErr = true
+		}
 	} else {
+		isErr = true
+	}
+	if isErr {
 		fmt.Printf("no executable file to download for this os_arch: %s_%s\n", osName, osArch)
 		return
-	}
-
-	if strings.Contains(osArch, "64") {
-		binUrl += "amd64"
-	} else if strings.Contains(osArch, "86") {
-		binUrl += "386"
-	} else {
-		fmt.Printf("no executable file to download for this os_arch: %s_%s\n", osName, osArch)
-		return
-	}
-	if strings.Contains(osName, "windows") {
-		binUrl += ".exe"
 	}
 
 	done := make(chan struct{})

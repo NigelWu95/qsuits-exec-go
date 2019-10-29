@@ -10,7 +10,7 @@ GitHub 项目 [qsuits-exec-go](https://github.com/NigelWu95/qsuits-exec-go)
 
 qsuits 执行器使用 Go 语言编写而成，提供了预先编译好的各主流操作系统平台的二进制可执行文件供下载，便于命令行直接使用，由于 java 也是一门跨平台的语言，您可以在 Linux/Mac 或是 Windows 先安装好 java 环境，如果您的本地环境中尚未包含 jdk，该工具将会提示或帮助您去安装它，在以下的文档中，我们统一使用 `qsuits` 这个命令来做介绍。
 
-> 原 java 项目的发布历史 [查看](https://github.com/NigelWu95/qiniu-suits-java/releases)
+> qsuits-java 项目的发布历史 [查看](https://github.com/NigelWu95/qiniu-suits-java/releases)
 
 |操作系统|程序名|地址|
 |---|-----|---|
@@ -18,8 +18,7 @@ qsuits 执行器使用 Go 语言编写而成，提供了预先编译好的各主
 |windows 64 位|qsuits_windows_amd64.exe|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_windows_amd64.exe)|
 |linux 32 位|qsuits_linux_386|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_linux_386)|
 |linux 64 位|qsuits_linux_amd64|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_linux_amd64)|
-|mac 32 位|qsuits_darwin_386|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_darwin_386)|
-|mac 64 位|qsuits_darwin_amd64|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_darwin_amd64)|
+|mac(64 位)|qsuits_darwin_amd64|[下载](https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_darwin_amd64)|
 
 
 # 安装使用
@@ -67,7 +66,7 @@ qsuits 首次执行在无 java 环境的系统上时会提示您做下载或安�
 # 账号设置
 该工具的一些操作需要使用到密钥，为了不在每次使用时明文输入密钥，该工具提供了账号的设置（经过加密）。因为该工具支持不同数据源的读取，因此也支持设置不同数据源的账号，设置之后直接通过账号名 account name 来进行操作即可，定义不同的 account name 则可设置多对密钥，亦可设置不同数据源的账号密钥，同一数据源的账号名相同时会覆盖该数据源账号的历史密钥，命令行操作如下所示（采用配置文件也可以进行账户设置和使用，命令行参数名前需要加上 `-` 符号而配置文件中参数设置不需要，每项参数一行即可，可参考后面的配置文件使用方式），密钥参数名参考[各存储数据源配置参数](#各存储数据源配置参数)。  
 
-## 1. 设置 account：  
+## 1、设置 account：  
 命令格式：`-account=<source>-<name> -<source>-id= -<source>-secret= [-d]`，如：  
 
 `-account=test/qiniu-test -ak= -sk=` 设置七牛账号，账号名为 test，没有数据源标识时默认设置七牛账号  
@@ -79,11 +78,11 @@ qsuits 首次执行在无 java 环境的系统上时会提示您做下载或安�
 `-account=bai-test -bai-id= -bai-secret=` 设置百度云账号，账号名为 test  
 `-d` 表示默认账号选项，此时设置的账号将会成为全局默认账号，执行操作时 -d 选项将调取该默认账号。如果当前已存在多个账号，使用 `-account=<已存在的账号名> -d` 可以修改默认账号。  
 
-## 2. 使用 account 账号：  
+## 2、使用 account 账号：  
 `-a=test` 表示使用 test 账号，数据源会自动根据 path 参数判断  
 `-d` 表示使用默认的账号，数据源会自动根据 path 参数判断  
 
-## 3. 查询 account 账号：
+## 3、查询 account 账号：
 命令格式：`-getaccount=<source>-<name> [-dis] [-d]`，默认只显示 id 的明文而隐藏 secret，`-dis` 参数表示选择明文显示 secret，如：  
 
 `-getaccount -d` 表示查询设置的默认账号的密钥  
@@ -92,7 +91,7 @@ qsuits 首次执行在无 java 环境的系统上时会提示您做下载或安�
 `-getaccount=ten-test` 表示查询设置的腾讯账号名为 test 的密钥  
 `-getaccount=qiniu-test` 表示查询设置的七牛账号名为 test 的密钥  
 
-## 4. 删除 account 账号：  
+## 4、删除 account 账号：  
 命令格式：`-delaccount=<source>-<name>`，删除账号只允许一次删除一条，如：  
 `-delaccount=s3-test` 表示删除设置的 S3 账号名为 test 的密钥  
 `-delaccount=ten-test` 表示删除设置的腾讯账号名为 test 的密钥  
@@ -172,7 +171,7 @@ sk=
 未设置数据源时则默认从七牛空间进行列举，数据源详细参数配置和说明及可能涉及的高级用法见：[数据源配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md)，配置文件示例可参考
 [配置模板](https://github.com/NigelWu95/qiniu-suits-java/blob/master/resources/application.config)  
 
-## 1. 公共参数
+## 1、公共参数
 ```
 path=
 unit-len=
@@ -188,7 +187,7 @@ indexes=key,etag,fsize
 
 **备注：** indexes、unit-len、threads 均有默认值非必填，indexes 说明及默认值参考下述[ indexes 索引](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md#%E5%85%B3%E4%BA%8E-indexes-%E7%B4%A2%E5%BC%95)，unit-len 和 threads 说明及默认值参考下述[并发处理](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md#%E5%85%B3%E4%BA%8E%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86)，建议根据需要优化参数配置。  
 
-## 2. storage 云存储列举  
+## 2、storage 云存储列举  
 ```
 <密钥配置>
 region=
@@ -227,7 +226,7 @@ prefix-right=
 |huawei   |`hua-id=`<br>`hua-secret=`<br>`region=cn-north-1/...`| 密钥对为华为云账号的 AccessKeyId 和 SecretAccessKey<br>region(可不设置)使用简称，参考[华为 Region](https://support.huaweicloud.com/devg-obs/zh-cn_topic_0105713153.html)|  
 |baidu    |`bai-id=`<br>`bai-secret=`<br>`region=bj/gz/su...`| 密钥对为百度云账号的 AccessKeyId 和 SecretAccessKey<br>region(可不设置)使用简称，参考[百度 Region](https://cloud.baidu.com/doc/BOS/s/Ojwvyrpgd#%E7%A1%AE%E8%AE%A4endpoint)|  
 
-## 3 file 文本文件行读取
+## 3、file 文本文件行读取
 ```
 parse=tab/json
 separator=\t
@@ -246,13 +245,13 @@ line-config=
 |line-config| 配置文件路径|表示从该配置中读取文件名作为 file 数据源，同时文件名对应的值表示读取该文件的起始位置，配置文件格式为 json，参考[ line-config 配置文件](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md#line-config-%E9%85%8D%E7%BD%AE)|  
 **数据源详细参数配置和说明及可能涉及的高级用法见：[数据源配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md)**  
 
-## 4. filepath 文件路径和属性读取
+## 4、filepath 文件路径和属性读取
 该数据源用于上传文件的操作，设置 `process=qupload` 时自动生效，从 `path` 中读取所有文件（除隐藏文件外）执行上传操作，具体配置可参考[ qupload 配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/uploadfile.md)。
 
 # 数据过滤  
 从数据源输入的数据通常可能存在过滤需求，如过滤指定规则的文件名、过滤时间点或者过滤存储类型等，可通过配置选项设置一些过滤条件，目前支持两种过滤条件：**基本字段过滤**和**特殊特征匹配过滤**。
 
-## 1. 基本字段过滤  
+## 1、基本字段过滤  
 根据设置的字段条件进行筛选，多个条件时需同时满足才保留，若存在记录不包该字段信息时则正向规则下不保留，反正规则下保留，字段包含：  
 `f-prefix=` &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;表示**选择**文件名符合该前缀的文件  
 `f-suffix=` &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;表示**选择**文件名符合该后缀的文件  
@@ -280,7 +279,7 @@ line-config=
 ### （3）f-date-scale
 \<date\> 中的 00:00:00 为默认值可省略，无起始时间则可填 [0,\<date2\>]，结束时间支持 now 和 max，分别表示到当前时间为结束或无结束时间。如果使用命令行来设置，注意日期值包含空格的情况（date 日期和时刻中间含有空格分隔符），故在设置时需要使用引号 `'` 或者 `"`，如 `-f-date-scale="[0,2018-08-01 12:30:00]"`，配置文件则不需要引号。  
 
-## 2. 特殊特征匹配过滤 f-check[-x]  
+## 2、特殊特征匹配过滤 f-check[-x]  
 根据资源的字段关系选择某个特征下的文件，目前支持 `ext-mime` 检查，程序内置的默认特征配置见：[check 默认配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/resources/check.json)，运行
 参数选项如下：  
 `f-check=ext-mime` 表示进行**后缀名 ext** 和 **mimeType**（即 content-type）匹配性检查，不符合规范的疑似异常文件将被筛选出来  
@@ -346,6 +345,8 @@ process 处理过程表示对数据源输入的每一条记录进行处理的类
 1、云存储数据源 + process 操作的情况下通常会涉及两对密钥，数据源一对，process 操作一对，如果是 delete、status 等操作则这两对密钥相同，使用一个密钥设置或者一个 account (`-a=<account-name>`) 即可，copy、move 要求针对同一个账号操作或者采用空间授权，因此也只需要一堆密钥，但如果是其他存储数据源的数据备份操作 asyncfetch，就需要两对不同的密钥，而 account 只支持设置一个，这时第二对的七牛密钥可以通过同一个 account-name 的设置来获得，因为同一个 account-name 可以为不同数据源做密钥设置，如：`-account=ali-test -ali-id= -ali-secret=` 设置了阿里云 test 名称的账号，同时 `-account=qiniu-test -ak= -sk=` 设置了七牛 test 名称的账号，则通过 `-a=test` 可以同时拿到阿里云和七牛云的 test 账号，因此可以直接通过同一个 account-name 来进行操作。但是如果明确指定了另外的 ak，sk，则会使用您设置的这一对七牛密钥。
 2、也真是因为不同数据源的 account-name 可同名特性，以及支持主动设置密钥来覆盖 account 的密钥，在具体操作时需要注意账号和密钥的使用，以免对另外一个账号执行了操作。  
 
+*【部分 process 属于危险操作（如文件删除/禁用等），需要在启动后根据提示输入 y/yes 确认，如果不希望进行 verify 验证则需要在命令行加入 -f 参数】*  
+
 # 结果持久化
 对数据源输出（列举）结果进行持久化操作（目前支持写入到本地文件），持久化选项：  
 ```
@@ -363,18 +364,18 @@ rm-fields=
 |save-separator| 字符串| 结果保存为 tab 格式时使用的分隔符，结合 save-format=tab 默认为使用 "\t"|  
 |rm-fields| 字符串列表| 保存结果中去除的字段，为输入行中的实际字段选项，用 "," 做分隔，如 key,hash，表明从结果中去除 key 和 hash 字段再进行保存，不填表示所有字段均保留|  
 
-**关于save-total**  
+### 1、关于save-total  
 （1）用于选择是否直接保存数据源完整输出结果，针对存在过滤条件或下一步处理过程时是否需要保存原始数据，如 bucket 的 list 操作需要在列举出结果之后再针对字段进行过滤或者做删除，save-total=true 则表示保存列举出来的完整数据，而过滤的结果会单独保存，如果只需要过滤之后的数据，则设置为 false，如果是删除等操作，通常删除结果会直接保存文件名和删除结果，原始数据也不需要保存。
 （1）本地文件数据源时默认如果存在 process 或者 filter 则设置 save-total=false，反之则设置 save-total=true（说明可能是单纯格式转换）。  
 （2）云存储数据源时默认设置 save-total=true。  
 （3）保存结果的路径 **默认（save-path）使用 <bucket\>（云存储数据源情况下）名称或者 <path\>-result 来创建目录**。  
 
-**关于持久化文件名** 
+### 2、关于持久化文件名 
 （1）持数据源久化结果的文件名为 "<source-name\>\_success_<order\>.txt"，如 qiniu 存储数据源结果为 "qiniu_success_<order\>.txt"，local 数据源结果为 "local_success_<order\>.txt"。  
 （2）如果设置了过滤选项或者处理过程，则过滤到的结果文件名为 "filter_success/error_<order\>.txt"。
 （3）process 过程保存的结果为文件为 "<process\>\_success/error\_<order\>.txt"，<process\>\_success/error\_<order\>.txt 表明无法成功处理的结果，<process\>\_need_retry\_<order\>.txt，表明为需要重试的记录，可能需要确认所有错误数据和记录的错误信息。  
 
-**关于 rm-fields** 
+### 3、关于 rm-fields 
 rm-fields 可选择持久化结果中去除某些字段，未设置的情况下保留所有原始字段，数据源导出的每一行信息以目标格式 save-format 保存在 save-path 的文件中。file 数据源输入字段完全取决于 indexes 和其他的一些 index 设置，可参考 [indexes 索引](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md#%E5%85%B3%E4%BA%8E-indexes-%E7%B4%A2%E5%BC%95)，而其他 index 设置与数据处理类型有关，比如 url-index 来输入 url 信息。对于云储存数据源，不使用 indexes 规定输入字段的话默认是保留所有字段，字段定义可参考[关于文件信息字段](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datasource.md#%E5%85%B3%E4%BA%8E%E6%96%87%E4%BB%B6%E4%BF%A1%E6%81%AF%E5%AD%97%E6%AE%B5)    
 
 结果持久化详细配置说明见 [持久化配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/resultsave.md)。  
