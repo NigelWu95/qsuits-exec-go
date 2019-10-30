@@ -20,15 +20,17 @@ qsuits-java 代理执行工具 by golang
 4. java 安装简易[指南](https://blog.csdn.net/wubinghengajw/article/details/102612267): https://blog.csdn.net/wubinghengajw/article/details/102612267  
 
 Usage of qsuits（用法）:  
-&ensp;&ensp;&ensp;&ensp;this tool is a agent program for qsuits, your local environment need java8 or above. In 
-default mode, this tool will use latest java qsuits to exec, you only need use qsuits-java's parameters to run. If you 
-use local mode with "-L/--Local" it mean you dont want to update latest qsuits automatically.  
+&ensp;&ensp;&ensp;&ensp;this tool is a agent program for qsuits, your local environment need java8 or above. In default 
+mode, this tool will use local default java qsuits to exec, you only need use qsuits-java's parameters to run. If you 
+use local mode with "-u" it mean you want to update latest qsuits automatically before run.  
 &ensp;&ensp;&ensp;&ensp;这个工具是 qsuits-java 的一个代理程序，本地必须有 java8 或者 java8 以上的环境。在默认模式下，qsuits 运行时会去使
-用 qsuits-java 的最新版本来执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-L/--Local" 参数表示您只想使用本地设置的默认版本，
-而不自动更新 qsuits-java 的最新版本。 
+用本地默认的 qsuits-java 版本来执行操作，只需要传递 qsuits-java 所规定的参数即可。如果您使用 "-u" 参数表示您想在运行之前更新到最新的 
+qsuits-java 版本。 
 
 Options（选项）:  
-&ensp;&ensp;&ensp;&ensp;&ensp; -h/--help &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; -h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; -u &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Update latest qsuits version to exec. 
+更新最新的 qsuits-java 版本来运行
 &ensp;&ensp;&ensp;&ensp;&ensp; -L/--Local &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. 
 使用当前的默认 qsuits-java 版本来运行  
 &ensp;&ensp;&ensp;&ensp;&ensp; -j/--java \[<jdkpath>\] &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."

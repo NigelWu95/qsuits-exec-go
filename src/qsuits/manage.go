@@ -37,32 +37,33 @@ func Versions(path string) (versions []string, paths []string, err error) {
 	}
 }
 
-func WriteMod(path []string, version string) (isSuccess bool, err error) {
+func WriteMod(path []string, version string) (qsuitsPath string, err error) {
 
 	if len(path) == 0 {
-		return false, errors.New("no valid path")
+		return qsuitsPath, errors.New("no valid path")
 	}
 	modPath = filepath.Join(path[0], ".qsuits", "version.mod")
 	modFile, err := os.Create(modPath)
 	if err != nil {
-		return false, err
+		return qsuitsPath, err
 	}
 
 	var size int
-	if len(path) == 1 {
-		size, err = modFile.WriteString("version=" + version + ",path=" +
-			filepath.Join(path[0], ".qsuits", "qsuits-" + version + ".jar"))
+	if len(path) == 1 || path[1] == "" {
+		qsuitsPath = filepath.Join(path[0], ".qsuits", "qsuits-" + version + ".jar")
+		size, err = modFile.WriteString("version=" + version + ",path=" + qsuitsPath)
 	} else {
-		size, err = modFile.WriteString("version=" + version + ",path=" + path[1])
+		qsuitsPath = path[1]
+		size, err = modFile.WriteString("version=" + version + ",path=" + qsuitsPath)
 	}
 	if err != nil {
-		return false, err
+		return qsuitsPath, err
 	}
 	if size <= 0 {
-		return false, errors.New("no content wrote")
+		return qsuitsPath, errors.New("no content wrote")
 	}
 	_ = modFile.Close()
-	return true, nil
+	return qsuitsPath, nil
 }
 
 func ReadMod(path string) (version string, qsuitsPath string, err error) {
@@ -78,8 +79,14 @@ func ReadMod(path string) (version string, qsuitsPath string, err error) {
 	}
 	_ = modFile.Close()
 	modItems := strings.Split(string(bytes), ",")
+	if len(modItems) != 2 {
+		return version, qsuitsPath, errors.New("invalid version content in mode")
+	}
 	version = strings.Split(modItems[0], "=")[1]
 	qsuitsPath = strings.Split(modItems[1], "=")[1]
+	if version == "" || qsuitsPath == "" {
+		return version, qsuitsPath, errors.New("invalid qsuits info in mode")
+	}
 	return version, qsuitsPath, nil
 }
 

@@ -29,11 +29,11 @@ func main()  {
 	}
 
 	var op string
-	var local bool
 	var customJava bool
 	var javaPath string
 	var params []string
 	var jvmParams []string
+	local := true
 	length := len(os.Args)
 	if length > 1 {
 		op = os.Args[1]
@@ -79,7 +79,9 @@ func main()  {
 		} else {
 			op = "exec"
 			for i := 1; i < length; i++ {
-				if strings.EqualFold(os.Args[i], "--Local") || strings.EqualFold(os.Args[i], "-L") {
+				if strings.EqualFold(os.Args[i], "-u") {
+					local = false
+				} else if strings.EqualFold(os.Args[i], "--Local") || strings.EqualFold(os.Args[i], "-L") {
 					local = true
 				} else if strings.EqualFold(os.Args[i], "-j") || strings.EqualFold(os.Args[i], "--java") {
 					customJava = true
@@ -152,7 +154,8 @@ func usage() {
 		"you only need use qsuits-java's parameters to run. If you use local mode with \"-L/--Local\" it mean you " +
 		"dont want to update latest qsuits automatically.")
 	fmt.Println("Options:")
-	fmt.Println("        -h/--help              Print usage.")
+	fmt.Println("        -h                     Print usage.")
+	fmt.Println("        -u                     Update latest qsuits version to exec.")
 	fmt.Println("        -L/--Local             Use current default qsuits version to exec.")
 	fmt.Println("        -j/--java [<jdkpath>]  Use custom jdk by existing setting or assigned <jdkpath>.")
 	fmt.Println("Commands:")
@@ -210,19 +213,19 @@ func clear() {
 
 	var latestVersion string
 	var latestNum int
-	var isSuccess bool
+	var qsuitsPath string
 	versions, paths, err := qsuits.Versions(homePath)
 	if err == nil {
 		latestVersion, latestNum, err = qsuits.LatestVersionFrom(versions)
 	}
 	if err == nil {
-		isSuccess, err = qsuits.WriteMod([]string{homePath}, latestVersion)
+		qsuitsPath, err = qsuits.WriteMod([]string{homePath}, latestVersion)
 	}
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-	if isSuccess {
+	if qsuitsPath != "" {
 		for i := range paths {
 			if i == latestNum {
 				continue
@@ -253,16 +256,16 @@ func changeVersion(params []string) {
 
 	if len(params) > 1 {
 		ver := params[1]
-		var isSuccess bool
+		var qsuitsPath string
 		_, err := utils.FileExists(filepath.Join(homePath, ".qsuits", "qsuits-" + ver + ".jar"))
 		if err == nil {
-			isSuccess, err = qsuits.WriteMod([]string{homePath}, ver)
+			qsuitsPath, err = qsuits.WriteMod([]string{homePath}, ver)
 		}
 		if err != nil {
 			fmt.Printf("chgver %s failed: %s \n", ver, err.Error())
 			return
 		}
-		if isSuccess {
+		if qsuitsPath != "" {
 			fmt.Printf("change local default version: %s succeeded.\n", ver)
 		} else {
 			fmt.Printf("change local default version: %s failed.\n", ver)
@@ -332,11 +335,11 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 				}
 				fmt.Printf("use local latest qsuits version: %s", qsuitsVersion)
 			}
-			isSuccess, err := qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
-			if isSuccess && err == nil {
-				fmt.Printf(", and set %s as default local version.\n", qsuitsVersion)
+			qsuitsPath, err = qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
+			if qsuitsPath != "" && err == nil {
+				fmt.Printf(", and set %s as default local qsuits version.\n", qsuitsVersion)
 			} else {
-				fmt.Printf(", but write mode failed, %s\n", err.Error())
+				fmt.Printf(", but set default local qsuits version failed, %s\n", err.Error())
 			}
 		} else {
 			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits version failed, %s", err.Error()))
@@ -353,6 +356,7 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 
 func updatedQsuitsPath() (qsuitsPath string, err error) {
 
+	var setMode bool
 	var versions []string
 	var paths []string
 	var versionsErr error
@@ -375,7 +379,8 @@ func updatedQsuitsPath() (qsuitsPath string, err error) {
 			}
 		}
 	} else {
-		return qsuitsPath, errors.New(fmt.Sprintf("use local latest qsuits version: %s", localLatestVer))
+		setMode = true
+		fmt.Printf("get local qsuits failed: %s\n", versionsErr.Error())
 	}
 	qsuitsPath, err = qsuits.Update(homePath, qsuitsVersion, true)
 	if err != nil {
@@ -388,6 +393,13 @@ func updatedQsuitsPath() (qsuitsPath string, err error) {
 		}
 		qsuitsPath = paths[latestVerNum]
 		fmt.Printf("%s, use local latest qsuits version: %s.\n", output, localLatestVer)
+	} else if setMode {
+		isSuccess, err := qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
+		if isSuccess != "" && err == nil {
+			fmt.Printf("set %s as default local qsuits version.\n", qsuitsVersion)
+		} else {
+			fmt.Printf("set default local qsuits version failed, %s\n", err.Error())
+		}
 	}
 	return qsuitsPath, nil
 }
