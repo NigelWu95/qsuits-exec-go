@@ -309,40 +309,36 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 	var qsuitsVersion string
 	qsuitsVersion, qsuitsPath, err = qsuits.ReadMod(homePath)
 	if err != nil {
-		if os.IsNotExist(err) {
-			versions, paths, err := qsuits.Versions(homePath)
+		versions, paths, err := qsuits.Versions(homePath)
+		if !os.IsNotExist(err) {
+			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
+		}
+		if len(versions) == 0 {
+			fmt.Println("no qsuits in your local.")
+			qsuitsVersion, err = qsuits.GetLatestVersion()
+			if err == nil {
+				qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
+			}
+			if err != nil {
+				return qsuitsPath, errors.New(fmt.Sprintf("get latest qsuits failed, %s", err.Error()))
+			}
+		} else {
+			var num int
+			qsuitsVersion, num, err = qsuits.LatestVersionFrom(versions)
 			if err != nil {
 				return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
 			}
-			if len(versions) == 0 {
-				fmt.Println("no qsuits in your local.")
-				qsuitsVersion, err = qsuits.GetLatestVersion()
-				if err == nil {
-					qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
-				}
-				if err != nil {
-					return qsuitsPath, errors.New(fmt.Sprintf("get latest qsuits failed, %s", err.Error()))
-				}
-			} else {
-				var num int
-				qsuitsVersion, num, err = qsuits.LatestVersionFrom(versions)
-				if err != nil {
-					return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
-				}
-				err = checkQsuitsVersionRecommend(qsuitsVersion)
-				if err != nil {
-					return paths[num], err
-				}
-				fmt.Printf("use local latest qsuits version: %s", qsuitsVersion)
+			err = checkQsuitsVersionRecommend(qsuitsVersion)
+			if err != nil {
+				return paths[num], err
 			}
-			qsuitsPath, err = qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
-			if qsuitsPath != "" && err == nil {
-				fmt.Printf(", and set %s as default local qsuits version.\n", qsuitsVersion)
-			} else {
-				fmt.Printf(", but set default local qsuits version failed, %s\n", err.Error())
-			}
+			fmt.Printf("use local latest qsuits version: %s", qsuitsVersion)
+		}
+		qsuitsPath, err = qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
+		if qsuitsPath != "" && err == nil {
+			fmt.Printf(", and set %s as default local qsuits version.\n", qsuitsVersion)
 		} else {
-			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits version failed, %s", err.Error()))
+			fmt.Printf(", but set default local qsuits version failed, %s\n", err.Error())
 		}
 	} else {
 		err = checkQsuitsVersionRecommend(qsuitsVersion)
