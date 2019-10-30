@@ -28,9 +28,9 @@ use local mode with "-u" it mean you want to update latest qsuits automatically 
 qsuits-java 版本。 
 
 Options（选项）:  
-&ensp;&ensp;&ensp;&ensp;&ensp; -h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
-&ensp;&ensp;&ensp;&ensp;&ensp; -u &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Update latest qsuits version to exec. 
-更新最新的 qsuits-java 版本来运行
+&ensp;&ensp;&ensp;&ensp;&ensp; -h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Print usage. 打印用法说明  
+&ensp;&ensp;&ensp;&ensp;&ensp; -u &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Update latest qsuits version to exec. 
+更新最新的 qsuits-java 版本来运行  
 &ensp;&ensp;&ensp;&ensp;&ensp; -L/--Local &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use current default qsuits version to exec. 
 使用当前的默认 qsuits-java 版本来运行  
 &ensp;&ensp;&ensp;&ensp;&ensp; -j/--java \[<jdkpath>\] &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; Use custom jdk by existing setting or assigned <jdkpath>."
