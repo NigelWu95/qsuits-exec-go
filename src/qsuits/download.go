@@ -220,27 +220,19 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 		return goroutineErr
 	}
 
-	var copyTimes = 5
 	for i := 0; i < get.Count; i++ {
 		cnt, err := io.Copy(get.File, get.TempFiles[i])
-		if err != nil || cnt < (get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
-			if copyTimes > 0 && cnt <= 0 {
-				i--
-				copyTimes--
-			} else if err == nil {
-				for j := i; j < get.Count; j++ {
-					_ = get.TempFiles[j].Close()
-				}
-				goroutineErr = errors.New(fmt.Sprintf("copy error size %d bytes", cnt))
-				return goroutineErr
-			} else {
-				for j := i; j < get.Count; j++ {
-					_ = get.TempFiles[j].Close()
-				}
-				return err
+		if cnt < (get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
+			for j := i; j < get.Count; j++ {
+				_ = get.TempFiles[j].Close()
 			}
+			return errors.New(fmt.Sprintf("copy error size %d bytes", cnt))
+		} else if err != nil {
+			for j := i; j < get.Count; j++ {
+				_ = get.TempFiles[j].Close()
+			}
+			return err
 		} else {
-			copyTimes = 5
 			_ = get.TempFiles[i].Close()
 		}
 	}
@@ -262,8 +254,12 @@ func ConcurrentDownloadWithRetry(url string, filepath string, blockSize int64, t
 	for i := 0; i < retry; i++ {
 		goroutineErr = nil
 		err = ConcurrentDownload(url, filepath, blockSize, timeout)
-		if err != goroutineErr && strings.Contains(err.Error(), "") {
-			return err
+		if err != nil {
+			if strings.Contains(err.Error(), "copy error size") {
+				continue
+			} else if err != goroutineErr {
+				return err
+			}
 		}
 		if goroutineErr == nil {
 			return nil
@@ -392,9 +388,6 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-" + version + ".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
 	err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
-	if err != nil && strings.Contains(err.Error(), "copy error size") {
-		err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
-	}
 	if err != nil {
 		if strings.Contains(err.Error(), "404 Not Found") {
 			err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it", version))
@@ -405,9 +398,6 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 				version + "/qsuits-" + version + "-jar-with-dependencies.jar"
 			//err = StraightDownload(url, qsuitsFilePath)
 			err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
-			if err != nil && strings.Contains(err.Error(), "copy error size") {
-				err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
-			}
 		}
 	}
 	done <- struct{}{}

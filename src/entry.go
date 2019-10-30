@@ -419,27 +419,33 @@ func selfUpdate() {
 	osName := runtime.GOOS
 	osArch := runtime.GOARCH
 	binUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
+	backUrl := "http://qsuits.nigel.net.cn/qsuits_"
 
 	var isErr bool
 	if strings.Contains(osName, "darwin") {
 		if strings.Contains(osArch, "64") {
 			binUrl += "darwin_amd64"
+			backUrl += "darwin_amd64"
 		} else {
 			isErr = true
 		}
 	} else if strings.Contains(osName, "linux") {
 		if strings.Contains(osArch, "64") {
 			binUrl += "linux_amd64"
+			backUrl += "linux_amd64"
 		} else if strings.Contains(osArch, "86") {
 			binUrl += "linux_386"
+			backUrl += "linux_386"
 		} else {
 			isErr = true
 		}
 	} else if strings.Contains(osName, "windows") {
 		if strings.Contains(osArch, "64") {
 			binUrl += "windows_amd64.exe"
+			backUrl += "windows_amd64.exe"
 		} else if strings.Contains(osArch, "86") {
 			binUrl += "windows_386.exe"
+			backUrl += "windows_386.exe"
 		} else {
 			isErr = true
 		}
@@ -456,6 +462,9 @@ func selfUpdate() {
 
 	qsuitsTempPath := filepath.Join(".", ".qsuitsselftemp")
 	err := qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
+	if err != nil {
+		err = qsuits.ConcurrentDownloadWithRetry(backUrl, qsuitsTempPath, 1048576, 0, 2)
+	}
 	if err == nil {
 		var tempReader io.Reader
 		tempReader, err = os.Open(qsuitsTempPath)
