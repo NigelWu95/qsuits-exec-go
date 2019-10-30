@@ -33,6 +33,7 @@ func main()  {
 	var customJava bool
 	var javaPath string
 	var params []string
+	var jvmParams []string
 	length := len(os.Args)
 	if length > 1 {
 		op = os.Args[1]
@@ -101,7 +102,11 @@ func main()  {
 						}
 					}
 				} else {
-					params = append(params, os.Args[i])
+					if strings.HasPrefix(os.Args[i], "-X") {
+						jvmParams = append(jvmParams, os.Args[i])
+					} else {
+						params = append(params, os.Args[i])
+					}
 				}
 			}
 		}
@@ -132,7 +137,7 @@ func main()  {
 			qsuitsPath, err = updatedQsuitsPath()
 		}
 		if err == nil {
-			execQsuits(javaPath, qsuitsPath, params)
+			execQsuits(javaPath, qsuitsPath, jvmParams, params)
 		} else {
 			fmt.Println(err.Error())
 		}
@@ -387,10 +392,10 @@ func updatedQsuitsPath() (qsuitsPath string, err error) {
 	return qsuitsPath, nil
 }
 
-func execQsuits(javaPath string, qsuitsPath string, params []string) {
+func execQsuits(javaPath string, qsuitsPath string, jvmParams []string, params []string) {
 
 	if strings.Contains(qsuitsPath, "qsuits") {
-		err := qsuits.Exec(javaPath, qsuitsPath, params)
+		err := qsuits.Exec(javaPath, qsuitsPath, jvmParams, params)
 		if err != nil {
 			//fmt.Println("java path: ", javaPath)
 			//fmt.Println("qsuits.jar path: ", qsuitsPath)

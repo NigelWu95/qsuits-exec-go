@@ -10,9 +10,14 @@ import (
 	"strings"
 )
 
-func Exec(javaPath string, jarPath string, params []string) error {
+func Exec(javaPath string, jarPath string, jvmParams []string, params []string) error {
 
-	cmd := exec.Command(javaPath, "-jar", jarPath)
+	cmd := exec.Command(javaPath)
+	for i := range jvmParams {
+		cmd.Args = append(cmd.Args, jvmParams[i])
+	}
+	cmd.Args = append(cmd.Args, "-jar")
+	cmd.Args = append(cmd.Args, jarPath)
 	for i := range params {
 		cmd.Args = append(cmd.Args, params[i])
 	}
