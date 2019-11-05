@@ -184,10 +184,10 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, get.ContentLength - 1})
 		}
 		rangeStart += get.DownloadBlock
-		rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
-		tempFile, err := os.OpenFile(filepath + "." + rangeI, os.O_RDWR|os.O_APPEND, 0)
+		rangeFileName := fmt.Sprintf(".%s.%d-%d", filepath, get.DownloadRange[i][0], get.DownloadRange[i][1])
+		tempFile, err := os.OpenFile(rangeFileName, os.O_RDWR|os.O_APPEND, 0)
 		if err != nil || tempFile == nil {
-			tempFile, err = os.Create(filepath + "." + rangeI)
+			tempFile, err = os.Create(rangeFileName)
 			if err != nil {
 				if i > 0 {
 					for j := 0; j < i; j++ {
