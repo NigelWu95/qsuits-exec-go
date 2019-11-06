@@ -12,7 +12,6 @@ import (
 
 func Exec(javaPath string, jarPath string, jvmParams []string, params []string) error {
 
-	fmt.Println(javaPath)
 	cmd := exec.Command(javaPath)
 	for i := range jvmParams {
 		cmd.Args = append(cmd.Args, jvmParams[i])

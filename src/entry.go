@@ -334,13 +334,13 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 			if err != nil {
 				return paths[num], err
 			}
-			fmt.Printf("use local latest qsuits version: %s", qsuitsVersion)
+			fmt.Printf("use local latest qsuits version: %s, ", qsuitsVersion)
 		}
 		qsuitsPath, err = qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
 		if qsuitsPath != "" && err == nil {
-			fmt.Printf(", and set %s as default local qsuits version.\n", qsuitsVersion)
+			fmt.Printf("and set %s as default local qsuits version.\n", qsuitsVersion)
 		} else {
-			fmt.Printf(", but set default local qsuits version failed, %s\n", err.Error())
+			fmt.Printf("but set default local qsuits version failed, %s\n", err)
 		}
 	} else {
 		err = checkQsuitsVersionRecommend(qsuitsVersion)

@@ -101,7 +101,7 @@ func SetJdkMod(path string, jdkPath string, minimum int) (javaPath string, err e
 		javaPath = filepath.Join(jdkPath, "bin", "java.exe")
 		version, err = GetJavaVersion(javaPath)
 	} else {
-		javaPath = jdkPath
+		javaPath = filepath.Join(jdkPath, "bin", "java")
 		version, err = GetJavaVersion(javaPath)
 	}
 	if err != nil {
@@ -113,6 +113,18 @@ func SetJdkMod(path string, jdkPath string, minimum int) (javaPath string, err e
 	err = CheckJavaVersion(version, minimum)
 	if err != nil {
 		return javaPath, err
+	}
+	isExists, err := utils.FileExists(filepath.Join(path, ".qsuits"))
+	if isExists && err != nil {
+		// is directory
+	} else if isExists && err == nil {
+		err = errors.New(fmt.Sprintf("%s is already exists, but is only a file", filepath.Join(path, ".qsuits")))
+		return javaPath, err
+	} else {
+		err = os.MkdirAll(filepath.Join(path, ".qsuits"), 0755)
+		if err != nil {
+			return javaPath, err
+		}
 	}
 	modPath = filepath.Join(path, ".qsuits", "jdk.mod")
 	modFile, err := os.Create(modPath)
