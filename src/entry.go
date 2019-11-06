@@ -149,10 +149,9 @@ func main()  {
 func usage() {
 
 	fmt.Println("Usage of qsuits:")
-	fmt.Println("    this tool is a agent program for qsuits, your local environment " +
-		"need java8 or above. In default mode, this tool will use latest java qsuits to exec, " +
-		"you only need use qsuits-java's parameters to run. If you use local mode with \"-L/--Local\" it mean you " +
-		"dont want to update latest qsuits automatically.")
+	fmt.Println("    this tool is a agent program for qsuits, your local environment need java8 or above. In default " +
+		"mode, this tool will use local default java qsuits to exec, you only need use qsuits-java's parameters to run. " +
+		"If you use local mode with \"-u\" it mean you want to update latest qsuits automatically before run.")
 	fmt.Println("Options:")
 	fmt.Println("        -h                     Print usage.")
 	fmt.Println("        -u                     Update latest qsuits version to exec.")
