@@ -112,9 +112,12 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	req, err := http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/pom.properties", nil)
+	req, err := http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/version.properties", nil)
 	if err != nil {
-		return latestVersion, err
+		req, err = http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/pom.properties", nil)
+		if err != nil {
+			return latestVersion, err
+		}
 	}
 	req.Header.Set("Upgrade-Insecure-Requests", "1")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
@@ -134,7 +137,7 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 	}
 }
 
-func ConcurrentDownload(url string, filepath string, blockSize int64, timeout time.Duration) (err error) {
+func ConcurrentDownload(url string, resultFilepath string, blockSize int64, timeout time.Duration) (err error) {
 
 	get := new(HttpGet)
 	if timeout == 0 {
@@ -171,11 +174,21 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 	}
 	get.ContentLength, _ = strconv.ParseInt(contentRange[1], 10, 64)
 	get.Count = int(math.Ceil(float64(get.ContentLength / get.DownloadBlock)))
-	get.File, err = os.Create(filepath)
+	get.File, err = os.Create(resultFilepath)
 	if err != nil {
 		return err
 	}
 	var rangeStart int64 = 0
+	pathItems := strings.Split(resultFilepath, string(filepath.Separator))
+	var parentPath string
+	var lastPath string
+	if len(pathItems) > 1 {
+		parentPath = pathItems[0]
+		lastPath = pathItems[len(pathItems) - 1]
+	} else {
+		parentPath = ""
+		lastPath = pathItems[0]
+	}
 	for i := 0; i < get.Count; i++ {
 		if i != get.Count - 1 {
 			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, rangeStart + get.DownloadBlock - 1})
@@ -184,7 +197,7 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, get.ContentLength - 1})
 		}
 		rangeStart += get.DownloadBlock
-		rangeFileName := fmt.Sprintf(".%s.%d-%d", filepath, get.DownloadRange[i][0], get.DownloadRange[i][1])
+		rangeFileName := fmt.Sprintf("%s.%s.%d-%d", parentPath, lastPath, get.DownloadRange[i][0], get.DownloadRange[i][1])
 		tempFile, err := os.OpenFile(rangeFileName, os.O_RDWR|os.O_APPEND, 0)
 		if err != nil || tempFile == nil {
 			tempFile, err = os.Create(rangeFileName)
@@ -212,7 +225,7 @@ func ConcurrentDownload(url string, filepath string, blockSize int64, timeout ti
 	//
 	//for i, _ := range get.DownloadRange {
 		get.WG.Add(1)
-		go get.RangeDownload(filepath, i)
+		go get.RangeDownload(i)
 	}
 
 	get.WG.Wait()
@@ -268,7 +281,7 @@ func ConcurrentDownloadWithRetry(url string, filepath string, blockSize int64, t
 	return goroutineErr
 }
 
-func (get *HttpGet) RangeDownload(filepath string, i int) {
+func (get *HttpGet) RangeDownload(i int) {
 
 	defer get.WG.Done()
 	if get.DownloadRange[i][0] > get.DownloadRange[i][1] {

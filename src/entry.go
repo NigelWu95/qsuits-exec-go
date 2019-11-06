@@ -311,7 +311,7 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 	if err != nil {
 		versions, paths, err := qsuits.Versions(homePath)
 		if !os.IsNotExist(err) {
-			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
+			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err))
 		}
 		if len(versions) == 0 {
 			fmt.Println("no qsuits in your local.")
