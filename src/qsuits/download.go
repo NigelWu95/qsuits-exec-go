@@ -11,6 +11,7 @@ import (
 	"math"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"path/filepath"
 	"qsuits-exec-go/src/utils"
@@ -114,27 +115,36 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 	}
 	req, err := http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/version.properties", nil)
 	if err != nil {
-		req, err = http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/pom.properties", nil)
-		if err != nil {
-			return latestVersion, err
-		}
+		return latestVersion, err
 	}
 	req.Header.Set("Upgrade-Insecure-Requests", "1")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 	resp, err := client.Do(req)
 	if err != nil {
-		return latestVersion, err
+		req.URL = &url.URL{
+			Scheme:     "https",
+			Host:       "raw.githubusercontent.com",
+			Path:       "/NigelWu95/qiniu-suits-java/master/pom.properties",
+		}
+		resp, err = client.Do(req)
+		if err != nil {
+			return latestVersion, err
+		}
 	}
 	rd := bufio.NewReader(resp.Body)
 	defer resp.Body.Close()
+	var line string
 	for {
-		line, err := rd.ReadString('\n') // 以'\n'为结束符读入一行
-		if err != nil || io.EOF == err {
-			return latestVersion, errors.New(fmt.Sprintf("get pom.properties version failed, %s", err.Error()))
+		line, err = rd.ReadString('\n') // 以'\n'为结束符读入一行
+		if io.EOF == err {
+			break
+		} else if err != nil {
+			return latestVersion, errors.New(fmt.Sprintf("get properties' version failed, %s", err.Error()))
 		} else if strings.Contains(line, "version=") {
-			return strings.Trim(strings.Split(line, "version=")[1], "\n"), nil
+			break
 		}
 	}
+	return strings.Trim(strings.Split(line, "version=")[1], "\n"), nil
 }
 
 func ConcurrentDownload(url string, resultFilepath string, blockSize int64, timeout time.Duration) (err error) {
