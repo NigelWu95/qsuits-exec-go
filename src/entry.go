@@ -407,9 +407,17 @@ func execQsuits(javaPath string, qsuitsPath string, jvmParams []string, params [
 	if strings.Contains(qsuitsPath, "qsuits") {
 		err := qsuits.Exec(javaPath, qsuitsPath, jvmParams, params)
 		if err != nil {
+			if strings.Contains(err.Error(), "Invalid or corrupt jarfile") {
+				qsuitsVersion := strings.TrimSuffix(qsuitsPath[strings.LastIndex(qsuitsPath, "-") + 1:], ".jar")
+				qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
+			}
 			//fmt.Println("java path: ", javaPath)
 			//fmt.Println("qsuits.jar path: ", qsuitsPath)
-			fmt.Println(err.Error())
+			if err == nil {
+				err = qsuits.Exec(javaPath, qsuitsPath, jvmParams, params)
+			} else {
+				fmt.Println(err.Error())
+			}
 		}
 	} else {
 		fmt.Printf("invalid qsuits path: %s\n", qsuitsPath)

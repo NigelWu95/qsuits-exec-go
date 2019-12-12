@@ -387,8 +387,7 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 		go utils.SixDotLoopProgress(done, "qsuits version: " + version + " is downloading")
 	}
 
-	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
-
+	qsuitsUrl := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
 	qsuitsDir := filepath.Join(resultDir, ".qsuits");
 	//qsuitsDirInfo, err := os.Stat(qsuitsDir)
 	//if os.IsNotExist(err) {
@@ -410,17 +409,17 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	}
 	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-" + version + ".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
-	err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
+	err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 Not Found") {
 			err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it", version))
 		} else {
 			fmt.Printf("\r%s", err.Error())
 			fmt.Println("\rdownload is retrying from maven...")
-			url = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
+			qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
 				version + "/qsuits-" + version + "-jar-with-dependencies.jar"
 			//err = StraightDownload(url, qsuitsFilePath)
-			err = ConcurrentDownloadWithRetry(url, qsuitsFilePath, 1048576, 0, 2)
+			err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
 		}
 	}
 	done <- struct{}{}
