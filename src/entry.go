@@ -173,7 +173,7 @@ func usage() {
 	fmt.Println("         current               Query local default qsuits version.")
 	fmt.Println("         chgver <no.>          Set local default qsuits version.")
 	fmt.Println("         download <no.>        Download qsuits with specified version.")
-	fmt.Println("         update <no.>          Update qsuits with specified version.")
+	fmt.Println("         update [<no.>]        Update qsuits with specified version.")
 	fmt.Println("         setjdk <jdkpath>      Set jdk path as default.")
 	fmt.Println()
 	fmt.Println("Manual:")
