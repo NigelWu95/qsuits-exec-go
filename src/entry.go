@@ -17,6 +17,8 @@ import (
 	"time"
 )
 
+const version = "v1"
+
 var homePath string
 
 func main()  {
@@ -54,12 +56,18 @@ func main()  {
 				return
 			}
 		} else if strings.EqualFold(op, "update") {
-			err = download(os.Args[1:])
+			var err error
+			if len(os.Args) > 2 {
+				err = download(os.Args[1:])
+				if err == nil {
+					changeVersion(os.Args[1:])
+				}
+			} else {
+				_, err = updatedQsuitsPath()
+			}
 			if err != nil {
 				fmt.Println(err.Error())
 				return
-			} else {
-				changeVersion(os.Args[1:])
 			}
 		} else if strings.EqualFold(op, "setjdk") {
 			setJdk(os.Args[1:])
@@ -287,7 +295,7 @@ func download(params []string) (err error) {
 			return nil
 		}
 	} else {
-		err = errors.New("please set version number like \"download/update 8.0.3\"")
+		err = errors.New("please set version number like \"download 8.2.1\"")
 		return err
 	}
 }
@@ -415,7 +423,8 @@ func execQsuits(javaPath string, qsuitsPath string, jvmParams []string, params [
 			//fmt.Println("qsuits.jar path: ", qsuitsPath)
 			if err == nil {
 				err = qsuits.Exec(javaPath, qsuitsPath, jvmParams, params)
-			} else {
+			}
+			if err != nil {
 				fmt.Println(err.Error())
 			}
 		}
@@ -429,7 +438,7 @@ func selfUpdate() {
 	osName := runtime.GOOS
 	osArch := runtime.GOARCH
 	binUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
-	backUrl := "http://qsuits.nigel.net.cn/qsuits_"
+	backUrl := "https://qsuits.nigel.net.cn/qsuits_"
 
 	var isErr bool
 	if strings.Contains(osName, "darwin") {
@@ -474,6 +483,10 @@ func selfUpdate() {
 	err := qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
 	if err != nil {
 		err = qsuits.ConcurrentDownloadWithRetry(backUrl, qsuitsTempPath, 1048576, 0, 2)
+		if err != nil && strings.Contains(err.Error(), "certificate") {
+			binUrl = "http" + strings.TrimPrefix(backUrl, "https")
+			err = qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
+		}
 	}
 	if err == nil {
 		var tempReader io.Reader

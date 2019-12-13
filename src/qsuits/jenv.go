@@ -190,20 +190,25 @@ func JdkDownload() (jdkFileName string, err error) {
 		return jdkFileName, errors.New(fmt.Sprintf("no jdk to download for this os_arch: %s_%s", osName, osArch))
 	}
 
+	jdkUrl := "https://qsuits.nigel.net.cn/" + jdkFileName
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "jdk-downloading")
-	err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
-		30 * time.Second,5)
-	if err != nil && (strings.Contains(err.Error(), "request canceled") ||
-		    strings.Contains(err.Error(), "copy error size")) {
-
-		err = ConcurrentDownloadWithRetry("http://qsuits.nigel.net.cn/" + jdkFileName, jdkFileName, 2097152,
-			0,5)
+	err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30 * time.Second, 5)
+	if err != nil {
+		if strings.Contains(err.Error(), "certificate") {
+			jdkUrl = "http://qsuits.nigel.net.cn/" + jdkFileName
+			err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30 * time.Second, 5)
+		}
+	}
+	if err != nil {
+		if strings.Contains(err.Error(), "request canceled") || strings.Contains(err.Error(), "copy error size") {
+			err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 0, 5)
+		}
 	}
 	done <- struct{}{}
 	close(done)
 	if err != nil {
-		fmt.Println(" error from url: http://qsuits.nigel.net.cn/" + jdkFileName)
+		//fmt.Println(" error from url: http://qsuits.nigel.net.cn/" + jdkFileName)
 		return jdkFileName, err
 	} else {
 		fmt.Println(" -> succeed.")
