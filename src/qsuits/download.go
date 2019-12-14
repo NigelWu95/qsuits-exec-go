@@ -149,6 +149,14 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 	return strings.Trim(strings.Split(line, "version=")[1], "\n"), nil
 }
 
+func (get *HttpGet) CloseTempFiles() (err error ) {
+	var e int
+	for e = range get.TempFiles {
+		err = get.TempFiles[e].Close()
+	}
+	return err
+}
+
 func ConcurrentDownload(url string, resultFilepath string, blockSize int64, timeout time.Duration) (err error) {
 
 	get := new(HttpGet)
@@ -171,6 +179,7 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != 200 && resp.StatusCode != 206 {
 		respDump, err := httputil.DumpResponse(resp, false)
 		if err == nil {
@@ -190,6 +199,7 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 	if err != nil {
 		return err
 	}
+	defer get.File.Close()
 	var rangeStart int64 = 0
 	pathItems := strings.Split(resultFilepath, string(filepath.Separator))
 	var parentPath string
@@ -201,6 +211,7 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 		parentPath = ""
 		lastPath = pathItems[0]
 	}
+	defer get.CloseTempFiles()
 	for i := 0; i < get.Count; i++ {
 		if i != get.Count - 1 {
 			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, rangeStart + get.DownloadBlock - 1})
@@ -211,24 +222,24 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 		rangeStart += get.DownloadBlock
 		rangeFileName := fmt.Sprintf("%s.%s.%d-%d", parentPath, lastPath, get.DownloadRange[i][0], get.DownloadRange[i][1])
 		tempFile, err := os.OpenFile(rangeFileName, os.O_RDWR|os.O_APPEND, 0)
-		if err != nil || tempFile == nil {
-			tempFile, err = os.Create(rangeFileName)
+		if err != nil {
+			if tempFile == nil {
+				tempFile, err = os.Create(rangeFileName)
+			}
 			if err != nil {
-				if i > 0 {
-					for j := 0; j < i; j++ {
-						_ = get.TempFiles[j].Close()
-					}
-				}
+				//_ = get.CloseTempFiles()
 				return err
 			}
 		} else {
 			fi, err := tempFile.Stat()
 			if err != nil {
+				//_ = get.CloseTempFiles()
 				return err
 			}
 			if fi != nil {
 				get.DownloadRange[i][0] += fi.Size()
 			} else {
+				//_ = get.CloseTempFiles()
 				return errors.New(" no file info from: " + tempFile.Name())
 			}
 		}
@@ -242,35 +253,31 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 
 	get.WG.Wait()
 	if goroutineErr != nil {
+		//_ = get.CloseTempFiles()
 		return goroutineErr
 	}
 
 	for i := 0; i < get.Count; i++ {
 		cnt, err := io.Copy(get.File, get.TempFiles[i])
 		if cnt < (get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
-			for j := i; j < get.Count; j++ {
-				_ = get.TempFiles[j].Close()
-			}
+			//_ = get.CloseTempFiles()
 			return errors.New(fmt.Sprintf("copy error size %d bytes", cnt))
 		} else if err != nil {
-			for j := i; j < get.Count; j++ {
-				_ = get.TempFiles[j].Close()
-			}
+			//_ = get.CloseTempFiles()
 			return err
-		} else {
-			_ = get.TempFiles[i].Close()
+		}
+		//else {
+		//	_ = get.TempFiles[i].Close()
+		//}
+	}
+	//_ = get.CloseTempFiles()
+	for i := 0; i < get.Count; i++ {
+		err := os.Remove(get.TempFiles[i].Name())
+		if err != nil {
+			log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
 		}
 	}
-	err = get.File.Close()
-	if err == nil {
-		for i := 0; i < get.Count; i++ {
-			err := os.Remove(get.TempFiles[i].Name())
-			if err != nil {
-				log.Printf("Remove temp file %s error %v.\n", get.TempFiles[i].Name(), err)
-			}
-		}
-	}
-	return err
+	return nil
 }
 
 var goroutineErr error
@@ -325,7 +332,7 @@ func (get *HttpGet) RangeDownload(i int) {
 		if err != nil {
 			panic(err)
 		}
-		if cnt != int64(get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1) {
+		if cnt != get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1 {
 			reqDump, _ := httputil.DumpRequest(req, false)
 			respDump, err := httputil.DumpResponse(resp, false)
 			var errStr string
@@ -334,7 +341,7 @@ func (get *HttpGet) RangeDownload(i int) {
 					resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(respDump))
 			} else {
 				errStr = fmt.Sprintf("%d, expect %d-%d, but got %d.\nRequest: %s\nResponse: %s\n",
-					resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), string(resp.Status))
+					resp.StatusCode, get.DownloadRange[i][0], get.DownloadRange[i][1], cnt, string(reqDump), resp.Status)
 			}
 			err = errors.New(errStr)
 			panic(err)
