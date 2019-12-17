@@ -48,7 +48,7 @@ func main()  {
 		} else if strings.EqualFold(op, "current") {
 			currentVersion()
 		} else if strings.EqualFold(op, "chgver") {
-			changeVersion(os.Args[1:])
+			changeVersion(os.Args[1:], "")
 		} else if strings.EqualFold(op, "download") {
 			err = download(os.Args[1:])
 			if err != nil {
@@ -57,13 +57,16 @@ func main()  {
 			}
 		} else if strings.EqualFold(op, "update") {
 			var err error
+			var qsuitsVersion = ""
 			if len(os.Args) > 2 {
 				err = download(os.Args[1:])
-				if err == nil {
-					changeVersion(os.Args[1:])
-				}
 			} else {
-				_, err = updatedQsuitsPath()
+				var qsuitsPath string
+				qsuitsPath, err = updatedQsuitsPath()
+				qsuitsVersion = strings.TrimSuffix(qsuitsPath[strings.LastIndex(qsuitsPath, "-") + 1:], ".jar")
+			}
+			if err == nil {
+				changeVersion(os.Args[1:], qsuitsVersion)
 			}
 			if err != nil {
 				fmt.Println(err.Error())
@@ -259,26 +262,29 @@ func currentVersion() {
 	}
 }
 
-func changeVersion(params []string) {
+func changeVersion(params []string, version string) {
 
-	if len(params) > 1 {
-		ver := params[1]
-		var qsuitsPath string
-		_, err := utils.FileExists(filepath.Join(homePath, ".qsuits", "qsuits-" + ver + ".jar"))
-		if err == nil {
-			qsuitsPath, err = qsuits.WriteMod([]string{homePath}, ver)
-		}
-		if err != nil {
-			fmt.Printf("chgver %s failed: %s \n", ver, err.Error())
+	if strings.EqualFold(version, "") {
+		if len(params) > 1 {
+			version = params[1]
+		} else {
+			fmt.Println("please chgver with version number like \"chgver 8.3.0\".")
 			return
 		}
-		if qsuitsPath != "" {
-			fmt.Printf("change local default version: %s succeeded.\n", ver)
-		} else {
-			fmt.Printf("change local default version: %s failed.\n", ver)
-		}
+	}
+	var qsuitsPath string
+	_, err := utils.FileExists(filepath.Join(homePath, ".qsuits", "qsuits-" + version + ".jar"))
+	if err == nil {
+		qsuitsPath, err = qsuits.WriteMod([]string{homePath}, version)
+	}
+	if err != nil {
+		fmt.Printf("chgver %s failed: %s \n", version, err.Error())
+		return
+	}
+	if qsuitsPath != "" {
+		fmt.Printf("change local default version: %s succeeded.\n", version)
 	} else {
-		fmt.Println("please chgver with version number like \"chgver 8.0.3\".")
+		fmt.Printf("change local default version: %s failed.\n", version)
 	}
 }
 
@@ -400,8 +406,8 @@ func updatedQsuitsPath() (qsuitsPath string, err error) {
 		qsuitsPath = paths[latestVerNum]
 		fmt.Printf("%s, use local latest qsuits version: %s.\n", output, localLatestVer)
 	} else if setMode {
-		isSuccess, err := qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
-		if isSuccess != "" && err == nil {
+		qsuitsPath, err = qsuits.WriteMod([]string{homePath, qsuitsPath}, qsuitsVersion)
+		if err == nil {
 			fmt.Printf("set %s as default local qsuits version.\n", qsuitsVersion)
 		} else {
 			fmt.Printf("set default local qsuits version failed, %s\n", err.Error())
