@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"math"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -194,7 +193,7 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 		return errors.New("can not get content-range")
 	}
 	get.ContentLength, _ = strconv.ParseInt(contentRange[1], 10, 64)
-	get.Count = int(math.Ceil(float64(get.ContentLength / get.DownloadBlock)))
+	get.Count = int((get.ContentLength + get.DownloadBlock - 1) / get.DownloadBlock)
 	get.File, err = os.Create(resultFilepath)
 	if err != nil {
 		return err
@@ -270,7 +269,7 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 		//	_ = get.TempFiles[i].Close()
 		//}
 	}
-	//_ = get.CloseTempFiles()
+	_ = get.CloseTempFiles()
 	for i := 0; i < get.Count; i++ {
 		err := os.Remove(get.TempFiles[i].Name())
 		if err != nil {

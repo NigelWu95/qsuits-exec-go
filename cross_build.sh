@@ -8,4 +8,4 @@ GOOS="linux" GOARCH="386" go build -o "bin/qsuits_linux_386" src/entry.go
 chmod +x bin/*
 rm -rf logs*
 qsuits -path=bin -process=qupload -a=tswork -bucket=qsuits -keep-path=false -save-path=logs
-qsuits -path=logs -process=cdnrefresh -a=tswork -domain=qsuits.nigel.net.cn
+qsuits -path=logs/qupload_success_1.txt -process=cdnrefresh -a=tswork -domain=qsuits.nigel.net.cn -save-path=logs-result
