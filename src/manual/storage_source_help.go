@@ -7,7 +7,7 @@ func StorageUsage() {
 	fmt.Println("path=")
 	fmt.Println("unit-len=")
 	fmt.Println("threads=")
-	fmt.Println("indexes=key,etag,fsize")
+	fmt.Println("indexes=key,etag,size")
 	fmt.Println()
 	fmt.Println("参数值     含义")
 	fmt.Println("path      选择从[云存储空间列举]还是从[本地路径文件中读取]资源，本地数据源时填写本地文件或者目录路径，云存储数据源时可填写 \"qiniu://<bucket>\"、\"tencent://<bucket>\" 等")

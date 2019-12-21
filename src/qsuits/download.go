@@ -421,7 +421,8 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 Not Found") {
-			err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it", version))
+			err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
+				"please run command \"update\" or use option \"-u\".", version))
 		} else {
 			fmt.Printf("\r%s", err.Error())
 			fmt.Println("\rdownload is retrying from maven...")

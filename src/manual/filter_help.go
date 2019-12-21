@@ -32,7 +32,7 @@ func FilterUsage()  {
 	fmt.Println("（3）f-date-scale")
 	fmt.Println("<date> 中的 00:00:00 为默认值可省略，无起始时间则可填 [0,<date2>]，结束时间支持 now 和 max，分别表示到当前时间为结束或无结束时间。如果使用命令行来设置，注意日期值包含空格的情况（date 日期和时刻中间含有空格分隔符），故在设置时需要使用引号 ' 或者 \"，如 -f-date-scale=\"[0,2018-08-01 12:30:00]\"，配置文件则不需要引号。")
 	fmt.Println(" ")
-	fmt.Println("2. 特殊特征匹配过滤 f-check[-x]")
+	fmt.Println("2. 特殊特征匹配过滤 f-check")
 	fmt.Println("根据资源的字段关系选择某个特征下的文件，目前支持 ext-mime 检查，程序内置的默认特征配置见：check 默认配置 https://github.com/NigelWu95/qiniu-suits-java/blob/master/resources/check.json，运行 参数选项如下：")
 	fmt.Println("f-check=ext-mime 表示进行后缀名 ext 和 mimeType（即 content-type）匹配性检查，不符合规范的疑似异常文件将被筛选出来")
 	fmt.Println("f-check-config 自定义资源字段规范对应关系列表的配置文件，格式为 json，自定义规范配置 key 字段必填，其元素类型为列表 [], 否则无效，如 ext-mime 配置时后缀名和 mimeType 用 : 组合成字符串成为一组对应关系，写法如下：")

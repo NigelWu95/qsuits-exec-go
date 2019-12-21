@@ -1,10 +1,10 @@
 .idea
 .idea_modules
 
-pkg/
+pkg
 
 .DS_Store
 
-logs/
+logs*
 
 .qsuitsselftemp*

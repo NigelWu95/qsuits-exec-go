@@ -311,7 +311,8 @@ func checkQsuitsVersionRecommend(version string) (err error) {
 	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
 	err = qsuits.StraightHttpRequest(url, "HEAD", time.Minute, "")
 	if err != nil && strings.Contains(err.Error(), "404 Not Found") {
-		return errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it", version))
+		return errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
+			"please run command \"update\" or use option \"-u\".", version))
 	} else {
 		return nil
 	}
