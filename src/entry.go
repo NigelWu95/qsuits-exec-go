@@ -308,11 +308,18 @@ func download(params []string) (err error) {
 
 func checkQsuitsVersionRecommend(version string) (err error) {
 
-	url := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
-	err = qsuits.StraightHttpRequest(url, "HEAD", time.Minute, "")
+	qsuitsUrl := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
+	err = qsuits.StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
 	if err != nil && strings.Contains(err.Error(), "404 Not Found") {
-		return errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
-			"please run command \"update\" or use option \"-u\".", version))
+		qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + version + "/qsuits-" +
+			version + "-jar-with-dependencies.jar"
+		err = qsuits.StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
+		if err == nil {
+			return errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
+				"please run command \"update\" or use option \"-u\".", version))
+		} else {
+			return err
+		}
 	} else {
 		return nil
 	}
@@ -424,7 +431,7 @@ func execQsuits(javaPath string, qsuitsPath string, jvmParams []string, params [
 		if err != nil {
 			if strings.Contains(err.Error(), "Invalid or corrupt jarfile") {
 				qsuitsVersion := strings.TrimSuffix(qsuitsPath[strings.LastIndex(qsuitsPath, "-") + 1:], ".jar")
-				qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
+				qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, false)
 			}
 			//fmt.Println("java path: ", javaPath)
 			//fmt.Println("qsuits.jar path: ", qsuitsPath)

@@ -371,6 +371,9 @@ func StraightHttpRequest(url string, method string, timeout time.Duration, saveP
 		if err != nil {
 			return err
 		}
+		if strings.EqualFold("HEAD", method) || strings.EqualFold("", savePath) {
+			return err
+		}
 		err = ioutil.WriteFile(savePath, body, 0755)
 		if err != nil {
 			return err
@@ -420,8 +423,13 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
 	if err != nil {
 		if strings.Contains(err.Error(), "404 Not Found") {
-			err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
-				"please run command \"update\" or use option \"-u\".", version))
+			qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + version + "/qsuits-" +
+				version + "-jar-with-dependencies.jar"
+			err = StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
+			if err == nil {
+				err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
+					"please run command \"update\" or use option \"-u\".", version))
+			}
 		} else {
 			fmt.Printf("\r%s", err.Error())
 			fmt.Println("\rdownload is retrying from maven...")
