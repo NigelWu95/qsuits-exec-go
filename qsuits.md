@@ -100,10 +100,10 @@ qsuits 首次执行在无 java 环境的系统上时会提示您做下载或安�
 
 ## Options（选项）:  
 
-    -h                   &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; 打印用法说明  
-    -u                   &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp; 更新最新的 qsuits-java 版本来运行，即从网上更新最新版本  
-    -L/--Local           使用当前的默认 qsuits-java 版本来运行，即不从网上更新最新版本  
-    -j/--java jdkpath    使用自定义 jdk 通过已存在的设置（指 setjdk 操作的设置）或者通过命令行的设置，运行时指定的会自动更新到 setjdk 中  
+&ensp;&ensp;&ensp;&ensp;-h &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;打印用法说明  
+&ensp;&ensp;&ensp;&ensp;-u &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;更新最新的 qsuits-java 版本来运行，即从网上更新最新版本  
+&ensp;&ensp;&ensp;&ensp;-L/--Local &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;使用当前的默认 qsuits-java 版本来运行，即不从网上更新最新版本  
+&ensp;&ensp;&ensp;&ensp;-j/--java jdkpath &ensp;&ensp; 使用自定义 jdk 通过已存在的设置（指 setjdk 操作的设置）或者通过命令行的设置，运行时指定的会自动更新到 setjdk 中  
 
 ## Commands（自定义命令）：  
 
