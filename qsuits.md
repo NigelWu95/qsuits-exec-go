@@ -405,11 +405,12 @@ rm-fields 可选择持久化结果中去除某些字段，未设置的情况下�
 
 结果持久化详细配置说明见 [持久化配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/resultsave.md)。  
 
-# 超时设置
-多数数据源或者操作涉及网络请求，因此提供超时时间设置，默认的超时时间一般能够满足要求，特殊需要的情况下可以修改各超时时间：  
+# 网络设置
+多数数据源或者操作涉及网络请求，因此提供超时时间和协议设置，默认设置一般能够满足要求，特殊需要的情况下可以修改各超时时间和协议：  
 `connect-timeout=60` 网络连接超时时间，程序默认 60s  
 `read-timeout=120` socket 读取超时时间，程序默认 120s  
 `request-timeout=60` 网络请求超时时间，程序默认 60s  
+`config-https=true/false` 对数据源或 process 涉及的公共 api 是否使用 https 来请求，七牛云/华为云数据源或者七牛的 process 均默认使用 https  
 
 # 错误及异常
 1、一般情况下，终端输出异常信息如 socket timeout 超时为正常现象，如：  
@@ -418,7 +419,7 @@ list prefix:<prefix> retrying...
 ...
 java.net.SocketTimeoutException: timeout
 ```
-程序会自动重试，如果比较频繁则可以修改[超时配置](#超时设置)重新运行程序，超过重试次数或者其他非预期异常发生时程序会退出，可以将异常信息反馈在[ ISSUE 列表](https://github.com/NigelWu95/qiniu-suits-java/issues) 中。  
+程序会自动重试，如果比较频繁则可以修改[超时配置](#网络设置)重新运行程序，超过重试次数或者其他非预期异常发生时程序会退出，可以将异常信息反馈在[ ISSUE 列表](https://github.com/NigelWu95/qiniu-suits-java/issues) 中。  
 
 2、常见错误信息：  
 （1）java.lang.UnsupportedClassVersionError: Unsupported major.minor version ...  
@@ -450,7 +451,9 @@ qsuits-java 使用 slf4j+log4j2 来记录运行日志，日志产生在当前路
 4、对于 file 数据源进行上传的情况，断点信息记录的是目录下已经上传到的文件名位置，产生的断点文件亦可以直接作为下次续操作的配置来使用完成后续上传，如断点文件为 \<filename\>.json，则在下次继续上传该 path 目录的文件时使用断点文件作为行配置文件: directory-config=<breakpoint_filepath> 即可（注意是 directory-config），参见：[directory-config 配置](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/uploadfile.md#directory-config-配置)。  
 5、断点续操作时建议修改下 save-path，便于和上一次保存的结果做区分（7.72 及以下版本中断点参数请和其他参数保持一致放在命令行或配置文件中，7.72 以上版本无此限制，只要提供断点参数无论是否与其他参数同在命令行或配置文件中均可生效）。  
 
-**注意：如果是系统宕机、断电或者强制关机或者进程强行 kill 等情况，无法得到输出的断点文件提示，因此只能通过[<位置记录日志>](#程序日志)来查看最后的断点信息，在 8.2.1 版本以上设置了 log 参数可用于启用日志记录的断点，即取出运行路径下 logs 目录中的 procedure[x].log 日志，将该日志文件设置为 `-log=<procedure[x].log's path>` 再运行可完成断点续操作。**  
+**注意：  
+（1）如果是系统宕机、断电或者强制关机或者进程强行 kill 等情况，无法得到输出的断点文件提示，因此只能通过[<位置记录日志>](#程序日志)来查看最后的断点信息，在 8.2.1 版本以上设置了 log 参数可用于启用日志记录的断点，即取出运行路径下 logs 目录中的 procedure[x].log 日志，将该日志文件设置为 `-log=<procedure[x].log's path>` 再运行可完成断点续操作。  
+（2）如果原任务包含 process 过程（只有数据源读取不包含 process 操作可以不考虑该问题），执行断点操作时，由于断点日志粒度按照 unit-len 来记录的，当 unit-len 比较大（默认一般都是 1000 以上，甚至是 10000）时，可能存在记录的断点比实际 process 的进度要滞后很多条记录，因此对于一些不希望存在数据重复执行的 process，如 qupload/syncupload/mirror/fetch/asyncfetch 等，数据重复执行会影响效率和增加流量消耗，那么建议操作断点时设置一些check 参数，如 check=stat（参考：[过滤和检查](https://github.com/NigelWu95/qiniu-suits-java/blob/master/docs/datamigration.md#过滤和检查)），或者对于其他操作有这个需求的话可以自行对 process 的[结果输出文件](https://github.com/NigelWu95/qiniu-suits-java/blob/master/README.md#关于持久化文件名)进行检查，查看执行到的数据行位置并对断点设置的 json 文件进行调整。**  
 
 # 分布式任务方案
 对于不同账号或空间可以直接在不同的机器上执行任务，对于单个空间资源数量太大无法在合适条件下使用单台机器完成作业时，可分机器进行作业，如对一个空间列举完整文件列表时，可以按照连续的前缀字符分割成多段分别执行各个机器的任务，建议的前缀列表为:  
