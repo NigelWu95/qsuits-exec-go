@@ -9,11 +9,15 @@ build:
 release_tswork:
 	rm -rf logs*
 	qsuits -path=bin -process=qupload -a=tswork -bucket=qsuits -keep-path=false -save-path=logs
-	qsuits -path=logs/qupload_success_1.txt -process=cdnrefresh -a=tswork -domain=qsuits.nigel.net.cn -protocol=http -save-path=logs1
-	qsuits -path=logs/qupload_success_1.txt -process=cdnrefresh -a=tswork -domain=qsuits.nigel.net.cn -protocol=https -save-path=logs2
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnrefresh -a=tswork -domain=qsuits.nigel.net.cn -protocol=http -save-path=logs1
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnrefresh -a=tswork -domain=qsuits.nigel.net.cn -protocol=https -save-path=logs2
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnprefetch -a=tswork -domain=qsuits.nigel.net.cn -protocol=http -save-path=logs3
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnprefetch -a=tswork -domain=qsuits.nigel.net.cn -protocol=https -save-path=logs4
 
 release_devtools:
 	rm -rf logs*
 	qsuits -path=bin -process=qupload -a=devtools -bucket=devtools -keep-path=false -save-path=logs
-	qsuits -path=logs/qupload_success_1.txt -process=cdnrefresh -a=devtools -domain=devtools.qiniu.com -protocol=http -save-path=logs1
-	qsuits -path=logs/qupload_success_1.txt -process=cdnrefresh -a=devtools -domain=devtools.qiniu.com -protocol=https -save-path=logs2
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnrefresh -a=devtools -domain=devtools.qiniu.com -protocol=http -save-path=logs1
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnrefresh -a=devtools -domain=devtools.qiniu.com -protocol=https -save-path=logs2
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnprefetch -a=devtools -domain=devtools.qiniu.com -protocol=http -save-path=logs3
+	qsuits -path=logs/qupload_success_1.txt -rm-keyPrefix=bin/ -process=cdnprefetch -a=devtools -domain=devtools.qiniu.com -protocol=https -save-path=logs4

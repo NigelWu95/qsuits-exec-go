@@ -1,3 +1,3 @@
 package config
 
-const ADDRESS = "https://qsuits.nigel.net.cn/"
+const ADDRESS = "https://devtools.qiniu.com/"
