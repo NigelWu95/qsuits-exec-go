@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"qsuits-exec-go/src/config"
 	"qsuits-exec-go/src/manual"
 	"qsuits-exec-go/src/qsuits"
 	"qsuits-exec-go/src/user"
@@ -16,8 +17,6 @@ import (
 	"strings"
 	"time"
 )
-
-const version = "v1"
 
 var homePath string
 
@@ -451,8 +450,8 @@ func selfUpdate() {
 
 	osName := runtime.GOOS
 	osArch := runtime.GOARCH
-	binUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
-	backUrl := "https://qsuits.nigel.net.cn/qsuits_"
+	binUrl := config.ADDRESS + "qsuits_"
+	backUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
 
 	var isErr bool
 	if strings.Contains(osName, "darwin") {
@@ -496,10 +495,12 @@ func selfUpdate() {
 	qsuitsTempPath := filepath.Join(".", ".qsuitsselftemp")
 	err := qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
 	if err != nil {
-		err = qsuits.ConcurrentDownloadWithRetry(backUrl, qsuitsTempPath, 1048576, 0, 2)
-		if err != nil && strings.Contains(err.Error(), "certificate") {
-			binUrl = "http" + strings.TrimPrefix(backUrl, "https")
+		if strings.Contains(err.Error(), "certificate") || strings.Contains(err.Error(), "handshake") {
+			binUrl = "http" + strings.TrimPrefix(binUrl, "https")
 			err = qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
+		}
+		if err != nil {
+			err = qsuits.ConcurrentDownloadWithRetry(backUrl, qsuitsTempPath, 1048576, 0, 2)
 		}
 	}
 	if err == nil {

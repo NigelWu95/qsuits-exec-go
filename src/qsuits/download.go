@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"qsuits-exec-go/src/config"
 	"qsuits-exec-go/src/utils"
 	"strconv"
 	"strings"
@@ -112,7 +113,7 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 	client := &http.Client{
 		Timeout: 5 * time.Second,
 	}
-	req, err := http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/version.properties", nil)
+	req, err := http.NewRequest("GET", "https://raw.githubusercontent.com/NigelWu95/qiniu-suits-java/master/Makefile", nil)
 	if err != nil {
 		return latestVersion, err
 	}
@@ -124,7 +125,7 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 			req.URL = &url.URL{
 				Scheme:     "https",
 				Host:       "raw.githubusercontent.com",
-				Path:       "/NigelWu95/qiniu-suits-java/master/pom.properties",
+				Path:       "/NigelWu95/qiniu-suits-java/master/version.properties",
 			}
 			resp, err = client.Do(req)
 		}
@@ -398,7 +399,8 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 		go utils.SixDotLoopProgress(done, "qsuits version: " + version + " is downloading")
 	}
 
-	qsuitsUrl := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
+	//qsuitsUrl := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
+	qsuitsUrl := config.ADDRESS + "qsuits-" + version + "-jar-with-dependencies.jar"
 	qsuitsDir := filepath.Join(resultDir, ".qsuits");
 	//qsuitsDirInfo, err := os.Stat(qsuitsDir)
 	//if os.IsNotExist(err) {
@@ -422,21 +424,27 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	//err = StraightDownload(url, qsuitsFilePath)
 	err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
 	if err != nil {
-		if strings.Contains(err.Error(), "404 Not Found") {
-			qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + version + "/qsuits-" +
-				version + "-jar-with-dependencies.jar"
-			err = StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
-			if err == nil {
-				err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
-					"please run command \"update\" or use option \"-u\".", version))
-			}
-		} else {
-			fmt.Printf("\r%s", err.Error())
-			fmt.Println("\rdownload is retrying from maven...")
-			qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
-				version + "/qsuits-" + version + "-jar-with-dependencies.jar"
-			//err = StraightDownload(url, qsuitsFilePath)
+		if strings.Contains(err.Error(), "certificate") || strings.Contains(err.Error(), "handshake") {
+			qsuitsUrl = "http" + strings.TrimPrefix(qsuitsUrl, "https")
 			err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
+		}
+		if err != nil {
+			if strings.Contains(err.Error(), "404 Not Found") {
+				qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + version + "/qsuits-" +
+					version + "-jar-with-dependencies.jar"
+				err = StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
+				if err == nil {
+					err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
+						"please run command \"update\" or use option \"-u\".", version))
+				}
+			} else {
+				fmt.Printf("\r%s", err.Error())
+				fmt.Println("\rdownload is retrying from maven...")
+				qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" +
+					version + "/qsuits-" + version + "-jar-with-dependencies.jar"
+				//err = StraightDownload(url, qsuitsFilePath)
+				err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
+			}
 		}
 	}
 	done <- struct{}{}

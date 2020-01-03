@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"qsuits-exec-go/src/config"
 	"qsuits-exec-go/src/utils"
 	"runtime"
 	"strconv"
@@ -190,13 +191,13 @@ func JdkDownload() (jdkFileName string, err error) {
 		return jdkFileName, errors.New(fmt.Sprintf("no jdk to download for this os_arch: %s_%s", osName, osArch))
 	}
 
-	jdkUrl := "https://qsuits.nigel.net.cn/" + jdkFileName
+	jdkUrl := config.ADDRESS + jdkFileName
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "jdk-downloading")
 	err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30 * time.Second, 5)
 	if err != nil {
-		if strings.Contains(err.Error(), "certificate") {
-			jdkUrl = "http://qsuits.nigel.net.cn/" + jdkFileName
+		if strings.Contains(err.Error(), "certificate") || strings.Contains(err.Error(), "handshake") {
+			jdkUrl = "http" + strings.TrimPrefix(jdkUrl, "https")
 			err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30 * time.Second, 5)
 		}
 	}
@@ -208,7 +209,6 @@ func JdkDownload() (jdkFileName string, err error) {
 	done <- struct{}{}
 	close(done)
 	if err != nil {
-		//fmt.Println(" error from url: http://qsuits.nigel.net.cn/" + jdkFileName)
 		return jdkFileName, err
 	} else {
 		fmt.Println(" -> succeed.")
