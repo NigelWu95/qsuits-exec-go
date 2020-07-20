@@ -2,7 +2,7 @@ package manual
 
 import "fmt"
 
-func FilterUsage()  {
+func FilterUsage() {
 
 	fmt.Println("从数据源输入的数据通常可能存在过滤需求，如过滤指定规则的文件名、过滤时间点或者过滤存储类型等，可通过配置选项设置一些过滤条件，目前支持两种过滤条件：基本字段过滤和特殊特征匹配过滤。")
 	fmt.Println()

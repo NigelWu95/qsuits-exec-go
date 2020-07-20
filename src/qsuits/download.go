@@ -22,8 +22,8 @@ import (
 )
 
 type HttpGet struct {
-	Url           string
-	HttpClient    *http.Client
+	Url        string
+	HttpClient *http.Client
 	//MediaType     string
 	//MediaParams   map[string]string
 	ContentLength int64
@@ -55,18 +55,18 @@ type MavenSearchJson struct {
 	//} `json:"responseHeader"`
 	Response struct {
 		NumFound int `json:"numFound"`
-		Start int `json:"start"`
-		Docs []struct {
-			ID string `json:"id"`
-			G string `json:"g"`
-			A string `json:"a"`
-			LatestVersion string `json:"latestVersion"`
-			RepositoryID string `json:"repositoryId"`
-			P string `json:"p"`
-			Timestamp int64 `json:"timestamp"`
-			VersionCount int `json:"versionCount"`
-			Text []string `json:"text"`
-			Ec []string `json:"ec"`
+		Start    int `json:"start"`
+		Docs     []struct {
+			ID            string   `json:"id"`
+			G             string   `json:"g"`
+			A             string   `json:"a"`
+			LatestVersion string   `json:"latestVersion"`
+			RepositoryID  string   `json:"repositoryId"`
+			P             string   `json:"p"`
+			Timestamp     int64    `json:"timestamp"`
+			VersionCount  int      `json:"versionCount"`
+			Text          []string `json:"text"`
+			Ec            []string `json:"ec"`
 		} `json:"docs"`
 	} `json:"response"`
 	//Spellcheck struct {
@@ -123,9 +123,9 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 	if err != nil {
 		if strings.Contains(err.Error(), "404 Not Found") {
 			req.URL = &url.URL{
-				Scheme:     "https",
-				Host:       "raw.githubusercontent.com",
-				Path:       "/NigelWu95/qiniu-suits-java/master/version.properties",
+				Scheme: "https",
+				Host:   "raw.githubusercontent.com",
+				Path:   "/NigelWu95/qiniu-suits-java/master/version.properties",
 			}
 			resp, err = client.Do(req)
 		}
@@ -149,7 +149,7 @@ func GetLatestVersionByGithubProject() (latestVersion string, err error) {
 	return strings.Trim(strings.Split(line, "version=")[1], "\n"), nil
 }
 
-func (get *HttpGet) CloseTempFiles() (err error ) {
+func (get *HttpGet) CloseTempFiles() (err error) {
 	var e int
 	for e = range get.TempFiles {
 		err = get.TempFiles[e].Close()
@@ -168,7 +168,7 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 		}
 	}
 	get.Url = url
-	get.DownloadBlock = blockSize  // 1048576 = 1M
+	get.DownloadBlock = blockSize // 1048576 = 1M
 
 	req, err := http.NewRequest("GET", get.Url, nil)
 	req.Header.Set("Range", "bytes=0-100")
@@ -206,14 +206,14 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 	var lastPath string
 	if len(pathItems) > 1 {
 		parentPath = pathItems[0]
-		lastPath = pathItems[len(pathItems) - 1]
+		lastPath = pathItems[len(pathItems)-1]
 	} else {
 		parentPath = ""
 		lastPath = pathItems[0]
 	}
 	defer get.CloseTempFiles()
 	for i := 0; i < get.Count; i++ {
-		if i != get.Count - 1 {
+		if i != get.Count-1 {
 			get.DownloadRange = append(get.DownloadRange, []int64{rangeStart, rangeStart + get.DownloadBlock - 1})
 		} else {
 			// 最后一块
@@ -244,9 +244,9 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 			}
 		}
 		get.TempFiles = append(get.TempFiles, tempFile)
-	//}
-	//
-	//for i, _ := range get.DownloadRange {
+		//}
+		//
+		//for i, _ := range get.DownloadRange {
 		get.WG.Add(1)
 		go get.RangeDownload(i)
 	}
@@ -282,6 +282,7 @@ func ConcurrentDownload(url string, resultFilepath string, blockSize int64, time
 
 var goroutineErr error
 var lock = sync.Mutex{}
+
 func ConcurrentDownloadWithRetry(url string, filepath string, blockSize int64, timeout time.Duration, retry int) (err error) {
 	for i := 0; i < retry; i++ {
 		goroutineErr = nil
@@ -319,7 +320,7 @@ func (get *HttpGet) RangeDownload(i int) {
 
 	rangeI := fmt.Sprintf("%d-%d", get.DownloadRange[i][0], get.DownloadRange[i][1])
 	req, err := http.NewRequest("GET", get.Url, nil)
-	req.Header.Set("Range", "bytes=" + rangeI)
+	req.Header.Set("Range", "bytes="+rangeI)
 	req.Header.Set("Upgrade-Insecure-Requests", "1")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36")
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
@@ -332,7 +333,7 @@ func (get *HttpGet) RangeDownload(i int) {
 		if err != nil {
 			panic(err)
 		}
-		if cnt != get.DownloadRange[i][1] - get.DownloadRange[i][0] + 1 {
+		if cnt != get.DownloadRange[i][1]-get.DownloadRange[i][0]+1 {
 			reqDump, _ := httputil.DumpRequest(req, false)
 			respDump, err := httputil.DumpResponse(resp, false)
 			var errStr string
@@ -394,14 +395,14 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 
 	done := make(chan struct{})
 	if isLatest {
-		go utils.SixDotLoopProgress(done, "latest qsuits version: " + version + " is downloading")
+		go utils.SixDotLoopProgress(done, "latest qsuits version: "+version+" is downloading")
 	} else {
-		go utils.SixDotLoopProgress(done, "qsuits version: " + version + " is downloading")
+		go utils.SixDotLoopProgress(done, "qsuits version: "+version+" is downloading")
 	}
 
 	//qsuitsUrl := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
 	qsuitsUrl := config.ADDRESS + "qsuits-" + version + "-jar-with-dependencies.jar"
-	qsuitsDir := filepath.Join(resultDir, ".qsuits");
+	qsuitsDir := filepath.Join(resultDir, ".qsuits")
 	//qsuitsDirInfo, err := os.Stat(qsuitsDir)
 	//if os.IsNotExist(err) {
 	//	err = os.MkdirAll(filepath.Join(resultDir, ".qsuits"), 0755)
@@ -420,7 +421,7 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 	if err != nil {
 		return "", err
 	}
-	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-" + version + ".jar")
+	qsuitsFilePath = filepath.Join(qsuitsDir, "qsuits-"+version+".jar")
 	//err = StraightDownload(url, qsuitsFilePath)
 	err = ConcurrentDownloadWithRetry(qsuitsUrl, qsuitsFilePath, 1048576, 0, 2)
 	if err != nil {
@@ -434,7 +435,7 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 					version + "-jar-with-dependencies.jar"
 				err = StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
 				if err == nil {
-					err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
+					err = errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, "+
 						"please run command \"update\" or use option \"-u\".", version))
 				}
 			} else {
@@ -460,7 +461,7 @@ func Download(resultDir string, version string, isLatest bool) (qsuitsFilePath s
 
 func Update(path string, version string, isLatest bool) (qsuitsFilePath string, err error) {
 
-	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-" + version + ".jar")
+	qsuitsJarPath := filepath.Join(path, ".qsuits", "qsuits-"+version+".jar")
 	fileInfo, err := os.Stat(qsuitsJarPath)
 	if err == nil && !fileInfo.IsDir() {
 		// it is already latest version

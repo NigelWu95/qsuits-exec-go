@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/inconshreveable/go-update"
 	"io"
 	"os"
 	"path/filepath"
@@ -16,11 +15,13 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/inconshreveable/go-update"
 )
 
 var homePath string
 
-func main()  {
+func main() {
 
 	var err error
 	homePath, err = user.HomePath()
@@ -62,7 +63,7 @@ func main()  {
 			} else {
 				var qsuitsPath string
 				qsuitsPath, err = updatedQsuitsPath()
-				qsuitsVersion = strings.TrimSuffix(qsuitsPath[strings.LastIndex(qsuitsPath, "-") + 1:], ".jar")
+				qsuitsVersion = strings.TrimSuffix(qsuitsPath[strings.LastIndex(qsuitsPath, "-")+1:], ".jar")
 			}
 			if err == nil {
 				changeVersion(os.Args[1:], qsuitsVersion)
@@ -91,12 +92,13 @@ func main()  {
 			for i := 1; i < length; i++ {
 				if strings.EqualFold(os.Args[i], "-u") {
 					local = false
-				} else if strings.EqualFold(os.Args[i], "--Local") || strings.EqualFold(os.Args[i], "-L") {
+				} else if strings.EqualFold(os.Args[i], "-l") || strings.EqualFold(os.Args[i], "--local") ||
+					strings.EqualFold(os.Args[i], "-L") || strings.EqualFold(os.Args[i], "--Local") {
 					local = true
 				} else if strings.EqualFold(os.Args[i], "-j") || strings.EqualFold(os.Args[i], "--java") {
 					customJava = true
-					if (i + 1) < length && !strings.EqualFold(string(os.Args[i + 1][0]), "-") {
-						javaPath, err = qsuits.SetJdkMod(homePath, os.Args[i + 1], 8)
+					if (i+1) < length && !strings.EqualFold(string(os.Args[i+1][0]), "-") {
+						javaPath, err = qsuits.SetJdkMod(homePath, os.Args[i+1], 8)
 						if err != nil {
 							fmt.Println(err.Error())
 							return
@@ -109,9 +111,8 @@ func main()  {
 							fmt.Println("no jdk in your local setting.")
 							javaInstall()
 							return
-						} else {
-							fmt.Printf("your custom jdk path is %s.\n", javaPath)
 						}
+						fmt.Printf("your custom jdk path is %s.\n", javaPath)
 					}
 				} else {
 					if strings.HasPrefix(os.Args[i], "-X") {
@@ -165,7 +166,7 @@ func usage() {
 	fmt.Println("Options:")
 	fmt.Println("        -h                     Print usage.")
 	fmt.Println("        -u                     Update latest qsuits version to exec.")
-	fmt.Println("        -L/--Local             Use current default qsuits version to exec.")
+	fmt.Println("        -l/--local             Use current default qsuits version to exec.")
 	fmt.Println("        -j/--java [<jdkpath>]  Use custom jdk by existing setting or assigned <jdkpath>.")
 	fmt.Println("Commands:")
 	fmt.Println("         help                  Print usage.")
@@ -185,7 +186,7 @@ func usage() {
 	fmt.Println("         filterhelp            Print filter usage")
 	fmt.Println("         processhelp           Print process usage")
 	fmt.Println()
-	fmt.Println("Usage of qsuits-java:          qsuits -path= -a= -process= -save-path= ...")
+	fmt.Println("Usage of qsuits-java:          java -jar qsuits.jar -path= -a= -process= -save-path= ...")
 	fmt.Println("More details referer to:       https://github.com/NigelWu95/qiniu-suits-java")
 }
 
@@ -272,7 +273,7 @@ func changeVersion(params []string, version string) {
 		}
 	}
 	var qsuitsPath string
-	_, err := utils.FileExists(filepath.Join(homePath, ".qsuits", "qsuits-" + version + ".jar"))
+	_, err := utils.FileExists(filepath.Join(homePath, ".qsuits", "qsuits-"+version+".jar"))
 	if err == nil {
 		qsuitsPath, err = qsuits.WriteMod([]string{homePath}, version)
 	}
@@ -293,35 +294,30 @@ func download(params []string) (err error) {
 		ver := params[1]
 		_, err := qsuits.Download(homePath, ver, false)
 		if err != nil {
-			err = errors.New(fmt.Sprintf("download %s failed, %s", ver, err.Error()))
-			return err
-		} else {
-			fmt.Printf("download %s succeeded.\n", ver)
-			return nil
+			return fmt.Errorf("download %s failed, %s", ver, err.Error())
 		}
-	} else {
-		err = errors.New("please set version number like \"download 8.2.1\"")
-		return err
+		fmt.Printf("download %s succeeded.\n", ver)
+		return nil
 	}
+	err = errors.New("please set version number like \"download 8.2.1\"")
+	return err
 }
 
 func checkQsuitsVersionRecommend(version string) (err error) {
 
-	qsuitsUrl := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
-	err = qsuits.StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
+	qsuitsURL := "https://github.com/NigelWu95/qiniu-suits-java/releases/download/v" + version + "/qsuits-" + version + ".jar"
+	err = qsuits.StraightHttpRequest(qsuitsURL, "HEAD", time.Minute, "")
 	if err != nil && strings.Contains(err.Error(), "404 Not Found") {
-		qsuitsUrl = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + version + "/qsuits-" +
+		qsuitsURL = "https://search.maven.org/remotecontent?filepath=com/qiniu/qsuits/" + version + "/qsuits-" +
 			version + "-jar-with-dependencies.jar"
-		err = qsuits.StraightHttpRequest(qsuitsUrl, "HEAD", time.Minute, "")
+		err = qsuits.StraightHttpRequest(qsuitsURL, "HEAD", time.Minute, "")
 		if err == nil {
-			return errors.New(fmt.Sprintf("sorry, this old version: %s is deprecated, not recommend you to use it, " +
-				"please run command \"update\" or use option \"-u\".", version))
-		} else {
-			return err
+			return fmt.Errorf("sorry, this old version: %s is deprecated, not recommend you to use it, "+
+				"please run command \"update\" or use option \"-u\".", version)
 		}
-	} else {
-		return nil
+		return err
 	}
+	return nil
 }
 
 func localQsuitsPath() (qsuitsPath string, err error) {
@@ -330,11 +326,11 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 	qsuitsVersion, qsuitsPath, err = qsuits.ReadMod(homePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
+			return qsuitsPath, fmt.Errorf("get local qsuits versions failed, %s", err.Error())
 		}
 		versions, paths, err := qsuits.Versions(homePath)
 		if err != nil && !os.IsNotExist(err) {
-			return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
+			return qsuitsPath, fmt.Errorf("get local qsuits versions failed, %s", err.Error())
 		}
 		if len(versions) == 0 {
 			fmt.Println("no qsuits in your local.")
@@ -343,13 +339,13 @@ func localQsuitsPath() (qsuitsPath string, err error) {
 				qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, true)
 			}
 			if err != nil {
-				return qsuitsPath, errors.New(fmt.Sprintf("get latest qsuits failed, %s", err.Error()))
+				return qsuitsPath, fmt.Errorf("get latest qsuits failed, %s", err.Error())
 			}
 		} else {
 			var num int
 			qsuitsVersion, num, err = qsuits.LatestVersionFrom(versions)
 			if err != nil {
-				return qsuitsPath, errors.New(fmt.Sprintf("get local qsuits versions failed, %s", err.Error()))
+				return qsuitsPath, fmt.Errorf("get local qsuits versions failed, %s", err.Error())
 			}
 			err = checkQsuitsVersionRecommend(qsuitsVersion)
 			if err != nil {
@@ -389,13 +385,12 @@ func updatedQsuitsPath() (qsuitsPath string, err error) {
 			fmt.Printf("get latest qsuits version failed, %s\n", err.Error())
 			fmt.Printf("use local latest qsuits version: %s\n", localLatestVer)
 			return paths[latestVerNum], nil
-		} else {
-			var com int
-			com, versionsErr = qsuits.Compare(localLatestVer, qsuitsVersion)
-			if com > 0 {
-				fmt.Printf("use local latest qsuits version: %s\n", localLatestVer)
-				return paths[latestVerNum], nil
-			}
+		}
+		var com int
+		com, versionsErr = qsuits.Compare(localLatestVer, qsuitsVersion)
+		if com > 0 {
+			fmt.Printf("use local latest qsuits version: %s\n", localLatestVer)
+			return paths[latestVerNum], nil
 		}
 	} else {
 		setMode = true
@@ -405,10 +400,10 @@ func updatedQsuitsPath() (qsuitsPath string, err error) {
 	if err != nil {
 		output := fmt.Sprintf("update qsuits for version: %s failed, %s", qsuitsVersion, err.Error())
 		if len(versions) == 0 {
-			return qsuitsPath, errors.New(fmt.Sprintf("%s, but no qsuits in your local", output))
+			return qsuitsPath, fmt.Errorf("%s, but no qsuits in your local", output)
 		}
 		if versionsErr != nil {
-			return qsuitsPath, errors.New(fmt.Sprintf("%s, but %s", output, versionsErr))
+			return qsuitsPath, fmt.Errorf("%s, but %s", output, versionsErr)
 		}
 		qsuitsPath = paths[latestVerNum]
 		fmt.Printf("%s, use local latest qsuits version: %s.\n", output, localLatestVer)
@@ -429,7 +424,7 @@ func execQsuits(javaPath string, qsuitsPath string, jvmParams []string, params [
 		err := qsuits.Exec(javaPath, qsuitsPath, jvmParams, params)
 		if err != nil {
 			if strings.Contains(err.Error(), "Invalid or corrupt jarfile") {
-				qsuitsVersion := strings.TrimSuffix(qsuitsPath[strings.LastIndex(qsuitsPath, "-") + 1:], ".jar")
+				qsuitsVersion := strings.TrimSuffix(qsuitsPath[strings.LastIndex(qsuitsPath, "-")+1:], ".jar")
 				qsuitsPath, err = qsuits.Download(homePath, qsuitsVersion, false)
 			}
 			//fmt.Println("java path: ", javaPath)
@@ -450,34 +445,34 @@ func selfUpdate() {
 
 	osName := runtime.GOOS
 	osArch := runtime.GOARCH
-	binUrl := config.ADDRESS + "qsuits_"
-	backUrl := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
+	binURL := config.ADDRESS + "qsuits_"
+	backURL := "https://github.com/NigelWu95/qsuits-exec-go/raw/master/bin/qsuits_"
 
 	var isErr bool
 	if strings.Contains(osName, "darwin") {
 		if strings.Contains(osArch, "64") {
-			binUrl += "darwin_amd64"
-			backUrl += "darwin_amd64"
+			binURL += "darwin_amd64"
+			backURL += "darwin_amd64"
 		} else {
 			isErr = true
 		}
 	} else if strings.Contains(osName, "linux") {
 		if strings.Contains(osArch, "64") {
-			binUrl += "linux_amd64"
-			backUrl += "linux_amd64"
+			binURL += "linux_amd64"
+			backURL += "linux_amd64"
 		} else if strings.Contains(osArch, "86") {
-			binUrl += "linux_386"
-			backUrl += "linux_386"
+			binURL += "linux_386"
+			backURL += "linux_386"
 		} else {
 			isErr = true
 		}
 	} else if strings.Contains(osName, "windows") {
 		if strings.Contains(osArch, "64") {
-			binUrl += "windows_amd64.exe"
-			backUrl += "windows_amd64.exe"
+			binURL += "windows_amd64.exe"
+			backURL += "windows_amd64.exe"
 		} else if strings.Contains(osArch, "86") {
-			binUrl += "windows_386.exe"
-			backUrl += "windows_386.exe"
+			binURL += "windows_386.exe"
+			backURL += "windows_386.exe"
 		} else {
 			isErr = true
 		}
@@ -493,14 +488,14 @@ func selfUpdate() {
 	go utils.SixDotLoopProgress(done, "self-updating")
 
 	qsuitsTempPath := filepath.Join(".", ".qsuitsselftemp")
-	err := qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
+	err := qsuits.ConcurrentDownloadWithRetry(binURL, qsuitsTempPath, 1048576, 0, 2)
 	if err != nil {
 		if strings.Contains(err.Error(), "certificate") || strings.Contains(err.Error(), "handshake") {
-			binUrl = "http" + strings.TrimPrefix(binUrl, "https")
-			err = qsuits.ConcurrentDownloadWithRetry(binUrl, qsuitsTempPath, 1048576, 0, 2)
+			binURL = "http" + strings.TrimPrefix(binURL, "https")
+			err = qsuits.ConcurrentDownloadWithRetry(binURL, qsuitsTempPath, 1048576, 0, 2)
 		}
 		if err != nil {
-			err = qsuits.ConcurrentDownloadWithRetry(backUrl, qsuitsTempPath, 1048576, 0, 2)
+			err = qsuits.ConcurrentDownloadWithRetry(backURL, qsuitsTempPath, 1048576, 0, 2)
 		}
 	}
 	if err == nil {
@@ -515,7 +510,6 @@ func selfUpdate() {
 	if err != nil {
 		fmt.Printf(", %s\n", err.Error())
 		panic(err)
-		return
 	}
 	_ = os.Remove(qsuitsTempPath)
 	fmt.Println(" -> succeed.")
@@ -557,8 +551,7 @@ func checkJava(customJava bool) (javaPath string, err error) {
 				version, err = qsuits.GetJavaVersion(javaPath)
 			}
 		} else {
-			err = errors.New(fmt.Sprintf("can not get custom java, %s.", err))
-			return javaPath, err
+			return javaPath, fmt.Errorf("can not get custom java, %s", err)
 		}
 	} else {
 		_, version, err = qsuits.CheckJavaRuntime()
@@ -571,8 +564,7 @@ func checkJava(customJava bool) (javaPath string, err error) {
 					version, err = qsuits.GetJavaVersion(javaPath)
 				}
 			} else {
-				err = errors.New(fmt.Sprintf("no java in system and get custom java failed, %s.", err))
-				return javaPath, err
+				return javaPath, fmt.Errorf("no java in system and get custom java failed, %s", err)
 			}
 		}
 	}
@@ -580,8 +572,7 @@ func checkJava(customJava bool) (javaPath string, err error) {
 		err = qsuits.CheckJavaVersion(version, 8)
 	}
 	if err != nil {
-		err = errors.New(fmt.Sprintf("get java path, %s from %s %s.", javaPath, source, err))
-		return javaPath, err
+		return javaPath, fmt.Errorf("get java path, %s from %s %s", javaPath, source, err)
 	}
 	return javaPath, nil
 }

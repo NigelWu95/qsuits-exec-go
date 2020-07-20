@@ -194,11 +194,11 @@ func JdkDownload() (jdkFileName string, err error) {
 	jdkUrl := config.ADDRESS + jdkFileName
 	done := make(chan struct{})
 	go utils.SixDotLoopProgress(done, "jdk-downloading")
-	err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30 * time.Second, 5)
+	err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30*time.Second, 5)
 	if err != nil {
 		if strings.Contains(err.Error(), "certificate") || strings.Contains(err.Error(), "handshake") {
 			jdkUrl = "http" + strings.TrimPrefix(jdkUrl, "https")
-			err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30 * time.Second, 5)
+			err = ConcurrentDownloadWithRetry(jdkUrl, jdkFileName, 2097152, 30*time.Second, 5)
 		}
 	}
 	if err != nil {

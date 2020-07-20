@@ -2,7 +2,7 @@ package manual
 
 import "fmt"
 
-func AccountUsage()  {
+func AccountUsage() {
 
 	fmt.Println("1. 设置 account：")
 	fmt.Println("命令格式：-account=<source>-<name> -<source>-id= -<source>-secret= [-d]，如：")

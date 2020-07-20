@@ -15,7 +15,7 @@ func SixDotLoopProgress(end <-chan struct{}, startInfo string) {
 	for {
 		fmt.Printf("\r%s", startInfo)
 		time.Sleep(time.Second)
-		for i := 0; i <= 5 ; i++  {
+		for i := 0; i <= 5; i++ {
 			if isDone {
 				return
 			}

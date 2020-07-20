@@ -2,7 +2,7 @@ package manual
 
 import "fmt"
 
-func ProcessUsage()  {
+func ProcessUsage() {
 
 	fmt.Println()
 	fmt.Println("process 处理过程表示对数据源输入的每一条记录进行处理的类型，所有处理结果保存在 save-path 或默认路径下，具体处理过程由处理类型参数指定，如 **process=type/status/lifecycle/copy** (命令行方式则指定为 **-process=xxx**等，同时 process 操作支持设置公共参数：")

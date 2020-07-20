@@ -21,7 +21,7 @@ func Versions(path string) (versions []string, paths []string, err error) {
 			return nil
 		}
 		if strings.Contains(path, "qsuits-") {
-			ver := path[strings.Index(path, "qsuits-") + 7:]
+			ver := path[strings.Index(path, "qsuits-")+7:]
 			if !strings.Contains(path, ".jar.") {
 				ver = ver[0:strings.Index(ver, ".jar")]
 			}
@@ -50,7 +50,7 @@ func WriteMod(path []string, version string) (qsuitsPath string, err error) {
 
 	var size int
 	if len(path) == 1 || path[1] == "" {
-		qsuitsPath = filepath.Join(path[0], ".qsuits", "qsuits-" + version + ".jar")
+		qsuitsPath = filepath.Join(path[0], ".qsuits", "qsuits-"+version+".jar")
 		size, err = modFile.WriteString("version=" + version + ",path=" + qsuitsPath)
 	} else {
 		qsuitsPath = path[1]
@@ -144,22 +144,22 @@ func LatestVersionFrom(versions []string) (latestVer string, latestVerNum int, e
 		if err != nil {
 			return latestVer, -1, err
 		}
-		if !strings.Contains(versions[e], currentVer + ".jar.") {
+		if !strings.Contains(versions[e], currentVer+".jar.") {
 			if e == 0 || vers[0] > lastest[0] || (vers[0] == lastest[0] && vers[1] > lastest[1]) ||
 				(vers[0] == lastest[0] && vers[1] == lastest[1] && vers[2] > lastest[2]) {
+				lastest[0] = vers[0]
+				lastest[1] = vers[1]
+				lastest[2] = vers[2]
+				latestVer = currentVer
+				latestVerNum = e
+			} else if strings.Compare(currentVer, latestVer) == 0 {
+				if newV || strings.Compare(strings.ReplaceAll(versions[e], ".", ""),
+					strings.ReplaceAll(versions[latestVerNum], ".", "")) < 0 {
 					lastest[0] = vers[0]
 					lastest[1] = vers[1]
 					lastest[2] = vers[2]
 					latestVer = currentVer
 					latestVerNum = e
-			} else if strings.Compare(currentVer, latestVer) == 0 {
-				if newV || strings.Compare(strings.ReplaceAll(versions[e], ".", ""),
-					strings.ReplaceAll(versions[latestVerNum], ".", "")) < 0 {
-						lastest[0] = vers[0]
-						lastest[1] = vers[1]
-						lastest[2] = vers[2]
-						latestVer = currentVer
-						latestVerNum = e
 				}
 			}
 		}
@@ -178,8 +178,8 @@ func Compare(version1 string, version2 string) (com int, err error) {
 		return 0, err
 	}
 	if strings.Compare(latestVer, version1) == 0 {
-		return 1, nil;
+		return 1, nil
 	} else {
-		return -1, nil;
+		return -1, nil
 	}
 }
